@@ -43,7 +43,7 @@ ENV/
 Thumbs.db
 
 # Project-specific
-results/raw/
+results/
 *.log
 *.cache
 .pytest_cache/

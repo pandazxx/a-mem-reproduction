@@ -1,0 +1,275 @@
+{
+  "metadata": {
+    "name": "HippoRAG vs A-Mem comparison dataset",
+    "version": "1.0",
+    "scenario": "Sam, a software engineer, interacts with an AI assistant over 8 weeks",
+    "memory_count": 40,
+    "question_count": 22,
+    "categories": [
+      "single_hop",
+      "two_hop",
+      "deep_multi_hop",
+      "implicit_conceptual",
+      "information_update",
+      "compositional_aggregation",
+      "absence_abstention"
+    ]
+  },
+
+  "memories": [
+    {"id": "m01", "week": 1, "timestamp": "2024-01-08T09:00:00", "content": "Sam works as a software engineer at TechCorp."},
+    {"id": "m02", "week": 1, "timestamp": "2024-01-08T09:05:00", "content": "TechCorp is a fintech company headquartered in San Francisco."},
+    {"id": "m03", "week": 1, "timestamp": "2024-01-09T10:00:00", "content": "Sam's manager at TechCorp is Jennifer."},
+    {"id": "m04", "week": 1, "timestamp": "2024-01-10T08:30:00", "content": "Sam lives in Oakland, California."},
+    {"id": "m05", "week": 1, "timestamp": "2024-01-12T19:00:00", "content": "Sam's partner is Alex. Alex works as a graphic designer."},
+
+    {"id": "m06", "week": 2, "timestamp": "2024-01-15T07:00:00", "content": "Sam started learning Spanish two months ago, mainly for an upcoming trip to Mexico."},
+    {"id": "m07", "week": 2, "timestamp": "2024-01-15T07:05:00", "content": "Sam uses Duolingo daily for Spanish practice."},
+    {"id": "m08", "week": 2, "timestamp": "2024-01-17T18:30:00", "content": "Sam goes rock climbing at Berkeley Ironworks gym."},
+    {"id": "m09", "week": 2, "timestamp": "2024-01-17T18:35:00", "content": "Sam has been rock climbing for three years."},
+    {"id": "m10", "week": 2, "timestamp": "2024-01-18T19:00:00", "content": "Sam's favorite climbing problems are V4-V5 boulder routes."},
+
+    {"id": "m11", "week": 3, "timestamp": "2024-01-22T20:00:00", "content": "Sam's mother Maria lives in Boston."},
+    {"id": "m12", "week": 3, "timestamp": "2024-01-22T20:05:00", "content": "Maria works as a high school chemistry teacher."},
+    {"id": "m13", "week": 3, "timestamp": "2024-01-23T19:30:00", "content": "Sam's brother David lives in Seattle."},
+    {"id": "m14", "week": 3, "timestamp": "2024-01-23T19:35:00", "content": "David works at Amazon as a product manager. His office is at Amazon's Seattle headquarters."},
+    {"id": "m15", "week": 3, "timestamp": "2024-01-25T21:00:00", "content": "Sam plans to visit Maria for her birthday in mid-May."},
+
+    {"id": "m16", "week": 4, "timestamp": "2024-01-29T22:00:00", "content": "Sam started a side project: building a web scraper to find new climbing destinations."},
+    {"id": "m17", "week": 4, "timestamp": "2024-01-29T22:05:00", "content": "Sam decided to use Python for the web scraper project."},
+    {"id": "m18", "week": 4, "timestamp": "2024-01-30T22:30:00", "content": "Sam uses the BeautifulSoup library for parsing HTML in the scraper."},
+    {"id": "m19", "week": 4, "timestamp": "2024-01-31T23:00:00", "content": "The scraper collects climbing route data from MountainProject.com."},
+    {"id": "m20", "week": 4, "timestamp": "2024-02-01T22:45:00", "content": "Sam's goal with the scraper is to discover new outdoor climbing destinations not on popular guidebooks."},
+
+    {"id": "m21", "week": 5, "timestamp": "2024-02-05T10:00:00", "content": "Sam had an amazing climbing trip to Yosemite last weekend."},
+    {"id": "m22", "week": 5, "timestamp": "2024-02-05T10:05:00", "content": "Sam climbed with Alex at Yosemite. Alex is also a climber but at an easier grade."},
+    {"id": "m23", "week": 5, "timestamp": "2024-02-08T20:00:00", "content": "Sam is feeling burned out at TechCorp due to long hours and frequent late-night production incidents."},
+    {"id": "m24", "week": 5, "timestamp": "2024-02-10T18:00:00", "content": "Sam started interviewing at other companies, mostly developer-tools startups."},
+
+    {"id": "m25", "week": 6, "timestamp": "2024-02-14T17:00:00", "content": "Sam got a job offer from StartupCo, a developer-tools startup."},
+    {"id": "m26", "week": 6, "timestamp": "2024-02-14T17:05:00", "content": "StartupCo is based in San Francisco but offers fully remote work."},
+    {"id": "m27", "week": 6, "timestamp": "2024-02-15T19:00:00", "content": "Sam accepted the StartupCo offer and gave notice at TechCorp."},
+    {"id": "m28", "week": 6, "timestamp": "2024-02-16T20:00:00", "content": "Sam's new manager at StartupCo will be Marcus."},
+
+    {"id": "m29", "week": 7, "timestamp": "2024-02-19T09:00:00", "content": "Sam started at StartupCo today. The role is senior backend engineer."},
+    {"id": "m30", "week": 7, "timestamp": "2024-02-20T19:00:00", "content": "Sam is now learning Rust because StartupCo's main service is written in it."},
+    {"id": "m31", "week": 7, "timestamp": "2024-02-22T22:00:00", "content": "Sam decided to rewrite the climbing scraper in Rust as a learning exercise."},
+    {"id": "m32", "week": 7, "timestamp": "2024-02-22T22:05:00", "content": "Sam is using the reqwest and scraper crates for the Rust version of the scraper."},
+
+    {"id": "m33", "week": 8, "timestamp": "2024-02-26T20:00:00", "content": "Maria's birthday is May 15."},
+    {"id": "m34", "week": 8, "timestamp": "2024-02-27T21:00:00", "content": "Sam booked flights to Boston for May 13 through 17 to be there for Maria's birthday."},
+    {"id": "m35", "week": 8, "timestamp": "2024-02-27T21:05:00", "content": "Alex will join Sam on the Boston trip."},
+    {"id": "m36", "week": 8, "timestamp": "2024-02-28T22:00:00", "content": "David will also fly to Boston for Maria's birthday."},
+    {"id": "m37", "week": 8, "timestamp": "2024-03-01T19:00:00", "content": "Sam's Spanish practice has slipped to once a week since starting at StartupCo."},
+    {"id": "m38", "week": 8, "timestamp": "2024-03-02T11:00:00", "content": "Sam went climbing at Berkeley Ironworks this morning, first session in two weeks."},
+    {"id": "m39", "week": 8, "timestamp": "2024-03-03T15:00:00", "content": "Sam ordered a new pair of climbing shoes — the La Sportiva Solution. They should arrive by mid-March."},
+    {"id": "m40", "week": 8, "timestamp": "2024-03-04T20:00:00", "content": "Sam is planning a long climbing trip to Joshua Tree in late March with Alex."}
+  ],
+
+  "questions": [
+    {
+      "id": "q01",
+      "category": "single_hop",
+      "question": "Where does Sam live?",
+      "expected_answer": "Oakland, California",
+      "requires_facts": ["m04"],
+      "expected_winner": "tie",
+      "rationale": "Direct fact retrieval. Both systems should handle this trivially."
+    },
+    {
+      "id": "q02",
+      "category": "single_hop",
+      "question": "What is Maria's profession?",
+      "expected_answer": "high school chemistry teacher",
+      "requires_facts": ["m12"],
+      "expected_winner": "tie",
+      "rationale": "Direct fact retrieval. Control case."
+    },
+    {
+      "id": "q03",
+      "category": "single_hop",
+      "question": "When is Maria's birthday?",
+      "expected_answer": "May 15",
+      "requires_facts": ["m33"],
+      "expected_winner": "tie",
+      "rationale": "Direct fact retrieval. Tests if both can extract dates."
+    },
+    {
+      "id": "q04",
+      "category": "single_hop",
+      "question": "What climbing shoes did Sam order?",
+      "expected_answer": "La Sportiva Solution",
+      "requires_facts": ["m39"],
+      "expected_winner": "tie",
+      "rationale": "Direct fact retrieval. Recent memory."
+    },
+
+    {
+      "id": "q05",
+      "category": "two_hop",
+      "question": "In which city is the company that David works for headquartered?",
+      "expected_answer": "Seattle",
+      "requires_facts": ["m14"],
+      "expected_winner": "tie",
+      "rationale": "Information packaged in a single memory (m14 mentions both David's employer and HQ city). Single-hop in practice."
+    },
+    {
+      "id": "q06",
+      "category": "two_hop",
+      "question": "What programming language does Sam's web scraper use?",
+      "expected_answer": "Python (initially), then rewritten in Rust",
+      "requires_facts": ["m17", "m31"],
+      "expected_winner": "tie",
+      "rationale": "Two memories needed: original Python decision and Rust rewrite. Tests temporal awareness."
+    },
+    {
+      "id": "q07",
+      "category": "two_hop",
+      "question": "What does Sam's mother do for a living, and where does she live?",
+      "expected_answer": "high school chemistry teacher in Boston",
+      "requires_facts": ["m11", "m12"],
+      "expected_winner": "tie",
+      "rationale": "Two-hop chain: Sam → mother Maria → profession + city. Both systems should handle."
+    },
+
+    {
+      "id": "q08",
+      "category": "deep_multi_hop",
+      "question": "Who is the manager of the person whose brother works at Amazon?",
+      "expected_answer": "Marcus",
+      "requires_facts": ["m13", "m14", "m28", "m29"],
+      "expected_winner": "HippoRAG",
+      "rationale": "3-hop chain: Amazon → David → Sam (brother) → manager Marcus. HippoRAG's PPR propagates through arbitrary chains; A-Mem's 1-hop link traversal may miss this unless link generation correctly connected the relevant notes."
+    },
+    {
+      "id": "q09",
+      "category": "deep_multi_hop",
+      "question": "What is the profession of the partner of the engineer who has a brother in Seattle?",
+      "expected_answer": "graphic designer",
+      "requires_facts": ["m05", "m13"],
+      "expected_winner": "HippoRAG",
+      "rationale": "3-hop chain: Seattle → David → brother Sam → partner Alex → graphic designer. Requires propagating through Sam's identity."
+    },
+    {
+      "id": "q10",
+      "category": "deep_multi_hop",
+      "question": "In which city was the person born who is married to the graphic designer's partner's brother?",
+      "expected_answer": "unknown / cannot determine (Maria's birth location is not in the facts)",
+      "requires_facts": [],
+      "expected_winner": "tie",
+      "rationale": "Trick: deep multi-hop chain (graphic designer → Alex → partner Sam → brother David → ??) but the answer requires David's birth location which isn't in the memory store. Both systems should ideally abstain. Tests whether deep multi-hop also induces hallucination."
+    },
+
+    {
+      "id": "q11",
+      "category": "implicit_conceptual",
+      "question": "What outdoor activities does Sam enjoy?",
+      "expected_answer": "rock climbing (Yosemite, Joshua Tree, Berkeley Ironworks — though gym is indoor)",
+      "requires_facts": ["m08", "m21", "m40", "m38"],
+      "expected_winner": "A-Mem",
+      "rationale": "Requires conceptual categorization: 'outdoor activities' isn't a direct field in any memory. A-Mem's LLM-generated tags might tag climbing memories as 'outdoor recreation'; HippoRAG's KG nodes are entity-centric and wouldn't naturally surface 'outdoor' as a concept."
+    },
+    {
+      "id": "q12",
+      "category": "implicit_conceptual",
+      "question": "What Python libraries has Sam used?",
+      "expected_answer": "BeautifulSoup",
+      "requires_facts": ["m17", "m18"],
+      "expected_winner": "A-Mem",
+      "rationale": "Requires inferring that BeautifulSoup is a Python library — the memories don't say this explicitly. A-Mem's LLM-generated context (X) likely encodes this; HippoRAG's OpenIE wouldn't extract a (BeautifulSoup, is_a, Python library) triple."
+    },
+    {
+      "id": "q13",
+      "category": "implicit_conceptual",
+      "question": "What hobbies has Sam been less active in lately?",
+      "expected_answer": "Spanish learning (slipped to once a week) and climbing (first session in two weeks before m38)",
+      "requires_facts": ["m37", "m38"],
+      "expected_winner": "A-Mem",
+      "rationale": "Requires recognising 'less active' as a concept connecting two unrelated facts about reduced frequency. A-Mem's LLM-determined links might cluster these as 'declining engagement'; HippoRAG won't naturally."
+    },
+
+    {
+      "id": "q14",
+      "category": "information_update",
+      "question": "Where does Sam currently work?",
+      "expected_answer": "StartupCo",
+      "requires_facts": ["m27", "m29"],
+      "expected_winner": "A-Mem",
+      "rationale": "Sam transitioned TechCorp → StartupCo in Week 6-7. HippoRAG retains both as equal facts in the KG. A-Mem's memory evolution should update the earlier 'works at TechCorp' notes when the StartupCo memories arrived — though this depends on the LLM prompt quality during evolution."
+    },
+    {
+      "id": "q15",
+      "category": "information_update",
+      "question": "Who is Sam's current manager?",
+      "expected_answer": "Marcus",
+      "requires_facts": ["m28", "m29"],
+      "expected_winner": "A-Mem",
+      "rationale": "Same issue as q14. HippoRAG holds both Jennifer (TechCorp) and Marcus (StartupCo) as Sam's managers. Tests whether either system prefers the more recent assertion."
+    },
+    {
+      "id": "q16",
+      "category": "information_update",
+      "question": "What language is Sam's climbing scraper currently written in?",
+      "expected_answer": "Rust",
+      "requires_facts": ["m17", "m31"],
+      "expected_winner": "A-Mem",
+      "rationale": "Sam migrated the scraper Python → Rust in Week 7. Tests temporal precedence of contradicting facts about the same project."
+    },
+
+    {
+      "id": "q17",
+      "category": "compositional_aggregation",
+      "question": "Who are all the people Sam has mentioned in conversations?",
+      "expected_answer": "Alex (partner), Jennifer (old manager), Maria (mother), David (brother), Marcus (new manager)",
+      "requires_facts": ["m03", "m05", "m11", "m13", "m28"],
+      "expected_winner": "HippoRAG",
+      "rationale": "Aggregating across many memories. HippoRAG's PPR over the KG naturally surfaces all entities linked to Sam. A-Mem's top-k retrieval may miss entities that share little semantic similarity to the query."
+    },
+    {
+      "id": "q18",
+      "category": "compositional_aggregation",
+      "question": "What different programming languages and libraries has Sam used or learned?",
+      "expected_answer": "Python, BeautifulSoup, Rust, reqwest, scraper",
+      "requires_facts": ["m17", "m18", "m30", "m32"],
+      "expected_winner": "HippoRAG",
+      "rationale": "Cross-passage aggregation. Multiple memories mention different technologies; need to surface them all."
+    },
+    {
+      "id": "q19",
+      "category": "compositional_aggregation",
+      "question": "What places does Sam have travel or residence connections to?",
+      "expected_answer": "Oakland (lives), San Francisco (work), Boston (mother + planned trip), Seattle (brother), Yosemite (climbed), Joshua Tree (planned trip), Mexico (Spanish learning motivation)",
+      "requires_facts": ["m02", "m04", "m06", "m11", "m13", "m21", "m34", "m40"],
+      "expected_winner": "HippoRAG",
+      "rationale": "Geographic aggregation across many disparate memories. HippoRAG's KG should have a 'location' cluster; A-Mem may miss some via top-k retrieval."
+    },
+
+    {
+      "id": "q20",
+      "category": "absence_abstention",
+      "question": "What is Sam's favorite food?",
+      "expected_answer": "unknown / not mentioned",
+      "requires_facts": [],
+      "expected_winner": "tie",
+      "rationale": "Never mentioned in any memory. Both systems should abstain rather than hallucinate."
+    },
+    {
+      "id": "q21",
+      "category": "absence_abstention",
+      "question": "Does Sam have any pets?",
+      "expected_answer": "unknown / not mentioned",
+      "requires_facts": [],
+      "expected_winner": "tie",
+      "rationale": "Never mentioned. Tests whether systems hallucinate pet ownership from related context (e.g., living with a partner)."
+    },
+    {
+      "id": "q22",
+      "category": "absence_abstention",
+      "question": "What is Sam's salary at StartupCo?",
+      "expected_answer": "unknown / not mentioned",
+      "requires_facts": [],
+      "expected_winner": "tie",
+      "rationale": "Salary detail never specified. Tests against the failure mode of confabulating plausible numbers."
+    }
+  ]
+}

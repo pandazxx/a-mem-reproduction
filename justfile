@@ -10,6 +10,11 @@ help:
 sync:
     uv sync
 
-# Run the A-Mem demo — note construction, memory evolution, agentic retrieval.
+# Quick walkthrough — 10 memories + 3 questions (~1 min).
 demo:
     uv run python -m experiments.demo
+
+# Full evaluation — 40 memories + 22 questions against the comparison dataset.
+# Writes results/results.json and results/summary.md.
+eval *ARGS:
+    uv run python -m experiments.eval {{ARGS}}

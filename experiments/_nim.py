@@ -88,3 +88,24 @@ def chat(
         max_tokens=max_tokens,
     )
     return parse_json(resp.choices[0].message.content)
+
+
+def chat_text(
+    prompt: str,
+    *,
+    system: str,
+    temperature: float = 0.0,
+    max_tokens: int = 512,
+) -> str:
+    """Free-text chat (no JSON parsing). Used by the QA reader."""
+    resp = call(
+        nim().chat.completions.create,
+        model=LLM_MODEL,
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+    return resp.choices[0].message.content.strip()
