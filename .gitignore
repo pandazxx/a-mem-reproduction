@@ -53,3 +53,4 @@ results/
 .envrc
 *.key
 secrets.json
+pasted-image-*.png
