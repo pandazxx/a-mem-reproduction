@@ -12,7 +12,6 @@ Embeddings use sentence-transformers locally via ChromaDB, same as the original.
 
 from __future__ import annotations
 
-import html
 import json
 import logging
 import textwrap
@@ -510,6 +509,7 @@ class AgenticMemorySystem:
             height=height, width=width, notebook=False,
             directed=False, bgcolor="#ffffff", font_color="#1f2937",
             cdn_resources="remote",
+            neighborhood_highlight=True,
         )
         net.barnes_hut(
             gravity=-3000, central_gravity=0.3,
@@ -559,6 +559,7 @@ class AgenticMemorySystem:
             height=height, width=width, notebook=False,
             directed=True, bgcolor="#ffffff", font_color="#1f2937",
             cdn_resources="remote",
+            neighborhood_highlight=True,
         )
         net.barnes_hut(
             gravity=-2500, central_gravity=0.4,
@@ -568,7 +569,7 @@ class AgenticMemorySystem:
         net.add_node(
             "_query",
             label="Q",
-            title=f"<b>Question</b><br>{html.escape(question)}",
+            title=f"Question\n{question}",
             color="#ef4444", shape="diamond", size=22,
         )
 
@@ -693,27 +694,33 @@ def _mermaid_label(text: str, width: int) -> str:
 
 
 def _pyvis_tooltip(note: MemoryNote) -> str:
-    """HTML tooltip shown on hover/click in pyvis."""
-    evolution = ""
+    """
+    Plain-text tooltip shown on hover in pyvis.
+
+    Vis.js renders ``title`` as plain text (HTML is escaped), so we use
+    newlines for layout. Word-wrap long fields so the tooltip stays narrow.
+    """
+    def wrap(value: str, width: int = 70) -> str:
+        return "\n  ".join(textwrap.wrap(value, width=width) or [""])
+
+    lines = [
+        f"{note.id}  ({note.timestamp})",
+        "",
+        f"Content:  {wrap(note.content)}",
+        f"Keywords: {', '.join(note.keywords) or '(none)'}",
+        f"Tags:     {', '.join(note.tags) or '(none)'}",
+        f"Context:  {wrap(note.context)}",
+        f"Links:    {', '.join(note.links) or '(none)'}",
+    ]
     if note.evolution_history:
-        events = "<br>".join(
-            f"  · trigger={html.escape(e.get('trigger', '?'))} "
-            f"field={html.escape(e.get('field', '?'))}"
-            for e in note.evolution_history[:5]
-        )
-        evolution = (
-            f"<br><b>Evolved ({len(note.evolution_history)}×):</b><br>{events}"
-        )
-    return (
-        f"<b>{html.escape(note.id)}</b> "
-        f"<span style='color:#6b7280'>({html.escape(note.timestamp)})</span><br>"
-        f"<b>Content:</b> {html.escape(note.content)}<br>"
-        f"<b>Keywords:</b> {html.escape(', '.join(note.keywords) or '(none)')}<br>"
-        f"<b>Tags:</b> {html.escape(', '.join(note.tags) or '(none)')}<br>"
-        f"<b>Context:</b> {html.escape(note.context)}<br>"
-        f"<b>Links:</b> {html.escape(', '.join(note.links) or '(none)')}"
-        f"{evolution}"
-    )
+        lines.append("")
+        lines.append(f"Evolved {len(note.evolution_history)}×:")
+        for e in note.evolution_history[:5]:
+            lines.append(
+                f"  · trigger={e.get('trigger', '?')} "
+                f"field={e.get('field', '?')}"
+            )
+    return "\n".join(lines)
 
 
 def _mermaid_id(raw: str) -> str:
