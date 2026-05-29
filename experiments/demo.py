@@ -97,6 +97,7 @@ def main() -> None:
 
     # ── Phase 3: Agentic retrieval + answering ───────────────────────────
     hr("Phase 3 — Agentic retrieval (retrieve + read)")
+    traces: list[tuple[dict, dict]] = []
     for q in questions:
         print(f"\n  Q ({q['id']}, {q['category']}): {q['question']}")
         print(f"  Expected: {q['expected_answer']}")
@@ -105,6 +106,20 @@ def main() -> None:
         print(f"  Retrieved: {response['retrieved_ids']}")
         if response["links_followed"]:
             print(f"  Links followed: {response['links_followed']}")
+        traces.append((q, response))
+
+    # ── Phase 4: Mermaid visualisation ───────────────────────────────────
+    hr("Phase 4 — Mermaid diagrams (paste into a Markdown viewer)")
+    mem_order = [m["id"] for m in memories]
+    print("\n### Memory graph\n")
+    print("```mermaid")
+    print(mem.to_mermaid_graph(order=mem_order))
+    print("```")
+    for q, response in traces:
+        print(f"\n### Retrieval trace — {q['id']}\n")
+        print("```mermaid")
+        print(mem.to_mermaid_trace(q["question"], response))
+        print("```")
 
     hr()
     print("Demo complete.  For full 22-question evaluation: just eval")

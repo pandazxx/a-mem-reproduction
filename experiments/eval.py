@@ -244,8 +244,37 @@ def main() -> None:
     summary = emit_summary_md(results)
     (args.output_dir / "summary.md").write_text(summary)
 
-    print(f"\nWrote {args.output_dir / 'results.json'} and "
-          f"{args.output_dir / 'summary.md'}")
+    # Mermaid visualisations — rendered natively by GitHub Markdown.
+    mem_order = [m["id"] for m in dataset["memories"] if m["id"] in system.mem.memories]
+    graph_md = (
+        "# A-Mem Memory Graph\n\n"
+        "Nodes are memories (in ingestion order). Edges are A-Mem links generated\n"
+        "during the link-generation step. Highlighted nodes had at least one\n"
+        "memory-evolution event (their context or tags were rewritten when a\n"
+        "later memory arrived).\n\n"
+        "```mermaid\n"
+        + system.mem.to_mermaid_graph(order=mem_order)
+        + "\n```\n"
+    )
+    (args.output_dir / "memory_graph.md").write_text(graph_md)
+
+    trace_lines = ["# A-Mem Retrieval Traces\n",
+                   "Solid arrows = direct vector-search hits.  ",
+                   "Dashed arrows = one-hop A-Mem link traversals.\n"]
+    for r in results:
+        trace = system.mem.to_mermaid_trace(
+            r["question"],
+            {"retrieved_ids": r["retrieved_ids"], "links_followed": r["links_followed"]},
+        )
+        trace_lines.append(f"## {r['question_id']} — {r['category']}\n")
+        trace_lines.append(f"**Q:** {r['question']}  ")
+        trace_lines.append(f"**Expected:** {r['expected_answer']}  ")
+        trace_lines.append(f"**Got:** {r['predicted_answer']}  ")
+        trace_lines.append(f"**Correct:** {'✓' if r['score'].get('correct') else '✗'}\n")
+        trace_lines.append("```mermaid\n" + trace + "\n```\n")
+    (args.output_dir / "traces.md").write_text("\n".join(trace_lines))
+
+    print(f"\nWrote {args.output_dir}/{{results.json,summary.md,memory_graph.md,traces.md}}")
     print("\n" + summary)
 
 

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import textwrap
 import uuid
 from datetime import datetime
 from typing import Any, Optional
@@ -393,6 +394,94 @@ class AgenticMemorySystem:
 
         return direct + linked
 
+    # ── Mermaid renderers ────────────────────────────────────────────────
+
+    def to_mermaid_graph(
+        self,
+        *,
+        order: list[str] | None = None,
+        max_label: int = 40,
+    ) -> str:
+        """
+        Render the full memory graph as a mermaid ``graph LR`` block.
+
+        Nodes are memories (labelled with id + truncated content). Edges are
+        A-Mem links. Notes that were the target of a memory-evolution event
+        get a highlighted style so the evolution write-back is visible.
+        """
+        ordered_ids = order if order is not None else sorted(self.memories.keys())
+        ordered_ids = [mid for mid in ordered_ids if mid in self.memories]
+
+        lines = ["graph LR"]
+        for mid in ordered_ids:
+            note = self.memories[mid]
+            label = _mermaid_label(note.content, max_label)
+            lines.append(f'    {_mermaid_id(mid)}["{mid}: {label}"]')
+
+        seen: set[tuple[str, str]] = set()
+        for mid in ordered_ids:
+            note = self.memories[mid]
+            for lid in note.links:
+                if lid not in self.memories:
+                    continue
+                pair = tuple(sorted([mid, lid]))
+                if pair in seen:
+                    continue
+                seen.add(pair)
+                lines.append(f"    {_mermaid_id(mid)} --- {_mermaid_id(lid)}")
+
+        evolved = [mid for mid in ordered_ids if self.memories[mid].evolution_history]
+        if evolved:
+            lines.append("    classDef evolved fill:#fef3c7,stroke:#d97706,stroke-width:2px")
+            lines.append(
+                "    class " + ",".join(_mermaid_id(mid) for mid in evolved) + " evolved"
+            )
+        return "\n".join(lines)
+
+    def to_mermaid_trace(
+        self,
+        question: str,
+        result: dict[str, Any],
+        *,
+        max_label: int = 40,
+    ) -> str:
+        """
+        Render a single retrieval trace as a mermaid ``graph TD`` block.
+
+        Solid arrows = direct top-k hits from vector search.
+        Dashed arrows = one-hop link traversals.
+        """
+        retrieved_ids = result.get("retrieved_ids", [])
+        links_followed = result.get("links_followed", [])
+        via_targets = {to_id for _, to_id in links_followed}
+        direct_ids = [mid for mid in retrieved_ids if mid not in via_targets]
+
+        lines = ["graph TD"]
+        q_label = _mermaid_label(question, 60)
+        lines.append(f'    Q(["Q: {q_label}"])')
+
+        nodes_rendered: set[str] = set()
+        for mid in direct_ids:
+            note = self.memories.get(mid)
+            if not note:
+                continue
+            label = _mermaid_label(note.content, max_label)
+            lines.append(f'    {_mermaid_id(mid)}["{mid}: {label}"]')
+            lines.append(f"    Q ==> {_mermaid_id(mid)}")
+            nodes_rendered.add(mid)
+
+        for from_id, to_id in links_followed:
+            target = self.memories.get(to_id)
+            if not target:
+                continue
+            if to_id not in nodes_rendered:
+                label = _mermaid_label(target.content, max_label)
+                lines.append(f'    {_mermaid_id(to_id)}["{to_id}: {label}"]')
+                nodes_rendered.add(to_id)
+            lines.append(f"    {_mermaid_id(from_id)} -.->|link| {_mermaid_id(to_id)}")
+
+        return "\n".join(lines)
+
     # ── Internal helpers ─────────────────────────────────────────────────
 
     def _find_related_memories(
@@ -464,3 +553,24 @@ def _try_json_load(v: Any) -> Any:
         except (json.JSONDecodeError, ValueError):
             pass
     return v
+
+
+def _mermaid_label(text: str, width: int) -> str:
+    """Shorten + sanitise text for use inside a mermaid `id["…"]` label."""
+    short = textwrap.shorten(text, width=width, placeholder="…")
+    return (
+        short.replace('"', "'")
+             .replace("\n", " ")
+             .replace("|", "/")
+    )
+
+
+def _mermaid_id(raw: str) -> str:
+    """Make an ID mermaid-safe (alphanumerics + underscore)."""
+    out = []
+    for ch in raw:
+        out.append(ch if ch.isalnum() else "_")
+    safe = "".join(out)
+    if safe and safe[0].isdigit():
+        safe = "n" + safe
+    return safe or "n"
