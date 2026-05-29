@@ -14,19 +14,15 @@ from __future__ import annotations
 
 import json
 import logging
-import textwrap
 import uuid
 from datetime import datetime
-from typing import Any, Optional, TYPE_CHECKING
+from typing import Any, Optional
 
 import chromadb
 from chromadb.config import Settings
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 
 from . import _nim
-
-if TYPE_CHECKING:
-    from pyvis.network import Network
 
 logger = logging.getLogger(__name__)
 
@@ -121,6 +117,36 @@ class MemoryNote:
         self.last_accessed = now
         self.retrieval_count = 0
         self.evolution_history: list[dict] = []
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "content": self.content,
+            "keywords": list(self.keywords),
+            "tags": list(self.tags),
+            "context": self.context,
+            "links": list(self.links),
+            "timestamp": self.timestamp,
+            "last_accessed": self.last_accessed,
+            "retrieval_count": self.retrieval_count,
+            "evolution_history": list(self.evolution_history),
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "MemoryNote":
+        note = cls(
+            content=d["content"],
+            id=d["id"],
+            keywords=d.get("keywords", []),
+            tags=d.get("tags", []),
+            context=d.get("context", "General"),
+            links=d.get("links", []),
+            timestamp=d.get("timestamp"),
+        )
+        note.last_accessed = d.get("last_accessed", note.last_accessed)
+        note.retrieval_count = d.get("retrieval_count", 0)
+        note.evolution_history = list(d.get("evolution_history", []))
+        return note
 
     def __repr__(self) -> str:
         return (
@@ -397,219 +423,6 @@ class AgenticMemorySystem:
 
         return direct + linked
 
-    # ── Mermaid renderers ────────────────────────────────────────────────
-
-    def to_mermaid_graph(
-        self,
-        *,
-        order: list[str] | None = None,
-        max_label: int = 40,
-    ) -> str:
-        """
-        Render the full memory graph as a mermaid ``graph LR`` block.
-
-        Nodes are memories (labelled with id + truncated content). Edges are
-        A-Mem links. Notes that were the target of a memory-evolution event
-        get a highlighted style so the evolution write-back is visible.
-        """
-        ordered_ids = order if order is not None else sorted(self.memories.keys())
-        ordered_ids = [mid for mid in ordered_ids if mid in self.memories]
-
-        lines = ["graph LR"]
-        for mid in ordered_ids:
-            note = self.memories[mid]
-            label = _mermaid_label(note.content, max_label)
-            lines.append(f'    {_mermaid_id(mid)}["{mid}: {label}"]')
-
-        seen: set[tuple[str, str]] = set()
-        for mid in ordered_ids:
-            note = self.memories[mid]
-            for lid in note.links:
-                if lid not in self.memories:
-                    continue
-                pair = tuple(sorted([mid, lid]))
-                if pair in seen:
-                    continue
-                seen.add(pair)
-                lines.append(f"    {_mermaid_id(mid)} --- {_mermaid_id(lid)}")
-
-        evolved = [mid for mid in ordered_ids if self.memories[mid].evolution_history]
-        if evolved:
-            lines.append("    classDef evolved fill:#fef3c7,stroke:#d97706,stroke-width:2px")
-            lines.append(
-                "    class " + ",".join(_mermaid_id(mid) for mid in evolved) + " evolved"
-            )
-        return "\n".join(lines)
-
-    def to_mermaid_trace(
-        self,
-        question: str,
-        result: dict[str, Any],
-        *,
-        max_label: int = 40,
-    ) -> str:
-        """
-        Render a single retrieval trace as a mermaid ``graph TD`` block.
-
-        Solid arrows = direct top-k hits from vector search.
-        Dashed arrows = one-hop link traversals.
-        """
-        retrieved_ids = result.get("retrieved_ids", [])
-        links_followed = result.get("links_followed", [])
-        via_targets = {to_id for _, to_id in links_followed}
-        direct_ids = [mid for mid in retrieved_ids if mid not in via_targets]
-
-        lines = ["graph TD"]
-        q_label = _mermaid_label(question, 60)
-        lines.append(f'    Q(["Q: {q_label}"])')
-
-        nodes_rendered: set[str] = set()
-        for mid in direct_ids:
-            note = self.memories.get(mid)
-            if not note:
-                continue
-            label = _mermaid_label(note.content, max_label)
-            lines.append(f'    {_mermaid_id(mid)}["{mid}: {label}"]')
-            lines.append(f"    Q ==> {_mermaid_id(mid)}")
-            nodes_rendered.add(mid)
-
-        for from_id, to_id in links_followed:
-            target = self.memories.get(to_id)
-            if not target:
-                continue
-            if to_id not in nodes_rendered:
-                label = _mermaid_label(target.content, max_label)
-                lines.append(f'    {_mermaid_id(to_id)}["{to_id}: {label}"]')
-                nodes_rendered.add(to_id)
-            lines.append(f"    {_mermaid_id(from_id)} -.->|link| {_mermaid_id(to_id)}")
-
-        return "\n".join(lines)
-
-    # ── Pyvis renderers (interactive HTML) ───────────────────────────────
-
-    def to_pyvis_graph(
-        self,
-        *,
-        height: str = "750px",
-        width: str = "100%",
-    ) -> Network:
-        """
-        Render the memory graph as an interactive pyvis ``Network``.
-
-        Drag nodes to reposition, hover for a full tooltip (content +
-        keywords + tags + context + evolution history), click to inspect.
-        Yellow nodes are memories that had a memory-evolution event.
-
-        Call ``.write_html(path, notebook=False, open_browser=False)`` on
-        the returned network to save a self-contained HTML file.
-        """
-        from pyvis.network import Network
-
-        net = Network(
-            height=height, width=width, notebook=False,
-            directed=False, bgcolor="#ffffff", font_color="#1f2937",
-            cdn_resources="remote",
-            neighborhood_highlight=True,
-        )
-        net.barnes_hut(
-            gravity=-3000, central_gravity=0.3,
-            spring_length=120, spring_strength=0.04,
-        )
-
-        for mid, note in self.memories.items():
-            net.add_node(
-                mid,
-                label=mid,
-                title=_pyvis_tooltip(note),
-                color="#fbbf24" if note.evolution_history else "#60a5fa",
-                shape="dot",
-                size=15 + min(len(note.links) * 2, 20),
-            )
-
-        seen: set[tuple[str, str]] = set()
-        for mid, note in self.memories.items():
-            for lid in note.links:
-                if lid not in self.memories:
-                    continue
-                pair = tuple(sorted([mid, lid]))
-                if pair in seen:
-                    continue
-                seen.add(pair)
-                net.add_edge(mid, lid, color="#9ca3af", width=1)
-        return net
-
-    def to_pyvis_trace(
-        self,
-        question: str,
-        result: dict[str, Any],
-        *,
-        height: str = "600px",
-        width: str = "100%",
-    ) -> Network:
-        """
-        Render a single retrieval trace as an interactive pyvis ``Network``.
-
-        Red diamond = the query.
-        Blue dots   = direct top-k vector hits (solid blue edge from Q).
-        Purple dots = one-hop link traversals (dashed purple edge from hit).
-        """
-        from pyvis.network import Network
-
-        net = Network(
-            height=height, width=width, notebook=False,
-            directed=True, bgcolor="#ffffff", font_color="#1f2937",
-            cdn_resources="remote",
-            neighborhood_highlight=True,
-        )
-        net.barnes_hut(
-            gravity=-2500, central_gravity=0.4,
-            spring_length=110, spring_strength=0.06,
-        )
-
-        net.add_node(
-            "_query",
-            label="Q",
-            title=f"Question\n{question}",
-            color="#ef4444", shape="diamond", size=22,
-        )
-
-        retrieved_ids = result.get("retrieved_ids", [])
-        links_followed = result.get("links_followed", [])
-        via_targets = {to_id for _, to_id in links_followed}
-        direct_ids = [mid for mid in retrieved_ids if mid not in via_targets]
-
-        added: set[str] = set()
-        for mid in direct_ids:
-            note = self.memories.get(mid)
-            if not note:
-                continue
-            net.add_node(
-                mid, label=mid, title=_pyvis_tooltip(note),
-                color="#60a5fa", shape="dot", size=16,
-            )
-            net.add_edge(
-                "_query", mid,
-                color="#3b82f6", width=3, title="direct retrieval",
-            )
-            added.add(mid)
-
-        for from_id, to_id in links_followed:
-            target = self.memories.get(to_id)
-            if not target:
-                continue
-            if to_id not in added:
-                net.add_node(
-                    to_id, label=to_id, title=_pyvis_tooltip(target),
-                    color="#a78bfa", shape="dot", size=13,
-                )
-                added.add(to_id)
-            net.add_edge(
-                from_id, to_id,
-                color="#a78bfa", width=2, dashes=True,
-                title="link traversal",
-            )
-        return net
-
     # ── Internal helpers ─────────────────────────────────────────────────
 
     def _find_related_memories(
@@ -681,54 +494,3 @@ def _try_json_load(v: Any) -> Any:
         except (json.JSONDecodeError, ValueError):
             pass
     return v
-
-
-def _mermaid_label(text: str, width: int) -> str:
-    """Shorten + sanitise text for use inside a mermaid `id["…"]` label."""
-    short = textwrap.shorten(text, width=width, placeholder="…")
-    return (
-        short.replace('"', "'")
-             .replace("\n", " ")
-             .replace("|", "/")
-    )
-
-
-def _pyvis_tooltip(note: MemoryNote) -> str:
-    """
-    Plain-text tooltip shown on hover in pyvis.
-
-    Vis.js renders ``title`` as plain text (HTML is escaped), so we use
-    newlines for layout. Word-wrap long fields so the tooltip stays narrow.
-    """
-    def wrap(value: str, width: int = 70) -> str:
-        return "\n  ".join(textwrap.wrap(value, width=width) or [""])
-
-    lines = [
-        f"{note.id}  ({note.timestamp})",
-        "",
-        f"Content:  {wrap(note.content)}",
-        f"Keywords: {', '.join(note.keywords) or '(none)'}",
-        f"Tags:     {', '.join(note.tags) or '(none)'}",
-        f"Context:  {wrap(note.context)}",
-        f"Links:    {', '.join(note.links) or '(none)'}",
-    ]
-    if note.evolution_history:
-        lines.append("")
-        lines.append(f"Evolved {len(note.evolution_history)}×:")
-        for e in note.evolution_history[:5]:
-            lines.append(
-                f"  · trigger={e.get('trigger', '?')} "
-                f"field={e.get('field', '?')}"
-            )
-    return "\n".join(lines)
-
-
-def _mermaid_id(raw: str) -> str:
-    """Make an ID mermaid-safe (alphanumerics + underscore)."""
-    out = []
-    for ch in raw:
-        out.append(ch if ch.isalnum() else "_")
-    safe = "".join(out)
-    if safe and safe[0].isdigit():
-        safe = "n" + safe
-    return safe or "n"

@@ -25,7 +25,7 @@ import sys
 import textwrap
 from pathlib import Path
 
-from . import _nim
+from . import _nim, render
 from .amem import AgenticMemorySystem
 
 
@@ -108,34 +108,42 @@ def main() -> None:
             print(f"  Links followed: {response['links_followed']}")
         traces.append((q, response))
 
-    # ── Phase 4: Mermaid (stdout) + interactive HTML (results/demo/) ─────
-    hr("Phase 4 — Visualisations")
-    mem_order = [m["id"] for m in memories]
-    print("\n### Memory graph (mermaid)\n")
-    print("```mermaid")
-    print(mem.to_mermaid_graph(order=mem_order))
-    print("```")
-    for q, response in traces:
-        print(f"\n### Retrieval trace — {q['id']}\n")
-        print("```mermaid")
-        print(mem.to_mermaid_trace(q["question"], response))
-        print("```")
-
+    # ── Phase 4: Persist run artifact + render ───────────────────────────
+    hr("Phase 4 — Persist + render")
     out_dir = Path("results/demo")
     out_dir.mkdir(parents=True, exist_ok=True)
-    mem.to_pyvis_graph().write_html(
-        str(out_dir / "memory_graph.html"),
-        notebook=False, open_browser=False,
-    )
-    for q, response in traces:
-        mem.to_pyvis_trace(q["question"], response).write_html(
-            str(out_dir / f"trace_{q['id']}.html"),
-            notebook=False, open_browser=False,
-        )
-    print(f"\nInteractive HTML written to {out_dir}/ — open *.html in a browser.")
+
+    mem_order = [m["id"] for m in memories]
+    queries_payload = [
+        {
+            "question_id": q["id"],
+            "category": q["category"],
+            "question": q["question"],
+            "expected_answer": q["expected_answer"],
+            "expected_winner": q.get("expected_winner", ""),
+            "predicted_answer": response["answer"],
+            "retrieved_ids": response["retrieved_ids"],
+            "links_followed": response["links_followed"],
+        }
+        for q, response in traces
+    ]
+    metadata = {
+        "dataset": str(DATASET_PATH),
+        "llm_model": _nim.LLM_MODEL,
+        "embedding_model": mem.model_name,
+        "memory_order": mem_order,
+        "mode": "demo",
+    }
+    run_path = out_dir / "run.json"
+    render.write_run(run_path, mem.memories, queries_payload, metadata)
+    run = render.load_run(run_path)
+    render.render_all(run, out_dir)
+    print(f"  Wrote {run_path}")
+    print(f"  Rendered to {out_dir}/  (open {out_dir}/html/index.html)")
 
     hr()
     print("Demo complete.  For full 22-question evaluation: just eval")
+    print("To tweak visualisations and re-render: edit experiments/render.py, then `just render`")
 
 
 if __name__ == "__main__":

@@ -2,17 +2,17 @@
 """
 A-Mem evaluation harness for the HippoRAG-vs-A-Mem comparison dataset.
 
-Filled-in A-Mem adapter for the system-agnostic skeleton at
-``comparison-dataset/eval_template.py`` (HippoRAG adapter lives in the other
-reproduction repo). Loads ``comparison-dataset/dataset.json``, ingests all 40
-memories in chronological order, runs all 22 questions through A-Mem's
-read pipeline, scores the answers, and emits results.json + summary.md.
+Runs A-Mem (ingest → answer → score) and persists a frozen run artifact at
+``results/run.json``. Visualisations are emitted by ``render.py`` — either
+inline at the end of this script or by re-running ``just render``
+separately whenever the rendering code changes.
 
 Usage:
     just sync                       # one-time
     export NVIDIA_API_KEY=nvapi-…
-    just eval                       # full run
+    just eval                       # full run + render
     just eval -- --limit 5          # smoke test (first 5 questions)
+    just eval -- --no-render        # skip rendering (faster iteration)
 """
 
 from __future__ import annotations
@@ -23,9 +23,11 @@ import os
 import re
 import sys
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from . import _nim, render
 from .amem import AgenticMemorySystem
 
 
@@ -226,6 +228,8 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=None,
                         help="Only run the first N questions (smoke test).")
     parser.add_argument("--output-dir", default="results", type=Path)
+    parser.add_argument("--no-render", action="store_true",
+                        help="Skip mermaid/pyvis rendering; just write run.json + summary.md.")
     args = parser.parse_args()
 
     with args.dataset.open() as f:
@@ -238,102 +242,35 @@ def main() -> None:
     results = evaluate(system, dataset, limit=args.limit)
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    (args.output_dir / "results.json").write_text(
-        json.dumps({"amem": results}, indent=2)
-    )
+
+    # Eval-specific artifacts (scoring summary).
     summary = emit_summary_md(results)
     (args.output_dir / "summary.md").write_text(summary)
 
-    # Mermaid visualisations — rendered natively by GitHub Markdown.
+    # Frozen run artifact — everything the renderer needs to rebuild
+    # mermaid + pyvis without re-running the LLM.
     mem_order = [m["id"] for m in dataset["memories"] if m["id"] in system.mem.memories]
-    graph_md = (
-        "# A-Mem Memory Graph\n\n"
-        "Nodes are memories (in ingestion order). Edges are A-Mem links generated\n"
-        "during the link-generation step. Highlighted nodes had at least one\n"
-        "memory-evolution event (their context or tags were rewritten when a\n"
-        "later memory arrived).\n\n"
-        "```mermaid\n"
-        + system.mem.to_mermaid_graph(order=mem_order)
-        + "\n```\n"
-    )
-    (args.output_dir / "memory_graph.md").write_text(graph_md)
+    metadata = {
+        "dataset": str(args.dataset),
+        "llm_model": _nim.LLM_MODEL,
+        "embedding_model": system.mem.model_name,
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "memory_order": mem_order,
+        "limit": args.limit,
+    }
+    run_path = args.output_dir / "run.json"
+    render.write_run(run_path, system.mem.memories, results, metadata)
+    print(f"\nWrote {run_path} and {args.output_dir}/summary.md")
 
-    trace_lines = ["# A-Mem Retrieval Traces\n",
-                   "Solid arrows = direct vector-search hits.  ",
-                   "Dashed arrows = one-hop A-Mem link traversals.\n"]
-    for r in results:
-        trace = system.mem.to_mermaid_trace(
-            r["question"],
-            {"retrieved_ids": r["retrieved_ids"], "links_followed": r["links_followed"]},
-        )
-        trace_lines.append(f"## {r['question_id']} — {r['category']}\n")
-        trace_lines.append(f"**Q:** {r['question']}  ")
-        trace_lines.append(f"**Expected:** {r['expected_answer']}  ")
-        trace_lines.append(f"**Got:** {r['predicted_answer']}  ")
-        trace_lines.append(f"**Correct:** {'✓' if r['score'].get('correct') else '✗'}\n")
-        trace_lines.append("```mermaid\n" + trace + "\n```\n")
-    (args.output_dir / "traces.md").write_text("\n".join(trace_lines))
+    if not args.no_render:
+        run = render.load_run(run_path)
+        render.render_all(run, args.output_dir)
+        print(f"Rendered mermaid + pyvis to {args.output_dir}/  "
+              f"(open {args.output_dir}/html/index.html)")
+    else:
+        print("Skipped rendering (--no-render). Re-render later with `just render`.")
 
-    # Interactive HTML (pyvis) — open in a browser, drag nodes, hover for
-    # full tooltips. The full memory graph + one HTML per query trace.
-    html_dir = args.output_dir / "html"
-    traces_dir = html_dir / "traces"
-    traces_dir.mkdir(parents=True, exist_ok=True)
-
-    system.mem.to_pyvis_graph().write_html(
-        str(html_dir / "memory_graph.html"),
-        notebook=False, open_browser=False,
-    )
-
-    for r in results:
-        trace_net = system.mem.to_pyvis_trace(
-            r["question"],
-            {"retrieved_ids": r["retrieved_ids"], "links_followed": r["links_followed"]},
-        )
-        trace_net.write_html(
-            str(traces_dir / f"{r['question_id']}.html"),
-            notebook=False, open_browser=False,
-        )
-
-    (html_dir / "index.html").write_text(_html_index(results))
-
-    print(f"\nWrote {args.output_dir}/{{results.json,summary.md,memory_graph.md,traces.md}}")
-    print(f"Interactive HTML: open {html_dir / 'index.html'} in a browser")
     print("\n" + summary)
-
-
-def _html_index(results: list[dict[str, Any]]) -> str:
-    rows = []
-    for r in results:
-        ok = "✓" if r["score"].get("correct") else "✗"
-        rows.append(
-            f'<tr><td><a href="traces/{r["question_id"]}.html">{r["question_id"]}</a></td>'
-            f'<td>{r["category"]}</td>'
-            f'<td>{r["expected_winner"]}</td>'
-            f'<td>{r["question"]}</td>'
-            f'<td style="text-align:center">{ok}</td></tr>'
-        )
-    return f"""<!doctype html><html><head><meta charset="utf-8">
-<title>A-Mem eval — interactive traces</title>
-<style>
-body {{ font: 14px system-ui, sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; }}
-h1 {{ font-size: 1.5em; }}
-table {{ border-collapse: collapse; width: 100%; }}
-th, td {{ padding: 6px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }}
-th {{ background: #f9fafb; }}
-a {{ color: #2563eb; text-decoration: none; }}
-a:hover {{ text-decoration: underline; }}
-.full {{ display: inline-block; padding: 6px 12px; background: #2563eb; color: white;
-        border-radius: 4px; margin-bottom: 1em; }}
-</style></head><body>
-<h1>A-Mem evaluation — interactive traces</h1>
-<a class="full" href="memory_graph.html">→ Full memory graph</a>
-<table>
-<thead><tr><th>Q</th><th>Category</th><th>Expected winner</th><th>Question</th><th>Correct?</th></tr></thead>
-<tbody>
-{"".join(rows)}
-</tbody></table>
-</body></html>"""
 
 
 if __name__ == "__main__":
