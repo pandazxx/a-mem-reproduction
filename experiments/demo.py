@@ -108,10 +108,10 @@ def main() -> None:
             print(f"  Links followed: {response['links_followed']}")
         traces.append((q, response))
 
-    # ── Phase 4: Mermaid visualisation ───────────────────────────────────
-    hr("Phase 4 — Mermaid diagrams (paste into a Markdown viewer)")
+    # ── Phase 4: Mermaid (stdout) + interactive HTML (results/demo/) ─────
+    hr("Phase 4 — Visualisations")
     mem_order = [m["id"] for m in memories]
-    print("\n### Memory graph\n")
+    print("\n### Memory graph (mermaid)\n")
     print("```mermaid")
     print(mem.to_mermaid_graph(order=mem_order))
     print("```")
@@ -120,6 +120,19 @@ def main() -> None:
         print("```mermaid")
         print(mem.to_mermaid_trace(q["question"], response))
         print("```")
+
+    out_dir = Path("results/demo")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    mem.to_pyvis_graph().write_html(
+        str(out_dir / "memory_graph.html"),
+        notebook=False, open_browser=False,
+    )
+    for q, response in traces:
+        mem.to_pyvis_trace(q["question"], response).write_html(
+            str(out_dir / f"trace_{q['id']}.html"),
+            notebook=False, open_browser=False,
+        )
+    print(f"\nInteractive HTML written to {out_dir}/ — open *.html in a browser.")
 
     hr()
     print("Demo complete.  For full 22-question evaluation: just eval")

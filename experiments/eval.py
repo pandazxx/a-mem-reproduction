@@ -274,8 +274,66 @@ def main() -> None:
         trace_lines.append("```mermaid\n" + trace + "\n```\n")
     (args.output_dir / "traces.md").write_text("\n".join(trace_lines))
 
+    # Interactive HTML (pyvis) — open in a browser, drag nodes, hover for
+    # full tooltips. The full memory graph + one HTML per query trace.
+    html_dir = args.output_dir / "html"
+    traces_dir = html_dir / "traces"
+    traces_dir.mkdir(parents=True, exist_ok=True)
+
+    system.mem.to_pyvis_graph().write_html(
+        str(html_dir / "memory_graph.html"),
+        notebook=False, open_browser=False,
+    )
+
+    for r in results:
+        trace_net = system.mem.to_pyvis_trace(
+            r["question"],
+            {"retrieved_ids": r["retrieved_ids"], "links_followed": r["links_followed"]},
+        )
+        trace_net.write_html(
+            str(traces_dir / f"{r['question_id']}.html"),
+            notebook=False, open_browser=False,
+        )
+
+    (html_dir / "index.html").write_text(_html_index(results))
+
     print(f"\nWrote {args.output_dir}/{{results.json,summary.md,memory_graph.md,traces.md}}")
+    print(f"Interactive HTML: open {html_dir / 'index.html'} in a browser")
     print("\n" + summary)
+
+
+def _html_index(results: list[dict[str, Any]]) -> str:
+    rows = []
+    for r in results:
+        ok = "✓" if r["score"].get("correct") else "✗"
+        rows.append(
+            f'<tr><td><a href="traces/{r["question_id"]}.html">{r["question_id"]}</a></td>'
+            f'<td>{r["category"]}</td>'
+            f'<td>{r["expected_winner"]}</td>'
+            f'<td>{r["question"]}</td>'
+            f'<td style="text-align:center">{ok}</td></tr>'
+        )
+    return f"""<!doctype html><html><head><meta charset="utf-8">
+<title>A-Mem eval — interactive traces</title>
+<style>
+body {{ font: 14px system-ui, sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; }}
+h1 {{ font-size: 1.5em; }}
+table {{ border-collapse: collapse; width: 100%; }}
+th, td {{ padding: 6px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }}
+th {{ background: #f9fafb; }}
+a {{ color: #2563eb; text-decoration: none; }}
+a:hover {{ text-decoration: underline; }}
+.full {{ display: inline-block; padding: 6px 12px; background: #2563eb; color: white;
+        border-radius: 4px; margin-bottom: 1em; }}
+</style></head><body>
+<h1>A-Mem evaluation — interactive traces</h1>
+<a class="full" href="memory_graph.html">→ Full memory graph</a>
+<table>
+<thead><tr><th>Q</th><th>Category</th><th>Expected winner</th><th>Question</th><th>Correct?</th></tr></thead>
+<tbody>
+{"".join(rows)}
+</tbody></table>
+</body></html>"""
 
 
 if __name__ == "__main__":

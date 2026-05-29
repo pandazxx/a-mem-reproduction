@@ -12,18 +12,22 @@ Embeddings use sentence-transformers locally via ChromaDB, same as the original.
 
 from __future__ import annotations
 
+import html
 import json
 import logging
 import textwrap
 import uuid
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 import chromadb
 from chromadb.config import Settings
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 
 from . import _nim
+
+if TYPE_CHECKING:
+    from pyvis.network import Network
 
 logger = logging.getLogger(__name__)
 
@@ -482,6 +486,129 @@ class AgenticMemorySystem:
 
         return "\n".join(lines)
 
+    # ── Pyvis renderers (interactive HTML) ───────────────────────────────
+
+    def to_pyvis_graph(
+        self,
+        *,
+        height: str = "750px",
+        width: str = "100%",
+    ) -> Network:
+        """
+        Render the memory graph as an interactive pyvis ``Network``.
+
+        Drag nodes to reposition, hover for a full tooltip (content +
+        keywords + tags + context + evolution history), click to inspect.
+        Yellow nodes are memories that had a memory-evolution event.
+
+        Call ``.write_html(path, notebook=False, open_browser=False)`` on
+        the returned network to save a self-contained HTML file.
+        """
+        from pyvis.network import Network
+
+        net = Network(
+            height=height, width=width, notebook=False,
+            directed=False, bgcolor="#ffffff", font_color="#1f2937",
+            cdn_resources="remote",
+        )
+        net.barnes_hut(
+            gravity=-3000, central_gravity=0.3,
+            spring_length=120, spring_strength=0.04,
+        )
+
+        for mid, note in self.memories.items():
+            net.add_node(
+                mid,
+                label=mid,
+                title=_pyvis_tooltip(note),
+                color="#fbbf24" if note.evolution_history else "#60a5fa",
+                shape="dot",
+                size=15 + min(len(note.links) * 2, 20),
+            )
+
+        seen: set[tuple[str, str]] = set()
+        for mid, note in self.memories.items():
+            for lid in note.links:
+                if lid not in self.memories:
+                    continue
+                pair = tuple(sorted([mid, lid]))
+                if pair in seen:
+                    continue
+                seen.add(pair)
+                net.add_edge(mid, lid, color="#9ca3af", width=1)
+        return net
+
+    def to_pyvis_trace(
+        self,
+        question: str,
+        result: dict[str, Any],
+        *,
+        height: str = "600px",
+        width: str = "100%",
+    ) -> Network:
+        """
+        Render a single retrieval trace as an interactive pyvis ``Network``.
+
+        Red diamond = the query.
+        Blue dots   = direct top-k vector hits (solid blue edge from Q).
+        Purple dots = one-hop link traversals (dashed purple edge from hit).
+        """
+        from pyvis.network import Network
+
+        net = Network(
+            height=height, width=width, notebook=False,
+            directed=True, bgcolor="#ffffff", font_color="#1f2937",
+            cdn_resources="remote",
+        )
+        net.barnes_hut(
+            gravity=-2500, central_gravity=0.4,
+            spring_length=110, spring_strength=0.06,
+        )
+
+        net.add_node(
+            "_query",
+            label="Q",
+            title=f"<b>Question</b><br>{html.escape(question)}",
+            color="#ef4444", shape="diamond", size=22,
+        )
+
+        retrieved_ids = result.get("retrieved_ids", [])
+        links_followed = result.get("links_followed", [])
+        via_targets = {to_id for _, to_id in links_followed}
+        direct_ids = [mid for mid in retrieved_ids if mid not in via_targets]
+
+        added: set[str] = set()
+        for mid in direct_ids:
+            note = self.memories.get(mid)
+            if not note:
+                continue
+            net.add_node(
+                mid, label=mid, title=_pyvis_tooltip(note),
+                color="#60a5fa", shape="dot", size=16,
+            )
+            net.add_edge(
+                "_query", mid,
+                color="#3b82f6", width=3, title="direct retrieval",
+            )
+            added.add(mid)
+
+        for from_id, to_id in links_followed:
+            target = self.memories.get(to_id)
+            if not target:
+                continue
+            if to_id not in added:
+                net.add_node(
+                    to_id, label=to_id, title=_pyvis_tooltip(target),
+                    color="#a78bfa", shape="dot", size=13,
+                )
+                added.add(to_id)
+            net.add_edge(
+                from_id, to_id,
+                color="#a78bfa", width=2, dashes=True,
+                title="link traversal",
+            )
+        return net
+
     # ── Internal helpers ─────────────────────────────────────────────────
 
     def _find_related_memories(
@@ -562,6 +689,30 @@ def _mermaid_label(text: str, width: int) -> str:
         short.replace('"', "'")
              .replace("\n", " ")
              .replace("|", "/")
+    )
+
+
+def _pyvis_tooltip(note: MemoryNote) -> str:
+    """HTML tooltip shown on hover/click in pyvis."""
+    evolution = ""
+    if note.evolution_history:
+        events = "<br>".join(
+            f"  · trigger={html.escape(e.get('trigger', '?'))} "
+            f"field={html.escape(e.get('field', '?'))}"
+            for e in note.evolution_history[:5]
+        )
+        evolution = (
+            f"<br><b>Evolved ({len(note.evolution_history)}×):</b><br>{events}"
+        )
+    return (
+        f"<b>{html.escape(note.id)}</b> "
+        f"<span style='color:#6b7280'>({html.escape(note.timestamp)})</span><br>"
+        f"<b>Content:</b> {html.escape(note.content)}<br>"
+        f"<b>Keywords:</b> {html.escape(', '.join(note.keywords) or '(none)')}<br>"
+        f"<b>Tags:</b> {html.escape(', '.join(note.tags) or '(none)')}<br>"
+        f"<b>Context:</b> {html.escape(note.context)}<br>"
+        f"<b>Links:</b> {html.escape(', '.join(note.links) or '(none)')}"
+        f"{evolution}"
     )
 
 
