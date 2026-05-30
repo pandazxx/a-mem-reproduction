@@ -1,0 +1,3103 @@
+{
+  "metadata": {
+    "dataset": "comparison",
+    "llm_model": "meta/llama-3.1-70b-instruct",
+    "timestamp": "2026-05-30T07:35:20",
+    "limit": null,
+    "system": "hipporag2",
+    "system_label": "HippoRAG v2",
+    "sim_threshold": 0.75,
+    "top_k_triples": 10,
+    "passage_seed_weight": 0.05,
+    "n_phrases": 68,
+    "n_triples": 108
+  },
+  "items": [
+    {
+      "id": "m01",
+      "content": "Sam works as a software engineer at TechCorp.",
+      "triples": [
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "is a",
+          "software engineer"
+        ]
+      ]
+    },
+    {
+      "id": "m02",
+      "content": "TechCorp is a fintech company headquartered in San Francisco.",
+      "triples": [
+        [
+          "TechCorp",
+          "is",
+          "fintech company"
+        ],
+        [
+          "TechCorp",
+          "headquartered in",
+          "San Francisco"
+        ]
+      ]
+    },
+    {
+      "id": "m03",
+      "content": "Sam's manager at TechCorp is Jennifer.",
+      "triples": [
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Jennifer"
+        ],
+        [
+          "Jennifer",
+          "is manager of",
+          "Sam"
+        ],
+        [
+          "Jennifer",
+          "works at",
+          "TechCorp"
+        ]
+      ]
+    },
+    {
+      "id": "m04",
+      "content": "Sam lives in Oakland, California.",
+      "triples": [
+        [
+          "Sam",
+          "lives in",
+          "Oakland"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "California"
+        ],
+        [
+          "Oakland",
+          "is part of",
+          "California"
+        ]
+      ]
+    },
+    {
+      "id": "m05",
+      "content": "Sam's partner is Alex. Alex works as a graphic designer.",
+      "triples": [
+        [
+          "Sam",
+          "has partner",
+          "Alex"
+        ],
+        [
+          "Alex",
+          "works as",
+          "graphic designer"
+        ]
+      ]
+    },
+    {
+      "id": "m06",
+      "content": "Sam started learning Spanish two months ago, mainly for an upcoming trip to Mexico.",
+      "triples": [
+        [
+          "Sam",
+          "is learning",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "is going to",
+          "Mexico"
+        ],
+        [
+          "Sam",
+          "started learning Spanish",
+          "two months ago"
+        ]
+      ]
+    },
+    {
+      "id": "m07",
+      "content": "Sam uses Duolingo daily for Spanish practice.",
+      "triples": [
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "Duolingo",
+          "is used for",
+          "Spanish"
+        ]
+      ]
+    },
+    {
+      "id": "m08",
+      "content": "Sam goes rock climbing at Berkeley Ironworks gym.",
+      "triples": [
+        [
+          "Sam",
+          "goes rock climbing at",
+          "Berkeley Ironworks"
+        ]
+      ]
+    },
+    {
+      "id": "m09",
+      "content": "Sam has been rock climbing for three years.",
+      "triples": [
+        [
+          "Sam",
+          "has been doing",
+          "rock climbing"
+        ],
+        [
+          "rock climbing",
+          "duration",
+          "three years"
+        ]
+      ]
+    },
+    {
+      "id": "m10",
+      "content": "Sam's favorite climbing problems are V4-V5 boulder routes.",
+      "triples": [
+        [
+          "Sam",
+          "has favorite climbing problems",
+          "V4-V5 boulder routes"
+        ],
+        [
+          "V4-V5 boulder routes",
+          "include",
+          "V4 boulder routes"
+        ],
+        [
+          "V4-V5 boulder routes",
+          "include",
+          "V5 boulder routes"
+        ]
+      ]
+    },
+    {
+      "id": "m11",
+      "content": "Sam's mother Maria lives in Boston.",
+      "triples": [
+        [
+          "Maria",
+          "is mother of",
+          "Sam"
+        ],
+        [
+          "Maria",
+          "lives in",
+          "Boston"
+        ]
+      ]
+    },
+    {
+      "id": "m12",
+      "content": "Maria works as a high school chemistry teacher.",
+      "triples": [
+        [
+          "Maria",
+          "works as",
+          "high school chemistry teacher"
+        ]
+      ]
+    },
+    {
+      "id": "m13",
+      "content": "Sam's brother David lives in Seattle.",
+      "triples": [
+        [
+          "David",
+          "is brother of",
+          "Sam"
+        ],
+        [
+          "David",
+          "lives in",
+          "Seattle"
+        ]
+      ]
+    },
+    {
+      "id": "m14",
+      "content": "David works at Amazon as a product manager. His office is at Amazon's Seattle headquarters.",
+      "triples": [
+        [
+          "David",
+          "works at",
+          "Amazon"
+        ],
+        [
+          "David",
+          "has office at",
+          "Seattle"
+        ],
+        [
+          "Amazon",
+          "has headquarters at",
+          "Seattle"
+        ]
+      ]
+    },
+    {
+      "id": "m15",
+      "content": "Sam plans to visit Maria for her birthday in mid-May.",
+      "triples": [
+        [
+          "Sam",
+          "plans to visit",
+          "Maria"
+        ],
+        [
+          "Maria",
+          "has birthday in",
+          "May"
+        ],
+        [
+          "Sam",
+          "visiting for",
+          "Maria's birthday"
+        ]
+      ]
+    },
+    {
+      "id": "m16",
+      "content": "Sam started a side project: building a web scraper to find new climbing destinations.",
+      "triples": [
+        [
+          "Sam",
+          "started",
+          "side project"
+        ],
+        [
+          "side project",
+          "is",
+          "building a web scraper"
+        ],
+        [
+          "web scraper",
+          "used for",
+          "finding new climbing destinations"
+        ]
+      ]
+    },
+    {
+      "id": "m17",
+      "content": "Sam decided to use Python for the web scraper project.",
+      "triples": [
+        [
+          "Sam",
+          "decided to use",
+          "Python"
+        ],
+        [
+          "Sam",
+          "is working on",
+          "web scraper project"
+        ],
+        [
+          "Python",
+          "is used for",
+          "web scraper project"
+        ]
+      ]
+    },
+    {
+      "id": "m18",
+      "content": "Sam uses the BeautifulSoup library for parsing HTML in the scraper.",
+      "triples": [
+        [
+          "Sam",
+          "uses",
+          "BeautifulSoup"
+        ],
+        [
+          "BeautifulSoup",
+          "is used for",
+          "parsing HTML"
+        ]
+      ]
+    },
+    {
+      "id": "m19",
+      "content": "The scraper collects climbing route data from MountainProject.com.",
+      "triples": [
+        [
+          "scraper",
+          "collects data from",
+          "MountainProject.com"
+        ],
+        [
+          "MountainProject.com",
+          "is source of",
+          "climbing route data"
+        ]
+      ]
+    },
+    {
+      "id": "m20",
+      "content": "Sam's goal with the scraper is to discover new outdoor climbing destinations not on popular guidebooks.",
+      "triples": [
+        [
+          "Sam",
+          "has goal",
+          "discover new outdoor climbing destinations"
+        ],
+        [
+          "Sam",
+          "uses",
+          "scraper"
+        ],
+        [
+          "scraper",
+          "is for",
+          "discover new outdoor climbing destinations"
+        ],
+        [
+          "new outdoor climbing destinations",
+          "not in",
+          "popular guidebooks"
+        ]
+      ]
+    },
+    {
+      "id": "m21",
+      "content": "Sam had an amazing climbing trip to Yosemite last weekend.",
+      "triples": [
+        [
+          "Sam",
+          "went on a trip to",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "had a climbing trip",
+          "Yosemite"
+        ]
+      ]
+    },
+    {
+      "id": "m22",
+      "content": "Sam climbed with Alex at Yosemite. Alex is also a climber but at an easier grade.",
+      "triples": [
+        [
+          "Sam",
+          "climbed with",
+          "Alex"
+        ],
+        [
+          "Sam",
+          "climbed at",
+          "Yosemite"
+        ],
+        [
+          "Alex",
+          "climbed at",
+          "Yosemite"
+        ],
+        [
+          "Alex",
+          "is a",
+          "climber"
+        ]
+      ]
+    },
+    {
+      "id": "m23",
+      "content": "Sam is feeling burned out at TechCorp due to long hours and frequent late-night production incidents.",
+      "triples": [
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "feeling",
+          "burned out"
+        ],
+        [
+          "Sam",
+          "experiencing",
+          "long hours"
+        ],
+        [
+          "Sam",
+          "experiencing",
+          "late-night production incidents"
+        ]
+      ]
+    },
+    {
+      "id": "m24",
+      "content": "Sam started interviewing at other companies, mostly developer-tools startups.",
+      "triples": [
+        [
+          "Sam",
+          "started interviewing at",
+          "other companies"
+        ],
+        [
+          "other companies",
+          "are",
+          "developer-tools startups"
+        ]
+      ]
+    },
+    {
+      "id": "m25",
+      "content": "Sam got a job offer from StartupCo, a developer-tools startup.",
+      "triples": [
+        [
+          "Sam",
+          "received job offer from",
+          "StartupCo"
+        ],
+        [
+          "StartupCo",
+          "is",
+          "developer-tools startup"
+        ]
+      ]
+    },
+    {
+      "id": "m26",
+      "content": "StartupCo is based in San Francisco but offers fully remote work.",
+      "triples": [
+        [
+          "StartupCo",
+          "based in",
+          "San Francisco"
+        ],
+        [
+          "StartupCo",
+          "offers",
+          "fully remote work"
+        ]
+      ]
+    },
+    {
+      "id": "m27",
+      "content": "Sam accepted the StartupCo offer and gave notice at TechCorp.",
+      "triples": [
+        [
+          "Sam",
+          "accepted offer from",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "gave notice at",
+          "TechCorp"
+        ]
+      ]
+    },
+    {
+      "id": "m28",
+      "content": "Sam's new manager at StartupCo will be Marcus.",
+      "triples": [
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Marcus"
+        ],
+        [
+          "Marcus",
+          "is manager of",
+          "Sam"
+        ],
+        [
+          "Marcus",
+          "works at",
+          "StartupCo"
+        ]
+      ]
+    },
+    {
+      "id": "m29",
+      "content": "Sam started at StartupCo today. The role is senior backend engineer.",
+      "triples": [
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "has role",
+          "senior backend engineer"
+        ]
+      ]
+    },
+    {
+      "id": "m30",
+      "content": "Sam is now learning Rust because StartupCo's main service is written in it.",
+      "triples": [
+        [
+          "Sam",
+          "is learning",
+          "Rust"
+        ],
+        [
+          "StartupCo",
+          "uses",
+          "Rust"
+        ],
+        [
+          "Rust",
+          "is used by",
+          "StartupCo"
+        ],
+        [
+          "StartupCo",
+          "has main service written in",
+          "Rust"
+        ]
+      ]
+    },
+    {
+      "id": "m31",
+      "content": "Sam decided to rewrite the climbing scraper in Rust as a learning exercise.",
+      "triples": [
+        [
+          "Sam",
+          "decided to rewrite",
+          "climbing scraper"
+        ],
+        [
+          "Sam",
+          "rewrote in",
+          "Rust"
+        ],
+        [
+          "Rust",
+          "is",
+          "programming language"
+        ]
+      ]
+    },
+    {
+      "id": "m32",
+      "content": "Sam is using the reqwest and scraper crates for the Rust version of the scraper.",
+      "triples": [
+        [
+          "Sam",
+          "is using",
+          "reqwest"
+        ],
+        [
+          "Sam",
+          "is using",
+          "scraper"
+        ],
+        [
+          "reqwest",
+          "is used for",
+          "Rust"
+        ],
+        [
+          "scraper",
+          "is used for",
+          "Rust"
+        ]
+      ]
+    },
+    {
+      "id": "m33",
+      "content": "Maria's birthday is May 15.",
+      "triples": [
+        [
+          "Maria",
+          "has birthday on",
+          "May 15"
+        ]
+      ]
+    },
+    {
+      "id": "m34",
+      "content": "Sam booked flights to Boston for May 13 through 17 to be there for Maria's birthday.",
+      "triples": [
+        [
+          "Sam",
+          "booked flights to",
+          "Boston"
+        ],
+        [
+          "Sam",
+          "is going to be there for",
+          "Maria's birthday"
+        ],
+        [
+          "Maria's birthday",
+          "is on",
+          "May 13"
+        ],
+        [
+          "Sam's trip to Boston",
+          "ends on",
+          "May 17"
+        ],
+        [
+          "Sam's trip to Boston",
+          "starts on",
+          "May 13"
+        ]
+      ]
+    },
+    {
+      "id": "m35",
+      "content": "Alex will join Sam on the Boston trip.",
+      "triples": [
+        [
+          "Alex",
+          "will join",
+          "Sam"
+        ],
+        [
+          "Alex",
+          "will travel to",
+          "Boston"
+        ],
+        [
+          "Sam",
+          "will travel to",
+          "Boston"
+        ],
+        [
+          "Alex",
+          "will accompany",
+          "Sam"
+        ]
+      ]
+    },
+    {
+      "id": "m36",
+      "content": "David will also fly to Boston for Maria's birthday.",
+      "triples": [
+        [
+          "David",
+          "will fly to",
+          "Boston"
+        ],
+        [
+          "David",
+          "will attend",
+          "Maria's birthday"
+        ],
+        [
+          "Maria's birthday",
+          "located in",
+          "Boston"
+        ]
+      ]
+    },
+    {
+      "id": "m37",
+      "content": "Sam's Spanish practice has slipped to once a week since starting at StartupCo.",
+      "triples": [
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam's Spanish practice",
+          "frequency is",
+          "once a week"
+        ]
+      ]
+    },
+    {
+      "id": "m38",
+      "content": "Sam went climbing at Berkeley Ironworks this morning, first session in two weeks.",
+      "triples": [
+        [
+          "Sam",
+          "went climbing at",
+          "Berkeley Ironworks"
+        ]
+      ]
+    },
+    {
+      "id": "m39",
+      "content": "Sam ordered a new pair of climbing shoes \u2014 the La Sportiva Solution. They should arrive by mid-March.",
+      "triples": [
+        [
+          "Sam",
+          "ordered",
+          "La Sportiva Solution"
+        ],
+        [
+          "La Sportiva Solution",
+          "is type of",
+          "climbing shoes"
+        ],
+        [
+          "La Sportiva Solution",
+          "should arrive by",
+          "March"
+        ]
+      ]
+    },
+    {
+      "id": "m40",
+      "content": "Sam is planning a long climbing trip to Joshua Tree in late March with Alex.",
+      "triples": [
+        [
+          "Sam",
+          "is planning trip with",
+          "Alex"
+        ],
+        [
+          "Sam",
+          "is planning trip to",
+          "Joshua Tree"
+        ],
+        [
+          "Sam",
+          "is planning trip in",
+          "March"
+        ]
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "question_id": "q01",
+      "category": "single_hop",
+      "question": "Where does Sam live?",
+      "expected_answer": "Oakland, California",
+      "expected_winner": "tie",
+      "predicted_answer": "Sam lives in Oakland, California.",
+      "score": {
+        "exact_match": false,
+        "substring_match": true,
+        "token_overlap_f1": 0.571,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m04",
+        "m34",
+        "m23",
+        "m37",
+        "m16"
+      ],
+      "retrieval_scores": [
+        0.0039,
+        0.00291,
+        0.00277,
+        0.00263,
+        0.00257
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "lives in",
+          "Oakland"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "California"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "has partner",
+          "Alex"
+        ],
+        [
+          "Sam",
+          "went climbing at",
+          "Berkeley Ironworks"
+        ]
+      ],
+      "top_triple_sims": [
+        0.544,
+        0.539,
+        0.46,
+        0.46,
+        0.46,
+        0.457,
+        0.457,
+        0.457,
+        0.455,
+        0.447
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "lives in",
+          "Oakland"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "California"
+        ]
+      ]
+    },
+    {
+      "question_id": "q02",
+      "category": "single_hop",
+      "question": "What is Maria's profession?",
+      "expected_answer": "high school chemistry teacher",
+      "expected_winner": "tie",
+      "predicted_answer": "Maria works as a high school chemistry teacher.",
+      "score": {
+        "exact_match": false,
+        "substring_match": true,
+        "token_overlap_f1": 0.667,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m12",
+        "m15",
+        "m33",
+        "m11",
+        "m34"
+      ],
+      "retrieval_scores": [
+        0.00568,
+        0.0035,
+        0.00335,
+        0.00316,
+        0.00264
+      ],
+      "top_triples": [
+        [
+          "Maria",
+          "works as",
+          "high school chemistry teacher"
+        ],
+        [
+          "Maria",
+          "has birthday in",
+          "May"
+        ],
+        [
+          "Maria",
+          "has birthday on",
+          "May 15"
+        ],
+        [
+          "Maria's birthday",
+          "is on",
+          "May 13"
+        ],
+        [
+          "Maria",
+          "lives in",
+          "Boston"
+        ],
+        [
+          "Maria",
+          "is mother of",
+          "Sam"
+        ],
+        [
+          "Maria's birthday",
+          "located in",
+          "Boston"
+        ],
+        [
+          "David",
+          "will attend",
+          "Maria's birthday"
+        ],
+        [
+          "Sam",
+          "plans to visit",
+          "Maria"
+        ],
+        [
+          "Sam",
+          "is going to be there for",
+          "Maria's birthday"
+        ]
+      ],
+      "top_triple_sims": [
+        0.523,
+        0.461,
+        0.458,
+        0.45,
+        0.436,
+        0.391,
+        0.381,
+        0.351,
+        0.327,
+        0.326
+      ],
+      "filtered_triples": [
+        [
+          "Maria",
+          "works as",
+          "high school chemistry teacher"
+        ]
+      ]
+    },
+    {
+      "question_id": "q03",
+      "category": "single_hop",
+      "question": "When is Maria's birthday?",
+      "expected_answer": "May 15",
+      "expected_winner": "tie",
+      "predicted_answer": "Maria's birthday is May 15.",
+      "score": {
+        "exact_match": false,
+        "substring_match": true,
+        "token_overlap_f1": 0.5,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m15",
+        "m34",
+        "m33",
+        "m11",
+        "m36"
+      ],
+      "retrieval_scores": [
+        0.00382,
+        0.00373,
+        0.003,
+        0.00217,
+        0.00211
+      ],
+      "top_triples": [
+        [
+          "Maria",
+          "has birthday on",
+          "May 15"
+        ],
+        [
+          "Maria",
+          "has birthday in",
+          "May"
+        ],
+        [
+          "Maria's birthday",
+          "is on",
+          "May 13"
+        ],
+        [
+          "Maria's birthday",
+          "located in",
+          "Boston"
+        ],
+        [
+          "David",
+          "will attend",
+          "Maria's birthday"
+        ],
+        [
+          "Maria",
+          "works as",
+          "high school chemistry teacher"
+        ],
+        [
+          "Maria",
+          "lives in",
+          "Boston"
+        ],
+        [
+          "Sam",
+          "is going to be there for",
+          "Maria's birthday"
+        ],
+        [
+          "Sam",
+          "visiting for",
+          "Maria's birthday"
+        ],
+        [
+          "Maria",
+          "is mother of",
+          "Sam"
+        ]
+      ],
+      "top_triple_sims": [
+        0.59,
+        0.588,
+        0.577,
+        0.519,
+        0.443,
+        0.414,
+        0.412,
+        0.406,
+        0.368,
+        0.358
+      ],
+      "filtered_triples": [
+        [
+          "Maria",
+          "has birthday on",
+          "May 15"
+        ],
+        [
+          "Maria",
+          "has birthday in",
+          "May"
+        ],
+        [
+          "Maria's birthday",
+          "is on",
+          "May 13"
+        ]
+      ]
+    },
+    {
+      "question_id": "q04",
+      "category": "single_hop",
+      "question": "What climbing shoes did Sam order?",
+      "expected_answer": "La Sportiva Solution",
+      "expected_winner": "tie",
+      "predicted_answer": "Sam ordered the La Sportiva Solution climbing shoes.",
+      "score": {
+        "exact_match": false,
+        "substring_match": true,
+        "token_overlap_f1": 0.545,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m39",
+        "m34",
+        "m08",
+        "m38",
+        "m16"
+      ],
+      "retrieval_scores": [
+        0.00563,
+        0.00343,
+        0.00342,
+        0.00335,
+        0.00321
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "went climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "climbed at",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "ordered",
+          "La Sportiva Solution"
+        ],
+        [
+          "Sam",
+          "has favorite climbing problems",
+          "V4-V5 boulder routes"
+        ],
+        [
+          "Sam",
+          "climbed with",
+          "Alex"
+        ],
+        [
+          "Sam",
+          "had a climbing trip",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "goes rock climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "has been doing",
+          "rock climbing"
+        ],
+        [
+          "Sam",
+          "has goal",
+          "discover new outdoor climbing destinations"
+        ],
+        [
+          "Sam",
+          "decided to rewrite",
+          "climbing scraper"
+        ]
+      ],
+      "top_triple_sims": [
+        0.551,
+        0.53,
+        0.509,
+        0.504,
+        0.5,
+        0.499,
+        0.494,
+        0.47,
+        0.466,
+        0.413
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "ordered",
+          "La Sportiva Solution"
+        ]
+      ]
+    },
+    {
+      "question_id": "q05",
+      "category": "two_hop",
+      "question": "In which city is the company that David works for headquartered?",
+      "expected_answer": "Seattle",
+      "expected_winner": "tie",
+      "predicted_answer": "The company that David works for, Amazon, is headquartered in Seattle.",
+      "score": {
+        "exact_match": false,
+        "substring_match": true,
+        "token_overlap_f1": 0.167,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m14",
+        "m13",
+        "m36",
+        "m34",
+        "m37"
+      ],
+      "retrieval_scores": [
+        0.00437,
+        0.00345,
+        0.00276,
+        0.00219,
+        0.00183
+      ],
+      "top_triples": [
+        [
+          "David",
+          "has office at",
+          "Seattle"
+        ],
+        [
+          "David",
+          "works at",
+          "Amazon"
+        ],
+        [
+          "David",
+          "lives in",
+          "Seattle"
+        ],
+        [
+          "David",
+          "will attend",
+          "Maria's birthday"
+        ],
+        [
+          "David",
+          "will fly to",
+          "Boston"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ]
+      ],
+      "top_triple_sims": [
+        0.496,
+        0.472,
+        0.439,
+        0.348,
+        0.339,
+        0.332,
+        0.332,
+        0.332,
+        0.331,
+        0.331
+      ],
+      "filtered_triples": [
+        [
+          "David",
+          "works at",
+          "Amazon"
+        ],
+        [
+          "David",
+          "has office at",
+          "Seattle"
+        ]
+      ]
+    },
+    {
+      "question_id": "q06",
+      "category": "two_hop",
+      "question": "What programming language does Sam's web scraper use?",
+      "expected_answer": "Python (initially), then rewritten in Rust",
+      "expected_winner": "tie",
+      "predicted_answer": "Sam's web scraper initially uses Python, but is later rewritten in Rust.",
+      "score": {
+        "exact_match": false,
+        "substring_match": false,
+        "token_overlap_f1": 0.526,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m17",
+        "m32",
+        "m16",
+        "m31",
+        "m20"
+      ],
+      "retrieval_scores": [
+        0.00448,
+        0.00333,
+        0.00324,
+        0.00324,
+        0.00315
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "is working on",
+          "web scraper project"
+        ],
+        [
+          "Sam",
+          "uses",
+          "scraper"
+        ],
+        [
+          "Sam",
+          "uses",
+          "BeautifulSoup"
+        ],
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "is using",
+          "scraper"
+        ],
+        [
+          "Sam",
+          "decided to rewrite",
+          "climbing scraper"
+        ],
+        [
+          "Sam",
+          "decided to use",
+          "Python"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "scraper",
+          "is used for",
+          "Rust"
+        ]
+      ],
+      "top_triple_sims": [
+        0.545,
+        0.54,
+        0.515,
+        0.494,
+        0.493,
+        0.472,
+        0.468,
+        0.453,
+        0.453,
+        0.424
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "decided to use",
+          "Python"
+        ]
+      ]
+    },
+    {
+      "question_id": "q07",
+      "category": "two_hop",
+      "question": "What does Sam's mother do for a living, and where does she live?",
+      "expected_answer": "high school chemistry teacher in Boston",
+      "expected_winner": "tie",
+      "predicted_answer": "Sam's mother Maria's occupation is unknown, but she lives in Boston.",
+      "score": {
+        "exact_match": false,
+        "substring_match": false,
+        "token_overlap_f1": 0.222,
+        "correct": false
+      },
+      "retrieved_ids": [
+        "m11",
+        "m15",
+        "m34",
+        "m23",
+        "m08"
+      ],
+      "retrieval_scores": [
+        0.00428,
+        0.004,
+        0.00316,
+        0.00309,
+        0.00295
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "lives in",
+          "Oakland"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "California"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Maria",
+          "is mother of",
+          "Sam"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Jennifer"
+        ]
+      ],
+      "top_triple_sims": [
+        0.415,
+        0.414,
+        0.414,
+        0.414,
+        0.407,
+        0.399,
+        0.399,
+        0.399,
+        0.396,
+        0.372
+      ],
+      "filtered_triples": [
+        [
+          "Maria",
+          "is mother of",
+          "Sam"
+        ]
+      ]
+    },
+    {
+      "question_id": "q08",
+      "category": "deep_multi_hop",
+      "question": "Who is the manager of the person whose brother works at Amazon?",
+      "expected_answer": "Marcus",
+      "expected_winner": "HippoRAG",
+      "predicted_answer": "unknown / not mentioned",
+      "score": {
+        "exact_match": false,
+        "substring_match": false,
+        "token_overlap_f1": 0.0,
+        "correct": false
+      },
+      "retrieved_ids": [
+        "m28",
+        "m03",
+        "m34",
+        "m23",
+        "m37"
+      ],
+      "retrieval_scores": [
+        0.00317,
+        0.00276,
+        0.00275,
+        0.00245,
+        0.00233
+      ],
+      "top_triples": [
+        [
+          "David",
+          "works at",
+          "Amazon"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Jennifer"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Marcus"
+        ],
+        [
+          "Jennifer",
+          "is manager of",
+          "Sam"
+        ],
+        [
+          "Marcus",
+          "is manager of",
+          "Sam"
+        ],
+        [
+          "Amazon",
+          "has headquarters at",
+          "Seattle"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Marcus",
+          "works at",
+          "StartupCo"
+        ]
+      ],
+      "top_triple_sims": [
+        0.395,
+        0.394,
+        0.385,
+        0.384,
+        0.372,
+        0.349,
+        0.326,
+        0.326,
+        0.326,
+        0.315
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "has manager",
+          "Jennifer"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Marcus"
+        ],
+        [
+          "Jennifer",
+          "is manager of",
+          "Sam"
+        ],
+        [
+          "Marcus",
+          "is manager of",
+          "Sam"
+        ]
+      ]
+    },
+    {
+      "question_id": "q09",
+      "category": "deep_multi_hop",
+      "question": "What is the profession of the partner of the engineer who has a brother in Seattle?",
+      "expected_answer": "graphic designer",
+      "expected_winner": "HippoRAG",
+      "predicted_answer": "unknown / not mentioned",
+      "score": {
+        "exact_match": false,
+        "substring_match": false,
+        "token_overlap_f1": 0.0,
+        "correct": false
+      },
+      "retrieved_ids": [
+        "m13",
+        "m34",
+        "m22",
+        "m40",
+        "m23"
+      ],
+      "retrieval_scores": [
+        0.00282,
+        0.00249,
+        0.00223,
+        0.00223,
+        0.00221
+      ],
+      "top_triples": [
+        [
+          "Amazon",
+          "has headquarters at",
+          "Seattle"
+        ],
+        [
+          "David",
+          "has office at",
+          "Seattle"
+        ],
+        [
+          "Sam",
+          "has partner",
+          "Alex"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "is a",
+          "software engineer"
+        ],
+        [
+          "David",
+          "lives in",
+          "Seattle"
+        ],
+        [
+          "David",
+          "works at",
+          "Amazon"
+        ],
+        [
+          "David",
+          "is brother of",
+          "Sam"
+        ]
+      ],
+      "top_triple_sims": [
+        0.386,
+        0.378,
+        0.352,
+        0.33,
+        0.33,
+        0.33,
+        0.33,
+        0.327,
+        0.326,
+        0.323
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "is a",
+          "software engineer"
+        ],
+        [
+          "David",
+          "is brother of",
+          "Sam"
+        ],
+        [
+          "David",
+          "lives in",
+          "Seattle"
+        ],
+        [
+          "Sam",
+          "has partner",
+          "Alex"
+        ]
+      ]
+    },
+    {
+      "question_id": "q10",
+      "category": "deep_multi_hop",
+      "question": "In which city was the person born who is married to the graphic designer's partner's brother?",
+      "expected_answer": "unknown / cannot determine (Maria's birth location is not in the facts)",
+      "expected_winner": "tie",
+      "predicted_answer": "unknown / not mentioned",
+      "score": {
+        "exact_match": false,
+        "substring_match": false,
+        "token_overlap_f1": 0.267,
+        "correct": false
+      },
+      "retrieved_ids": [
+        "m05",
+        "m40",
+        "m22",
+        "m34",
+        "m35"
+      ],
+      "retrieval_scores": [
+        0.00322,
+        0.00267,
+        0.00265,
+        0.0025,
+        0.00238
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "has partner",
+          "Alex"
+        ],
+        [
+          "Alex",
+          "works as",
+          "graphic designer"
+        ],
+        [
+          "David",
+          "is brother of",
+          "Sam"
+        ],
+        [
+          "David",
+          "has office at",
+          "Seattle"
+        ],
+        [
+          "David",
+          "will attend",
+          "Maria's birthday"
+        ],
+        [
+          "Maria",
+          "is mother of",
+          "Sam"
+        ],
+        [
+          "Alex",
+          "will accompany",
+          "Sam"
+        ],
+        [
+          "Jennifer",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Jennifer"
+        ],
+        [
+          "Jennifer",
+          "is manager of",
+          "Sam"
+        ]
+      ],
+      "top_triple_sims": [
+        0.338,
+        0.315,
+        0.259,
+        0.256,
+        0.251,
+        0.249,
+        0.245,
+        0.237,
+        0.237,
+        0.236
+      ],
+      "filtered_triples": [
+        [
+          "David",
+          "is brother of",
+          "Sam"
+        ],
+        [
+          "Sam",
+          "has partner",
+          "Alex"
+        ],
+        [
+          "Alex",
+          "works as",
+          "graphic designer"
+        ]
+      ]
+    },
+    {
+      "question_id": "q11",
+      "category": "implicit_conceptual",
+      "question": "What outdoor activities does Sam enjoy?",
+      "expected_answer": "rock climbing (Yosemite, Joshua Tree, Berkeley Ironworks \u2014 though gym is indoor)",
+      "expected_winner": "A-Mem",
+      "predicted_answer": "Sam enjoys rock climbing.",
+      "score": {
+        "exact_match": false,
+        "substring_match": false,
+        "token_overlap_f1": 0.267,
+        "correct": false
+      },
+      "retrieved_ids": [
+        "m08",
+        "m38",
+        "m20",
+        "m22",
+        "m34"
+      ],
+      "retrieval_scores": [
+        0.00893,
+        0.00886,
+        0.00384,
+        0.00289,
+        0.00271
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "has goal",
+          "discover new outdoor climbing destinations"
+        ],
+        [
+          "Sam",
+          "has been doing",
+          "rock climbing"
+        ],
+        [
+          "Sam",
+          "went climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "climbed at",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "had a climbing trip",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "goes rock climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "has favorite climbing problems",
+          "V4-V5 boulder routes"
+        ],
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ]
+      ],
+      "top_triple_sims": [
+        0.533,
+        0.508,
+        0.494,
+        0.478,
+        0.467,
+        0.462,
+        0.454,
+        0.433,
+        0.413,
+        0.413
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "has goal",
+          "discover new outdoor climbing destinations"
+        ],
+        [
+          "Sam",
+          "has been doing",
+          "rock climbing"
+        ],
+        [
+          "Sam",
+          "went climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "climbed at",
+          "Yosemite"
+        ]
+      ]
+    },
+    {
+      "question_id": "q12",
+      "category": "implicit_conceptual",
+      "question": "What Python libraries has Sam used?",
+      "expected_answer": "BeautifulSoup",
+      "expected_winner": "A-Mem",
+      "predicted_answer": "Sam has used the BeautifulSoup library in Python.",
+      "score": {
+        "exact_match": false,
+        "substring_match": true,
+        "token_overlap_f1": 0.222,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m18",
+        "m20",
+        "m32",
+        "m17",
+        "m34"
+      ],
+      "retrieval_scores": [
+        0.00285,
+        0.00276,
+        0.00273,
+        0.00266,
+        0.00264
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "uses",
+          "BeautifulSoup"
+        ],
+        [
+          "Sam",
+          "is working on",
+          "web scraper project"
+        ],
+        [
+          "Sam",
+          "uses",
+          "scraper"
+        ],
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "decided to use",
+          "Python"
+        ],
+        [
+          "Sam",
+          "has role",
+          "senior backend engineer"
+        ],
+        [
+          "Sam",
+          "is using",
+          "scraper"
+        ],
+        [
+          "Sam",
+          "is a",
+          "software engineer"
+        ],
+        [
+          "Sam",
+          "has partner",
+          "Alex"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ]
+      ],
+      "top_triple_sims": [
+        0.556,
+        0.53,
+        0.528,
+        0.513,
+        0.497,
+        0.454,
+        0.448,
+        0.448,
+        0.424,
+        0.42
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "uses",
+          "BeautifulSoup"
+        ],
+        [
+          "Sam",
+          "uses",
+          "scraper"
+        ],
+        [
+          "Sam",
+          "decided to use",
+          "Python"
+        ]
+      ]
+    },
+    {
+      "question_id": "q13",
+      "category": "implicit_conceptual",
+      "question": "What hobbies has Sam been less active in lately?",
+      "expected_answer": "Spanish learning (slipped to once a week) and climbing (first session in two weeks before m38)",
+      "expected_winner": "A-Mem",
+      "predicted_answer": "Sam has been less active in rock climbing, with his first session in two weeks at Berkeley Ironworks.",
+      "score": {
+        "exact_match": false,
+        "substring_match": false,
+        "token_overlap_f1": 0.364,
+        "correct": false
+      },
+      "retrieved_ids": [
+        "m38",
+        "m08",
+        "m23",
+        "m34",
+        "m37"
+      ],
+      "retrieval_scores": [
+        0.01501,
+        0.01496,
+        0.00303,
+        0.00301,
+        0.00291
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "has been doing",
+          "rock climbing"
+        ],
+        [
+          "Sam",
+          "went climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "is working on",
+          "web scraper project"
+        ],
+        [
+          "Sam",
+          "started learning Spanish",
+          "two months ago"
+        ],
+        [
+          "Sam",
+          "has goal",
+          "discover new outdoor climbing destinations"
+        ],
+        [
+          "Sam",
+          "had a climbing trip",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "has favorite climbing problems",
+          "V4-V5 boulder routes"
+        ],
+        [
+          "Sam",
+          "goes rock climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "started",
+          "side project"
+        ]
+      ],
+      "top_triple_sims": [
+        0.522,
+        0.448,
+        0.445,
+        0.431,
+        0.424,
+        0.416,
+        0.414,
+        0.413,
+        0.408,
+        0.401
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "has been doing",
+          "rock climbing"
+        ],
+        [
+          "Sam",
+          "goes rock climbing at",
+          "Berkeley Ironworks"
+        ]
+      ]
+    },
+    {
+      "question_id": "q14",
+      "category": "information_update",
+      "question": "Where does Sam currently work?",
+      "expected_answer": "StartupCo",
+      "expected_winner": "A-Mem",
+      "predicted_answer": "Sam currently works at StartupCo.",
+      "score": {
+        "exact_match": false,
+        "substring_match": true,
+        "token_overlap_f1": 0.333,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m23",
+        "m27",
+        "m37",
+        "m01",
+        "m03"
+      ],
+      "retrieval_scores": [
+        0.00355,
+        0.00349,
+        0.00322,
+        0.00311,
+        0.0029
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "is a",
+          "software engineer"
+        ],
+        [
+          "Sam",
+          "is working on",
+          "web scraper project"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "California"
+        ],
+        [
+          "Sam",
+          "has role",
+          "senior backend engineer"
+        ]
+      ],
+      "top_triple_sims": [
+        0.497,
+        0.497,
+        0.497,
+        0.49,
+        0.49,
+        0.49,
+        0.484,
+        0.481,
+        0.465,
+        0.465
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ]
+      ]
+    },
+    {
+      "question_id": "q15",
+      "category": "information_update",
+      "question": "Who is Sam's current manager?",
+      "expected_answer": "Marcus",
+      "expected_winner": "A-Mem",
+      "predicted_answer": "Sam's current manager is Marcus at StartupCo.",
+      "score": {
+        "exact_match": false,
+        "substring_match": true,
+        "token_overlap_f1": 0.222,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m28",
+        "m03",
+        "m34",
+        "m23",
+        "m37"
+      ],
+      "retrieval_scores": [
+        0.00323,
+        0.00278,
+        0.00276,
+        0.00252,
+        0.00243
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "has manager",
+          "Marcus"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Jennifer"
+        ],
+        [
+          "Jennifer",
+          "is manager of",
+          "Sam"
+        ],
+        [
+          "Marcus",
+          "is manager of",
+          "Sam"
+        ],
+        [
+          "Sam",
+          "has role",
+          "senior backend engineer"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "is a",
+          "software engineer"
+        ]
+      ],
+      "top_triple_sims": [
+        0.546,
+        0.542,
+        0.507,
+        0.507,
+        0.419,
+        0.415,
+        0.415,
+        0.415,
+        0.414,
+        0.404
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "has manager",
+          "Marcus"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Jennifer"
+        ],
+        [
+          "Jennifer",
+          "is manager of",
+          "Sam"
+        ],
+        [
+          "Marcus",
+          "is manager of",
+          "Sam"
+        ]
+      ]
+    },
+    {
+      "question_id": "q16",
+      "category": "information_update",
+      "question": "What language is Sam's climbing scraper currently written in?",
+      "expected_answer": "Rust",
+      "expected_winner": "A-Mem",
+      "predicted_answer": "Sam's climbing scraper is currently written in Rust.",
+      "score": {
+        "exact_match": false,
+        "substring_match": true,
+        "token_overlap_f1": 0.2,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m18",
+        "m16",
+        "m31",
+        "m20",
+        "m32"
+      ],
+      "retrieval_scores": [
+        0.00458,
+        0.00362,
+        0.00359,
+        0.00359,
+        0.00324
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "decided to rewrite",
+          "climbing scraper"
+        ],
+        [
+          "scraper",
+          "is for",
+          "discover new outdoor climbing destinations"
+        ],
+        [
+          "Sam",
+          "is working on",
+          "web scraper project"
+        ],
+        [
+          "web scraper",
+          "used for",
+          "finding new climbing destinations"
+        ],
+        [
+          "Sam",
+          "uses",
+          "scraper"
+        ],
+        [
+          "Sam",
+          "has favorite climbing problems",
+          "V4-V5 boulder routes"
+        ],
+        [
+          "Sam",
+          "uses",
+          "BeautifulSoup"
+        ],
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "is using",
+          "scraper"
+        ],
+        [
+          "Sam",
+          "has goal",
+          "discover new outdoor climbing destinations"
+        ]
+      ],
+      "top_triple_sims": [
+        0.596,
+        0.552,
+        0.511,
+        0.489,
+        0.479,
+        0.47,
+        0.469,
+        0.461,
+        0.451,
+        0.445
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "uses",
+          "BeautifulSoup"
+        ]
+      ]
+    },
+    {
+      "question_id": "q17",
+      "category": "compositional_aggregation",
+      "question": "Who are all the people Sam has mentioned in conversations?",
+      "expected_answer": "Alex (partner), Jennifer (old manager), Maria (mother), David (brother), Marcus (new manager)",
+      "expected_winner": "HippoRAG",
+      "predicted_answer": "Sam has mentioned Maria and Alex in conversations.",
+      "score": {
+        "exact_match": false,
+        "substring_match": false,
+        "token_overlap_f1": 0.211,
+        "correct": false
+      },
+      "retrieved_ids": [
+        "m34",
+        "m15",
+        "m40",
+        "m22",
+        "m23"
+      ],
+      "retrieval_scores": [
+        0.00325,
+        0.00302,
+        0.00253,
+        0.0025,
+        0.00247
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "is planning trip with",
+          "Alex"
+        ],
+        [
+          "Sam",
+          "is planning trip to",
+          "Joshua Tree"
+        ],
+        [
+          "Sam",
+          "is going to be there for",
+          "Maria's birthday"
+        ],
+        [
+          "Sam",
+          "plans to visit",
+          "Maria"
+        ],
+        [
+          "Sam",
+          "climbed with",
+          "Alex"
+        ],
+        [
+          "Sam",
+          "is planning trip in",
+          "March"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Jennifer"
+        ],
+        [
+          "Sam",
+          "had a climbing trip",
+          "Yosemite"
+        ],
+        [
+          "Alex",
+          "will accompany",
+          "Sam"
+        ]
+      ],
+      "top_triple_sims": [
+        0.412,
+        0.402,
+        0.393,
+        0.391,
+        0.378,
+        0.377,
+        0.377,
+        0.374,
+        0.37,
+        0.37
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "is planning trip with",
+          "Alex"
+        ],
+        [
+          "Sam",
+          "is going to be there for",
+          "Maria's birthday"
+        ],
+        [
+          "Sam",
+          "plans to visit",
+          "Maria"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Jennifer"
+        ]
+      ]
+    },
+    {
+      "question_id": "q18",
+      "category": "compositional_aggregation",
+      "question": "What different programming languages and libraries has Sam used or learned?",
+      "expected_answer": "Python, BeautifulSoup, Rust, reqwest, scraper",
+      "expected_winner": "HippoRAG",
+      "predicted_answer": "Sam has used Python and the BeautifulSoup library.",
+      "score": {
+        "exact_match": false,
+        "substring_match": false,
+        "token_overlap_f1": 0.308,
+        "correct": false
+      },
+      "retrieved_ids": [
+        "m18",
+        "m34",
+        "m17",
+        "m23",
+        "m16"
+      ],
+      "retrieval_scores": [
+        0.00279,
+        0.0027,
+        0.00262,
+        0.00259,
+        0.00255
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "is working on",
+          "web scraper project"
+        ],
+        [
+          "Sam",
+          "uses",
+          "BeautifulSoup"
+        ],
+        [
+          "Sam",
+          "decided to use",
+          "Python"
+        ],
+        [
+          "Sam",
+          "uses",
+          "scraper"
+        ],
+        [
+          "Sam",
+          "is a",
+          "software engineer"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "has favorite climbing problems",
+          "V4-V5 boulder routes"
+        ],
+        [
+          "Sam",
+          "started learning Spanish",
+          "two months ago"
+        ]
+      ],
+      "top_triple_sims": [
+        0.56,
+        0.536,
+        0.507,
+        0.483,
+        0.479,
+        0.478,
+        0.466,
+        0.466,
+        0.46,
+        0.456
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "uses",
+          "BeautifulSoup"
+        ],
+        [
+          "Sam",
+          "decided to use",
+          "Python"
+        ]
+      ]
+    },
+    {
+      "question_id": "q19",
+      "category": "compositional_aggregation",
+      "question": "What places does Sam have travel or residence connections to?",
+      "expected_answer": "Oakland (lives), San Francisco (work), Boston (mother + planned trip), Seattle (brother), Yosemite (climbed), Joshua Tree (planned trip), Mexico (Spanish learning motivation)",
+      "expected_winner": "HippoRAG",
+      "predicted_answer": "Sam has connections to Oakland, California, and Boston.",
+      "score": {
+        "exact_match": false,
+        "substring_match": false,
+        "token_overlap_f1": 0.148,
+        "correct": false
+      },
+      "retrieved_ids": [
+        "m34",
+        "m04",
+        "m11",
+        "m23",
+        "m35"
+      ],
+      "retrieval_scores": [
+        0.00343,
+        0.00276,
+        0.00249,
+        0.00244,
+        0.00244
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "lives in",
+          "Oakland"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "California"
+        ],
+        [
+          "Sam",
+          "booked flights to",
+          "Boston"
+        ],
+        [
+          "Sam",
+          "had a climbing trip",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "climbed at",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "went climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "has goal",
+          "discover new outdoor climbing destinations"
+        ],
+        [
+          "Sam",
+          "will travel to",
+          "Boston"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ]
+      ],
+      "top_triple_sims": [
+        0.439,
+        0.439,
+        0.438,
+        0.428,
+        0.426,
+        0.422,
+        0.422,
+        0.416,
+        0.406,
+        0.403
+      ],
+      "filtered_triples": [
+        [
+          "Sam",
+          "lives in",
+          "Oakland"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "California"
+        ],
+        [
+          "Sam",
+          "booked flights to",
+          "Boston"
+        ],
+        [
+          "Sam",
+          "will travel to",
+          "Boston"
+        ]
+      ]
+    },
+    {
+      "question_id": "q20",
+      "category": "absence_abstention",
+      "question": "What is Sam's favorite food?",
+      "expected_answer": "unknown / not mentioned",
+      "expected_winner": "tie",
+      "predicted_answer": "unknown / not mentioned",
+      "score": {
+        "abstained": true,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m08",
+        "m10",
+        "m38",
+        "m15",
+        "m34"
+      ],
+      "retrieval_scores": [
+        0.00761,
+        0.00705,
+        0.00669,
+        0.00632,
+        0.00632
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "has favorite climbing problems",
+          "V4-V5 boulder routes"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "climbed at",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "goes rock climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "is learning",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "had a climbing trip",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "went climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "started learning Spanish",
+          "two months ago"
+        ]
+      ],
+      "top_triple_sims": [
+        0.429,
+        0.414,
+        0.414,
+        0.414,
+        0.403,
+        0.4,
+        0.398,
+        0.397,
+        0.396,
+        0.385
+      ],
+      "filtered_triples": []
+    },
+    {
+      "question_id": "q21",
+      "category": "absence_abstention",
+      "question": "Does Sam have any pets?",
+      "expected_answer": "unknown / not mentioned",
+      "expected_winner": "tie",
+      "predicted_answer": "unknown / not mentioned",
+      "score": {
+        "abstained": true,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m08",
+        "m38",
+        "m40",
+        "m23",
+        "m15"
+      ],
+      "retrieval_scores": [
+        0.00766,
+        0.00699,
+        0.00628,
+        0.00627,
+        0.00624
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
+        ],
+        [
+          "Sam",
+          "has partner",
+          "Alex"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
+        ],
+        [
+          "Sam",
+          "has been doing",
+          "rock climbing"
+        ],
+        [
+          "Sam",
+          "had a climbing trip",
+          "Yosemite"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "Oakland"
+        ],
+        [
+          "Sam",
+          "has manager",
+          "Jennifer"
+        ],
+        [
+          "Sam",
+          "went climbing at",
+          "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "climbed at",
+          "Yosemite"
+        ]
+      ],
+      "top_triple_sims": [
+        0.441,
+        0.44,
+        0.439,
+        0.439,
+        0.427,
+        0.427,
+        0.424,
+        0.421,
+        0.411,
+        0.407
+      ],
+      "filtered_triples": []
+    },
+    {
+      "question_id": "q22",
+      "category": "absence_abstention",
+      "question": "What is Sam's salary at StartupCo?",
+      "expected_answer": "unknown / not mentioned",
+      "expected_winner": "tie",
+      "predicted_answer": "unknown / not mentioned",
+      "score": {
+        "abstained": true,
+        "correct": true
+      },
+      "retrieved_ids": [
+        "m29",
+        "m25",
+        "m27",
+        "m37",
+        "m30"
+      ],
+      "retrieval_scores": [
+        0.00771,
+        0.0075,
+        0.00746,
+        0.00739,
+        0.00711
+      ],
+      "top_triples": [
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "accepted offer from",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "received job offer from",
+          "StartupCo"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "Sam",
+          "works at",
+          "TechCorp"
+        ],
+        [
+          "StartupCo",
+          "based in",
+          "San Francisco"
+        ],
+        [
+          "Sam",
+          "gave notice at",
+          "TechCorp"
+        ]
+      ],
+      "top_triple_sims": [
+        0.619,
+        0.619,
+        0.619,
+        0.589,
+        0.573,
+        0.493,
+        0.493,
+        0.493,
+        0.476,
+        0.444
+      ],
+      "filtered_triples": []
+    }
+  ]
+}

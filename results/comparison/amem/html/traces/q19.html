@@ -1,0 +1,359 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#ef4444", "font": {"color": "#1f2937"}, "id": "_query", "label": "Q", "shape": "diamond", "size": 22, "title": "Question\nWhat places does Sam have travel or residence connections to?"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m04", "label": "m04", "shape": "dot", "size": 16, "title": "m04  (2024-01-10T08:30:00)\n\nContent:  Sam lives in Oakland, California.\nKeywords: Oakland, California, location\nTags:     Software Engineer, Web Development, Data Extraction, Career, Work-Life Balance, Employee Well-being\nContext:  General biographical information about Sam\u0027s location, but not\n  directly related to the Boston trip.\nLinks:    (none)\n\nEvolved 30\u00d7:\n  \u00b7 trigger=m05 field=context\n  \u00b7 trigger=m05 field=tags\n  \u00b7 trigger=m06 field=context\n  \u00b7 trigger=m06 field=tags\n  \u00b7 trigger=m07 field=context"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m11", "label": "m11", "shape": "dot", "size": 16, "title": "m11  (2024-01-22T20:00:00)\n\nContent:  Sam\u0027s mother Maria lives in Boston.\nKeywords: mother, Boston, family\nTags:     Biographical Information, Personal Relationships, Geographical Location, Family, Travel, Travel Plans, Friend\u0027s Birthday\nContext:  The main topic is a personal visit to celebrate a friend\u0027s birthday,\n  with the key point being the planning of the trip, intended for a\n  personal or social audience, and Alex\u0027s involvement in the trip.\nLinks:    m04, m03, m05\n\nEvolved 14\u00d7:\n  \u00b7 trigger=m12 field=context\n  \u00b7 trigger=m12 field=tags\n  \u00b7 trigger=m13 field=context\n  \u00b7 trigger=m13 field=tags\n  \u00b7 trigger=m15 field=context"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m13", "label": "m13", "shape": "dot", "size": 16, "title": "m13  (2024-01-23T19:30:00)\n\nContent:  Sam\u0027s brother David lives in Seattle.\nKeywords: brother, Seattle, family\nTags:     Family Members\u0027 Locations, Biographical Information, Professional Relationships, Location\nContext:  Sam\u0027s brother\u0027s location and its potential connection to outdoor\n  recreation in Seattle.\nLinks:    m04, m11\n\nEvolved 6\u00d7:\n  \u00b7 trigger=m14 field=context\n  \u00b7 trigger=m14 field=tags\n  \u00b7 trigger=m17 field=context\n  \u00b7 trigger=m17 field=tags\n  \u00b7 trigger=m18 field=context"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m35", "label": "m35", "shape": "dot", "size": 16, "title": "m35  (2024-02-27T21:05:00)\n\nContent:  Alex will join Sam on the Boston trip.\nKeywords: (none)\nTags:     Outdoor Recreation, Rock Climbing, Personal Experiences, Travel, Work-Life Balance, Self-Care, Adventure, Personal Updates, Gear\nContext:  A personal account of a recreational outdoor adventure, specifically a\n  climbing trip to Yosemite, with a mention of differing skill levels,\n  and the importance of taking breaks and maintaining a healthy work-\n  life balance.\nLinks:    m05, m34\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m36 field=context\n  \u00b7 trigger=m36 field=tags\n  \u00b7 trigger=m40 field=context\n  \u00b7 trigger=m40 field=tags"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m01", "label": "m01", "shape": "dot", "size": 16, "title": "m01  (2024-01-08T09:00:00)\n\nContent:  Sam works as a software engineer at TechCorp.\nKeywords: Software Engineer, TechCorp, Career\nTags:     Software Engineer, Web Development, Data Extraction, Career, Job Search, Career Transition\nContext:  Sam\u0027s professional background and current job search as a software\n  engineer, with a new development of transitioning to a senior backend\n  engineer role at a startup.\nLinks:    (none)\n\nEvolved 46\u00d7:\n  \u00b7 trigger=m02 field=context\n  \u00b7 trigger=m02 field=tags\n  \u00b7 trigger=m03 field=context\n  \u00b7 trigger=m03 field=tags\n  \u00b7 trigger=m04 field=context"}, {"color": "#a78bfa", "font": {"color": "#1f2937"}, "id": "m03", "label": "m03", "shape": "dot", "size": 13, "title": "m03  (2024-01-09T10:00:00)\n\nContent:  Sam\u0027s manager at TechCorp is Jennifer.\nKeywords: (none)\nTags:     Biographical Information, Professional Relationships, Location, Language Learning\nContext:  Sam\u0027s professional relationships and location, with a manager at\n  TechCorp.\nLinks:    m01\n\nEvolved 30\u00d7:\n  \u00b7 trigger=m04 field=context\n  \u00b7 trigger=m04 field=tags\n  \u00b7 trigger=m05 field=context\n  \u00b7 trigger=m05 field=tags\n  \u00b7 trigger=m06 field=context"}, {"color": "#a78bfa", "font": {"color": "#1f2937"}, "id": "m05", "label": "m05", "shape": "dot", "size": 13, "title": "m05  (2024-01-12T19:00:00)\n\nContent:  Sam\u0027s partner is Alex. Alex works as a graphic designer.\nKeywords: (none)\nTags:     Biographical Information, Personal Relationships, Professional Relationships, Graphic Design, Travel Plans\nContext:  Sam\u0027s partner\u0027s profession and its potential connection to design for\n  outdoor recreation, and their relationship with Sam.\nLinks:    m01\n\nEvolved 26\u00d7:\n  \u00b7 trigger=m06 field=context\n  \u00b7 trigger=m06 field=tags\n  \u00b7 trigger=m07 field=context\n  \u00b7 trigger=m07 field=tags\n  \u00b7 trigger=m08 field=context"}, {"color": "#a78bfa", "font": {"color": "#1f2937"}, "id": "m34", "label": "m34", "shape": "dot", "size": 13, "title": "m34  (2024-02-27T21:00:00)\n\nContent:  Sam booked flights to Boston for May 13 through 17 to be there for\n  Maria\u0027s birthday.\nKeywords: flights, Boston, birthday, trip\nTags:     Travel Plans, Friend\u0027s Birthday, Personal Relationships\nContext:  A personal travel plan to attend a friend\u0027s birthday celebration in\n  Boston, with Alex joining Sam on the trip.\nLinks:    m15\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m35 field=context\n  \u00b7 trigger=m35 field=tags\n  \u00b7 trigger=m36 field=context\n  \u00b7 trigger=m36 field=tags"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#3b82f6", "from": "_query", "title": "direct retrieval", "to": "m04", "width": 3}, {"arrows": "to", "color": "#3b82f6", "from": "_query", "title": "direct retrieval", "to": "m11", "width": 3}, {"arrows": "to", "color": "#3b82f6", "from": "_query", "title": "direct retrieval", "to": "m13", "width": 3}, {"arrows": "to", "color": "#3b82f6", "from": "_query", "title": "direct retrieval", "to": "m35", "width": 3}, {"arrows": "to", "color": "#3b82f6", "from": "_query", "title": "direct retrieval", "to": "m01", "width": 3}, {"arrows": "to", "color": "#a78bfa", "dashes": true, "from": "m11", "title": "link traversal", "to": "m03", "width": 2}, {"arrows": "to", "color": "#a78bfa", "dashes": true, "from": "m11", "title": "link traversal", "to": "m05", "width": 2}, {"arrows": "to", "color": "#a78bfa", "dashes": true, "from": "m35", "title": "link traversal", "to": "m34", "width": 2}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.4,
+            "damping": 0.09,
+            "gravitationalConstant": -2500,
+            "springConstant": 0.06,
+            "springLength": 110
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+                    network.on("click", neighbourhoodHighlight);
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

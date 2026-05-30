@@ -1,0 +1,359 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m01", "label": "m01", "shape": "dot", "size": 15, "title": "m01  (2024-01-08T09:00:00)\n\nContent:  Sam works as a software engineer at TechCorp.\nKeywords: Software Engineer, TechCorp, Career\nTags:     Software Engineer, Web Development, Data Extraction, Career, Job Search, Career Transition\nContext:  Sam\u0027s professional background and current job search as a software\n  engineer, with a new development of transitioning to a senior backend\n  engineer role at a startup.\nLinks:    (none)\n\nEvolved 46\u00d7:\n  \u00b7 trigger=m02 field=context\n  \u00b7 trigger=m02 field=tags\n  \u00b7 trigger=m03 field=context\n  \u00b7 trigger=m03 field=tags\n  \u00b7 trigger=m04 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m02", "label": "m02", "shape": "dot", "size": 17, "title": "m02  (2024-01-08T09:05:00)\n\nContent:  TechCorp is a fintech company headquartered in San Francisco.\nKeywords: (none)\nTags:     Company Information, Technology, Organizational Structure, Location, Employee Information\nContext:  The main topic is a brief description of a company\u0027s headquarters,\n  organizational structure, and employee location.\nLinks:    m01\n\nEvolved 12\u00d7:\n  \u00b7 trigger=m03 field=context\n  \u00b7 trigger=m03 field=tags\n  \u00b7 trigger=m04 field=context\n  \u00b7 trigger=m04 field=tags\n  \u00b7 trigger=m05 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m03", "label": "m03", "shape": "dot", "size": 17, "title": "m03  (2024-01-09T10:00:00)\n\nContent:  Sam\u0027s manager at TechCorp is Jennifer.\nKeywords: (none)\nTags:     Biographical Information, Professional Relationships, Location, Language Learning\nContext:  Sam\u0027s professional relationships and location, with a manager at\n  TechCorp.\nLinks:    m01\n\nEvolved 30\u00d7:\n  \u00b7 trigger=m04 field=context\n  \u00b7 trigger=m04 field=tags\n  \u00b7 trigger=m05 field=context\n  \u00b7 trigger=m05 field=tags\n  \u00b7 trigger=m06 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m04", "label": "m04", "shape": "dot", "size": 15, "title": "m04  (2024-01-10T08:30:00)\n\nContent:  Sam lives in Oakland, California.\nKeywords: Oakland, California, location\nTags:     Software Engineer, Web Development, Data Extraction, Career, Work-Life Balance, Employee Well-being\nContext:  General biographical information about Sam\u0027s location, but not\n  directly related to the Boston trip.\nLinks:    (none)\n\nEvolved 30\u00d7:\n  \u00b7 trigger=m05 field=context\n  \u00b7 trigger=m05 field=tags\n  \u00b7 trigger=m06 field=context\n  \u00b7 trigger=m06 field=tags\n  \u00b7 trigger=m07 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m05", "label": "m05", "shape": "dot", "size": 17, "title": "m05  (2024-01-12T19:00:00)\n\nContent:  Sam\u0027s partner is Alex. Alex works as a graphic designer.\nKeywords: (none)\nTags:     Biographical Information, Personal Relationships, Professional Relationships, Graphic Design, Travel Plans\nContext:  Sam\u0027s partner\u0027s profession and its potential connection to design for\n  outdoor recreation, and their relationship with Sam.\nLinks:    m01\n\nEvolved 26\u00d7:\n  \u00b7 trigger=m06 field=context\n  \u00b7 trigger=m06 field=tags\n  \u00b7 trigger=m07 field=context\n  \u00b7 trigger=m07 field=tags\n  \u00b7 trigger=m08 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m06", "label": "m06", "shape": "dot", "size": 17, "title": "m06  (2024-01-15T07:00:00)\n\nContent:  Sam started learning Spanish two months ago, mainly for an upcoming\n  trip to Mexico.\nKeywords: Spanish, trip, Mexico, learning, language\nTags:     Travel, Language Skills, Educational Technology, Cultural Immersion, Personal Development\nContext:  A person is learning Spanish in preparation for a trip to Mexico,\n  highlighting the importance of language skills for travel and cultural\n  immersion, and utilizing Duolingo for daily practice.\nLinks:    m04\n\nEvolved 16\u00d7:\n  \u00b7 trigger=m07 field=context\n  \u00b7 trigger=m07 field=tags\n  \u00b7 trigger=m08 field=context\n  \u00b7 trigger=m08 field=tags\n  \u00b7 trigger=m09 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m07", "label": "m07", "shape": "dot", "size": 17, "title": "m07  (2024-01-15T07:05:00)\n\nContent:  Sam uses Duolingo daily for Spanish practice.\nKeywords: Duolingo, Spanish, practice, language learning\nTags:     Language Skills, Educational Technology, Personal Interests, Productivity\nContext:  The main topic is language learning, specifically using the Duolingo\n  app for daily Spanish practice, and the challenges of maintaining a\n  consistent practice schedule.\nLinks:    m06\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m15 field=context\n  \u00b7 trigger=m15 field=tags\n  \u00b7 trigger=m37 field=context\n  \u00b7 trigger=m37 field=tags"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m08", "label": "m08", "shape": "dot", "size": 17, "title": "m08  (2024-01-17T18:30:00)\n\nContent:  Sam goes rock climbing at Berkeley Ironworks gym.\nKeywords: rock climbing, gym, Berkeley Ironworks\nTags:     Biographical Information, Geographical Location, Personal Profile, Hobbies, Rock Climbing, Outdoor Activities, Travel, Personal Updates, Gear\nContext:  Sam\u0027s personal profile, specifically his hobbies and residence, with a\n  mention of rock climbing and outdoor activities, including climbing at\n  Yosemite and Berkeley Ironworks, and his personal updates on gear and\n  equipment.\nLinks:    m04\n\nEvolved 22\u00d7:\n  \u00b7 trigger=m09 field=context\n  \u00b7 trigger=m09 field=tags\n  \u00b7 trigger=m10 field=context\n  \u00b7 trigger=m10 field=tags\n  \u00b7 trigger=m11 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m09", "label": "m09", "shape": "dot", "size": 17, "title": "m09  (2024-01-17T18:35:00)\n\nContent:  Sam has been rock climbing for three years.\nKeywords: rock climbing, years, experience\nTags:     Outdoor Recreation, Rock Climbing, Personal Experiences\nContext:  The content describes a recreational rock climbing activity at\n  Yosemite, highlighting the differing skill levels of two climbers.\nLinks:    m08\n\nEvolved 20\u00d7:\n  \u00b7 trigger=m10 field=context\n  \u00b7 trigger=m10 field=tags\n  \u00b7 trigger=m16 field=context\n  \u00b7 trigger=m16 field=tags\n  \u00b7 trigger=m17 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m10", "label": "m10", "shape": "dot", "size": 19, "title": "m10  (2024-01-18T19:00:00)\n\nContent:  Sam\u0027s favorite climbing problems are V4-V5 boulder routes.\nKeywords: (none)\nTags:     Hobbies, Leisure Activities, Rock Climbing, Personal Achievements, Outdoor Adventures, Social, Personal Updates, Gear\nContext:  Sam\u0027s favorite climbing problems and experience with rock climbing,\n  including outdoor adventures and climbing with others at various skill\n  levels, and his personal preferences for gear and equipment.\nLinks:    m09, m08\n\nEvolved 14\u00d7:\n  \u00b7 trigger=m16 field=context\n  \u00b7 trigger=m16 field=tags\n  \u00b7 trigger=m19 field=context\n  \u00b7 trigger=m19 field=tags\n  \u00b7 trigger=m20 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m11", "label": "m11", "shape": "dot", "size": 21, "title": "m11  (2024-01-22T20:00:00)\n\nContent:  Sam\u0027s mother Maria lives in Boston.\nKeywords: mother, Boston, family\nTags:     Biographical Information, Personal Relationships, Geographical Location, Family, Travel, Travel Plans, Friend\u0027s Birthday\nContext:  The main topic is a personal visit to celebrate a friend\u0027s birthday,\n  with the key point being the planning of the trip, intended for a\n  personal or social audience, and Alex\u0027s involvement in the trip.\nLinks:    m04, m03, m05\n\nEvolved 14\u00d7:\n  \u00b7 trigger=m12 field=context\n  \u00b7 trigger=m12 field=tags\n  \u00b7 trigger=m13 field=context\n  \u00b7 trigger=m13 field=tags\n  \u00b7 trigger=m15 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m12", "label": "m12", "shape": "dot", "size": 15, "title": "m12  (2024-01-22T20:05:00)\n\nContent:  Maria works as a high school chemistry teacher.\nKeywords: (none)\nTags:     Biographical Information, Personal Profile, Profession\nContext:  General information about a person\u0027s profession, which might be useful\n  in social conversations.\nLinks:    (none)\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m15 field=context\n  \u00b7 trigger=m15 field=tags\n  \u00b7 trigger=m33 field=context\n  \u00b7 trigger=m33 field=tags"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m13", "label": "m13", "shape": "dot", "size": 19, "title": "m13  (2024-01-23T19:30:00)\n\nContent:  Sam\u0027s brother David lives in Seattle.\nKeywords: brother, Seattle, family\nTags:     Family Members\u0027 Locations, Biographical Information, Professional Relationships, Location\nContext:  Sam\u0027s brother\u0027s location and its potential connection to outdoor\n  recreation in Seattle.\nLinks:    m04, m11\n\nEvolved 6\u00d7:\n  \u00b7 trigger=m14 field=context\n  \u00b7 trigger=m14 field=tags\n  \u00b7 trigger=m17 field=context\n  \u00b7 trigger=m17 field=tags\n  \u00b7 trigger=m18 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m14", "label": "m14", "shape": "dot", "size": 17, "title": "m14  (2024-01-23T19:35:00)\n\nContent:  David works at Amazon as a product manager. His office is at Amazon\u0027s\n  Seattle headquarters.\nKeywords: (none)\nTags:     Biographical Information, Professional Relationships, Location, Company Information\nContext:  General information about David\u0027s job at Amazon.\nLinks:    m13\n\nEvolved 2\u00d7:\n  \u00b7 trigger=m26 field=context\n  \u00b7 trigger=m26 field=tags"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m15", "label": "m15", "shape": "dot", "size": 19, "title": "m15  (2024-01-25T21:00:00)\n\nContent:  Sam plans to visit Maria for her birthday in mid-May.\nKeywords: birthday, visit, plans, trip, celebration\nTags:     Personal Relationships, Travel, Biographical Information, Birthdays, Friend\u0027s Birthday\nContext:  A personal travel plan to attend a friend\u0027s birthday celebration in\n  Boston.\nLinks:    m11, m04\n\nEvolved 6\u00d7:\n  \u00b7 trigger=m33 field=context\n  \u00b7 trigger=m33 field=tags\n  \u00b7 trigger=m34 field=context\n  \u00b7 trigger=m34 field=tags\n  \u00b7 trigger=m36 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m16", "label": "m16", "shape": "dot", "size": 19, "title": "m16  (2024-01-29T22:00:00)\n\nContent:  Sam started a side project: building a web scraper to find new\n  climbing destinations.\nKeywords: web scraper, climbing destinations, side project, building, data extraction\nTags:     Web Development, Data Extraction, Outdoor Recreation, Rock Climbing, Personal Projects, Learning Exercises\nContext:  Sam\u0027s personal project involving web development and data extraction\n  for outdoor recreation, specifically finding new climbing locations\n  and collecting climbing route data for personal adventures, and\n  learning through rewriting the scraper in Rust.\nLinks:    m09, m08\n\nEvolved 12\u00d7:\n  \u00b7 trigger=m17 field=context\n  \u00b7 trigger=m17 field=tags\n  \u00b7 trigger=m18 field=context\n  \u00b7 trigger=m18 field=tags\n  \u00b7 trigger=m19 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m17", "label": "m17", "shape": "dot", "size": 17, "title": "m17  (2024-01-29T22:05:00)\n\nContent:  Sam decided to use Python for the web scraper project.\nKeywords: Python, web scraper, project\nTags:     Web Development, Data Extraction, Programming Languages, Career Opportunities, Rust, scraper\nContext:  Sam\u0027s decision to use Python for the web scraper project and its\n  relevance to his current job search, but now he is using Rust for the\n  same project.\nLinks:    m16\n\nEvolved 10\u00d7:\n  \u00b7 trigger=m18 field=context\n  \u00b7 trigger=m18 field=tags\n  \u00b7 trigger=m19 field=context\n  \u00b7 trigger=m19 field=tags\n  \u00b7 trigger=m24 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m18", "label": "m18", "shape": "dot", "size": 17, "title": "m18  (2024-01-30T22:30:00)\n\nContent:  Sam uses the BeautifulSoup library for parsing HTML in the scraper.\nKeywords: (none)\nTags:     Web Development, Data Extraction, Programming Languages, HTML Parsing, Rust, scraper\nContext:  General knowledge about HTML parsing libraries, including\n  BeautifulSoup, and the reqwest and scraper crates for Rust.\nLinks:    m17\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m19 field=context\n  \u00b7 trigger=m19 field=tags\n  \u00b7 trigger=m32 field=context\n  \u00b7 trigger=m32 field=tags"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m19", "label": "m19", "shape": "dot", "size": 17, "title": "m19  (2024-01-31T23:00:00)\n\nContent:  The scraper collects climbing route data from MountainProject.com.\nKeywords: scraper, climbing route data, MountainProject.com, data collection\nTags:     Web Development, Data Extraction, Outdoor Recreation, Rock Climbing\nContext:  A web scraper is used to collect climbing route data from\n  MountainProject.com for analysis, research, or application development\n  purposes.\nLinks:    m16\n\nEvolved 2\u00d7:\n  \u00b7 trigger=m20 field=context\n  \u00b7 trigger=m20 field=tags"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m20", "label": "m20", "shape": "dot", "size": 17, "title": "m20  (2024-02-01T22:45:00)\n\nContent:  Sam\u0027s goal with the scraper is to discover new outdoor climbing\n  destinations not on popular guidebooks.\nKeywords: scraper, destinations, guidebooks, climbing\nTags:     Outdoor Recreation, Rock Climbing, Web Development, Data Extraction, Personal Experiences, Travel, Learning Exercises, Rust, scraper\nContext:  The main topic is outdoor climbing, specifically using a scraper to\n  discover new destinations not listed in popular guidebooks, and\n  sharing personal experiences, including climbing with others at\n  various skill levels, and learning through rewriting the scraper in\n  Rust using the reqwest and scraper crates.\nLinks:    m16\n\nEvolved 8\u00d7:\n  \u00b7 trigger=m21 field=context\n  \u00b7 trigger=m21 field=tags\n  \u00b7 trigger=m22 field=context\n  \u00b7 trigger=m22 field=tags\n  \u00b7 trigger=m31 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m21", "label": "m21", "shape": "dot", "size": 19, "title": "m21  (2024-02-05T10:00:00)\n\nContent:  Sam had an amazing climbing trip to Yosemite last weekend.\nKeywords: Yosemite, climbing, trip\nTags:     Hobbies, Leisure Activities, Rock Climbing, Outdoor Recreation, Personal Experiences, Social, Personal Updates, Gear\nContext:  Sam\u0027s experience with rock climbing and its connection to outdoor\n  recreation and personal adventures, including climbing with others at\n  various skill levels and locations.\nLinks:    m09, m20\n\nEvolved 12\u00d7:\n  \u00b7 trigger=m22 field=context\n  \u00b7 trigger=m22 field=tags\n  \u00b7 trigger=m23 field=context\n  \u00b7 trigger=m23 field=tags\n  \u00b7 trigger=m34 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m22", "label": "m22", "shape": "dot", "size": 19, "title": "m22  (2024-02-05T10:05:00)\n\nContent:  Sam climbed with Alex at Yosemite. Alex is also a climber but at an\n  easier grade.\nKeywords: Yosemite, climber, grade\nTags:     Travel Plans, Personal Relationships, Friend\u0027s Birthday\nContext:  A personal travel plan to attend a friend\u0027s birthday celebration in\n  Boston.\nLinks:    m21, m09\n\nEvolved 8\u00d7:\n  \u00b7 trigger=m31 field=context\n  \u00b7 trigger=m31 field=tags\n  \u00b7 trigger=m35 field=context\n  \u00b7 trigger=m35 field=tags\n  \u00b7 trigger=m38 field=context"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m23", "label": "m23", "shape": "dot", "size": 17, "title": "m23  (2024-02-08T20:00:00)\n\nContent:  Sam is feeling burned out at TechCorp due to long hours and frequent\n  late-night production incidents.\nKeywords: burnout, hours, incidents, production, workload\nTags:     Work-Life Balance, Employee Well-being, Incident Management\nContext:  The main topic is employee burnout in the tech industry, specifically\n  at TechCorp, where long hours and frequent late-night production\n  incidents are taking a toll on an employee\u0027s well-being, highlighting\n  the need for better work-life balance and incident management.\nLinks:    m01"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m24", "label": "m24", "shape": "dot", "size": 17, "title": "m24  (2024-02-10T18:00:00)\n\nContent:  Sam started interviewing at other companies, mostly developer-tools\n  startups.\nKeywords: interviewing, companies, startups, developer-tools\nTags:     Career Development, Job Search, Professional Relationships, Manager Introduction, Career Growth, Professional Development, Skill Building\nContext:  Sam\u0027s job search and interviewing process at developer-tools startups,\n  and the introduction of a new manager at StartupCo, with a successful\n  outcome of getting hired and the need for continuous learning.\nLinks:    m01\n\nEvolved 10\u00d7:\n  \u00b7 trigger=m25 field=context\n  \u00b7 trigger=m25 field=tags\n  \u00b7 trigger=m27 field=context\n  \u00b7 trigger=m27 field=tags\n  \u00b7 trigger=m28 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m25", "label": "m25", "shape": "dot", "size": 19, "title": "m25  (2024-02-14T17:00:00)\n\nContent:  Sam got a job offer from StartupCo, a developer-tools startup.\nKeywords: job offer, StartupCo, developer-tools, startup\nTags:     Career Development, Job Search, Career Opportunities, Remote Work, Professional Relationships, Professional Development, Skill Building\nContext:  A job offer from a developer-tools startup, highlighting the main\n  topic of career opportunities and employment in the tech industry, and\n  the subsequent acceptance of the offer.\nLinks:    m24, m01\n\nEvolved 10\u00d7:\n  \u00b7 trigger=m26 field=context\n  \u00b7 trigger=m26 field=tags\n  \u00b7 trigger=m27 field=context\n  \u00b7 trigger=m27 field=tags\n  \u00b7 trigger=m28 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m26", "label": "m26", "shape": "dot", "size": 17, "title": "m26  (2024-02-14T17:05:00)\n\nContent:  StartupCo is based in San Francisco but offers fully remote work.\nKeywords: StartupCo, San Francisco, remote work\nTags:     Company Information, Remote Work, Location\nContext:  StartupCo, a company based in San Francisco, offers a fully remote\n  work arrangement, likely targeting professionals seeking flexible work\n  options.\nLinks:    m25\n\nEvolved 2\u00d7:\n  \u00b7 trigger=m27 field=context\n  \u00b7 trigger=m27 field=tags"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m27", "label": "m27", "shape": "dot", "size": 17, "title": "m27  (2024-02-15T19:00:00)\n\nContent:  Sam accepted the StartupCo offer and gave notice at TechCorp.\nKeywords: (none)\nTags:     Career Development, Job Search, Career Opportunities, Remote Work, Professional Development, Skill Building\nContext:  General information about Sam\u0027s career development, with a focus on\n  the transition to a new role at a startup and the need to learn new\n  skills.\nLinks:    m25\n\nEvolved 6\u00d7:\n  \u00b7 trigger=m28 field=context\n  \u00b7 trigger=m28 field=tags\n  \u00b7 trigger=m29 field=context\n  \u00b7 trigger=m29 field=tags\n  \u00b7 trigger=m30 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m28", "label": "m28", "shape": "dot", "size": 17, "title": "m28  (2024-02-16T20:00:00)\n\nContent:  Sam\u0027s new manager at StartupCo will be Marcus.\nKeywords: Manager, Startup, Company\nTags:     Biographical Information, Professional Relationships, Career Development, Team Member, Manager, Professional Development, Skill Building, Productivity\nContext:  The main topic is a personnel change at a startup company,\n  specifically the introduction of a new manager, with the intended\n  audience likely being employees or stakeholders of the company, and\n  the new manager\u0027s team member, and the impact of the change on work\n  schedule and personal development.\nLinks:    m25\n\nEvolved 6\u00d7:\n  \u00b7 trigger=m29 field=context\n  \u00b7 trigger=m29 field=tags\n  \u00b7 trigger=m30 field=context\n  \u00b7 trigger=m30 field=tags\n  \u00b7 trigger=m37 field=context"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m29", "label": "m29", "shape": "dot", "size": 19, "title": "m29  (2024-02-19T09:00:00)\n\nContent:  Sam started at StartupCo today. The role is senior backend engineer.\nKeywords: StartupCo, senior backend engineer, role\nTags:     Career Development, Job Search, Career Opportunities, Remote Work, Professional Relationships, Manager Introduction, Professional Development, Skill Building, Productivity\nContext:  Sam\u0027s career update, specifically a new job at a startup company, with\n  the key point being the role of a senior backend engineer, and the\n  need to learn Rust for the main service, and the challenge of\n  balancing work and personal development.\nLinks:    m25, m24\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m30 field=context\n  \u00b7 trigger=m30 field=tags\n  \u00b7 trigger=m37 field=context\n  \u00b7 trigger=m37 field=tags"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m30", "label": "m30", "shape": "dot", "size": 17, "title": "m30  (2024-02-20T19:00:00)\n\nContent:  Sam is now learning Rust because StartupCo\u0027s main service is written\n  in it.\nKeywords: Rust, StartupCo, service, learning\nTags:     Professional Development, Skill Building, Rust, scraper, Productivity\nContext:  A developer is learning the Rust programming language to work with a\n  company\u0027s main service, indicating a professional development goal,\n  and the need to balance work and personal development.\nLinks:    m29\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m32 field=context\n  \u00b7 trigger=m32 field=tags\n  \u00b7 trigger=m37 field=context\n  \u00b7 trigger=m37 field=tags"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m31", "label": "m31", "shape": "dot", "size": 19, "title": "m31  (2024-02-22T22:00:00)\n\nContent:  Sam decided to rewrite the climbing scraper in Rust as a learning\n  exercise.\nKeywords: Rust, climbing scraper, learning exercise, rewriting\nTags:     Web Development, Personal Projects, Learning Exercises, Rust, scraper, reqwest, crates\nContext:  A developer, Sam, is rewriting a climbing scraper in the Rust\n  programming language as a personal learning project and utilizing the\n  reqwest and scraper crates, unrelated to the current context.\nLinks:    m20, m16\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m32 field=context\n  \u00b7 trigger=m32 field=tags\n  \u00b7 trigger=m38 field=context\n  \u00b7 trigger=m38 field=tags"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m32", "label": "m32", "shape": "dot", "size": 17, "title": "m32  (2024-02-22T22:05:00)\n\nContent:  Sam is using the reqwest and scraper crates for the Rust version of\n  the scraper.\nKeywords: Rust, scraper, reqwest, crates\nTags:     Web Development, Personal Projects, Learning Exercises, Rust, scraper, reqwest, crates\nContext:  The main topic is the development of a web scraper using the Rust\n  programming language, specifically utilizing the reqwest and scraper\n  crates.\nLinks:    m31"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m33", "label": "m33", "shape": "dot", "size": 17, "title": "m33  (2024-02-26T20:00:00)\n\nContent:  Maria\u0027s birthday is May 15.\nKeywords: (none)\nTags:     Biographical Information, Personal Profile, Birthdays, Friend\u0027s Birthday\nContext:  The content provides a brief description of a personal relationship\n  and geographical location, likely for personal or biographical\n  purposes, and also related to other family members\u0027 locations and\n  travel plans.\nLinks:    m15\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m34 field=context\n  \u00b7 trigger=m34 field=tags\n  \u00b7 trigger=m36 field=context\n  \u00b7 trigger=m36 field=tags"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m34", "label": "m34", "shape": "dot", "size": 17, "title": "m34  (2024-02-27T21:00:00)\n\nContent:  Sam booked flights to Boston for May 13 through 17 to be there for\n  Maria\u0027s birthday.\nKeywords: flights, Boston, birthday, trip\nTags:     Travel Plans, Friend\u0027s Birthday, Personal Relationships\nContext:  A personal travel plan to attend a friend\u0027s birthday celebration in\n  Boston, with Alex joining Sam on the trip.\nLinks:    m15\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m35 field=context\n  \u00b7 trigger=m35 field=tags\n  \u00b7 trigger=m36 field=context\n  \u00b7 trigger=m36 field=tags"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m35", "label": "m35", "shape": "dot", "size": 19, "title": "m35  (2024-02-27T21:05:00)\n\nContent:  Alex will join Sam on the Boston trip.\nKeywords: (none)\nTags:     Outdoor Recreation, Rock Climbing, Personal Experiences, Travel, Work-Life Balance, Self-Care, Adventure, Personal Updates, Gear\nContext:  A personal account of a recreational outdoor adventure, specifically a\n  climbing trip to Yosemite, with a mention of differing skill levels,\n  and the importance of taking breaks and maintaining a healthy work-\n  life balance.\nLinks:    m05, m34\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m36 field=context\n  \u00b7 trigger=m36 field=tags\n  \u00b7 trigger=m40 field=context\n  \u00b7 trigger=m40 field=tags"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m36", "label": "m36", "shape": "dot", "size": 17, "title": "m36  (2024-02-28T22:00:00)\n\nContent:  David will also fly to Boston for Maria\u0027s birthday.\nKeywords: (none)\nTags:     Travel Plans, Friend\u0027s Birthday, Personal Relationships\nContext:  General\nLinks:    m34"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m37", "label": "m37", "shape": "dot", "size": 17, "title": "m37  (2024-03-01T19:00:00)\n\nContent:  Sam\u0027s Spanish practice has slipped to once a week since starting at\n  StartupCo.\nKeywords: Spanish practice, StartupCo, language learning, productivity\nTags:     Language Skills, Personal Development, Productivity\nContext:  The main topic is the decline in frequency of language learning\n  practice, specifically Spanish, due to a change in work schedule,\n  highlighting the challenge of balancing work and personal development.\nLinks:    m07"}, {"color": "#fbbf24", "font": {"color": "#1f2937"}, "id": "m38", "label": "m38", "shape": "dot", "size": 19, "title": "m38  (2024-03-02T11:00:00)\n\nContent:  Sam went climbing at Berkeley Ironworks this morning, first session in\n  two weeks.\nKeywords: climbing, Berkeley Ironworks, session\nTags:     Biographical Information, Geographical Location, Personal Profile, Hobbies, Rock Climbing, Outdoor Activities, Travel, Leisure Activities, Outdoor Recreation, Personal Experiences, Social, Personal Updates, Gear\nContext:  The main topic is a personal account of a recreational activity,\n  specifically rock climbing, at a local gym.\nLinks:    m08, m09\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m39 field=context\n  \u00b7 trigger=m39 field=tags\n  \u00b7 trigger=m40 field=context\n  \u00b7 trigger=m40 field=tags"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m39", "label": "m39", "shape": "dot", "size": 19, "title": "m39  (2024-03-03T15:00:00)\n\nContent:  Sam ordered a new pair of climbing shoes \u2014 the La Sportiva Solution.\n  They should arrive by mid-March.\nKeywords: climbing shoes, La Sportiva Solution, order\nTags:     Personal Updates, Gear, Climbing Equipment\nContext:  The main topic is a personal purchase of climbing gear, specifically a\n  new pair of shoes, with the key point being the expected arrival time,\n  likely intended for a personal or social update.\nLinks:    m09, m38"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m40", "label": "m40", "shape": "dot", "size": 19, "title": "m40  (2024-03-04T20:00:00)\n\nContent:  Sam is planning a long climbing trip to Joshua Tree in late March with\n  Alex.\nKeywords: climbing, trip, Joshua Tree, planning, adventure\nTags:     Outdoor Recreation, Rock Climbing, Personal Experiences, Travel, Adventure\nContext:  A personal plan for a recreational outdoor climbing trip to Joshua\n  Tree National Park, likely intended for a small group of friends or\n  acquaintances.\nLinks:    m21, m09"}]);
+                  edges = new vis.DataSet([{"color": "#9ca3af", "from": "m02", "to": "m01", "width": 1}, {"color": "#9ca3af", "from": "m03", "to": "m01", "width": 1}, {"color": "#9ca3af", "from": "m05", "to": "m01", "width": 1}, {"color": "#9ca3af", "from": "m06", "to": "m04", "width": 1}, {"color": "#9ca3af", "from": "m07", "to": "m06", "width": 1}, {"color": "#9ca3af", "from": "m08", "to": "m04", "width": 1}, {"color": "#9ca3af", "from": "m09", "to": "m08", "width": 1}, {"color": "#9ca3af", "from": "m10", "to": "m09", "width": 1}, {"color": "#9ca3af", "from": "m10", "to": "m08", "width": 1}, {"color": "#9ca3af", "from": "m11", "to": "m04", "width": 1}, {"color": "#9ca3af", "from": "m11", "to": "m03", "width": 1}, {"color": "#9ca3af", "from": "m11", "to": "m05", "width": 1}, {"color": "#9ca3af", "from": "m13", "to": "m04", "width": 1}, {"color": "#9ca3af", "from": "m13", "to": "m11", "width": 1}, {"color": "#9ca3af", "from": "m14", "to": "m13", "width": 1}, {"color": "#9ca3af", "from": "m15", "to": "m11", "width": 1}, {"color": "#9ca3af", "from": "m15", "to": "m04", "width": 1}, {"color": "#9ca3af", "from": "m16", "to": "m09", "width": 1}, {"color": "#9ca3af", "from": "m16", "to": "m08", "width": 1}, {"color": "#9ca3af", "from": "m17", "to": "m16", "width": 1}, {"color": "#9ca3af", "from": "m18", "to": "m17", "width": 1}, {"color": "#9ca3af", "from": "m19", "to": "m16", "width": 1}, {"color": "#9ca3af", "from": "m20", "to": "m16", "width": 1}, {"color": "#9ca3af", "from": "m21", "to": "m09", "width": 1}, {"color": "#9ca3af", "from": "m21", "to": "m20", "width": 1}, {"color": "#9ca3af", "from": "m22", "to": "m21", "width": 1}, {"color": "#9ca3af", "from": "m22", "to": "m09", "width": 1}, {"color": "#9ca3af", "from": "m23", "to": "m01", "width": 1}, {"color": "#9ca3af", "from": "m24", "to": "m01", "width": 1}, {"color": "#9ca3af", "from": "m25", "to": "m24", "width": 1}, {"color": "#9ca3af", "from": "m25", "to": "m01", "width": 1}, {"color": "#9ca3af", "from": "m26", "to": "m25", "width": 1}, {"color": "#9ca3af", "from": "m27", "to": "m25", "width": 1}, {"color": "#9ca3af", "from": "m28", "to": "m25", "width": 1}, {"color": "#9ca3af", "from": "m29", "to": "m25", "width": 1}, {"color": "#9ca3af", "from": "m29", "to": "m24", "width": 1}, {"color": "#9ca3af", "from": "m30", "to": "m29", "width": 1}, {"color": "#9ca3af", "from": "m31", "to": "m20", "width": 1}, {"color": "#9ca3af", "from": "m31", "to": "m16", "width": 1}, {"color": "#9ca3af", "from": "m32", "to": "m31", "width": 1}, {"color": "#9ca3af", "from": "m33", "to": "m15", "width": 1}, {"color": "#9ca3af", "from": "m34", "to": "m15", "width": 1}, {"color": "#9ca3af", "from": "m35", "to": "m05", "width": 1}, {"color": "#9ca3af", "from": "m35", "to": "m34", "width": 1}, {"color": "#9ca3af", "from": "m36", "to": "m34", "width": 1}, {"color": "#9ca3af", "from": "m37", "to": "m07", "width": 1}, {"color": "#9ca3af", "from": "m38", "to": "m08", "width": 1}, {"color": "#9ca3af", "from": "m38", "to": "m09", "width": 1}, {"color": "#9ca3af", "from": "m39", "to": "m09", "width": 1}, {"color": "#9ca3af", "from": "m39", "to": "m38", "width": 1}, {"color": "#9ca3af", "from": "m40", "to": "m21", "width": 1}, {"color": "#9ca3af", "from": "m40", "to": "m09", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.3,
+            "damping": 0.09,
+            "gravitationalConstant": -3000,
+            "springConstant": 0.04,
+            "springLength": 120
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+                    network.on("click", neighbourhoodHighlight);
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
