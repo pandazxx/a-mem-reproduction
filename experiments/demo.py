@@ -37,7 +37,7 @@ def _require_api_key() -> None:
         )
         sys.exit(1)
 
-DATASET_PATH = Path(__file__).parent / "comparison-dataset" / "dataset.json"
+DATASET_PATH = Path(__file__).parent / "datasets" / "comparison" / "dataset.json"
 DEMO_MEMORY_COUNT = 10
 DEMO_QUESTIONS = ["q01", "q02", "q07"]  # single-hop + a two-hop
 
@@ -54,7 +54,7 @@ def main() -> None:
     print("A-Mem Reproduction Demo")
     print(f"LLM:        NVIDIA NIM ({_nim.LLM_MODEL})")
     print(f"Embeddings: local sentence-transformers (all-MiniLM-L6-v2)")
-    print(f"Dataset:    comparison-dataset/ (first {DEMO_MEMORY_COUNT} memories)")
+    print(f"Dataset:    datasets/comparison/ (first {DEMO_MEMORY_COUNT} memories)")
     print(f"            See README.md in that folder for design rationale.")
     hr()
 

@@ -43,7 +43,8 @@ ENV/
 Thumbs.db
 
 # Project-specific
-results/
+# Note: results/ is intentionally NOT ignored — comparison runs under
+# results/<dataset>/<system>/ are checked in as study materials.
 *.log
 *.cache
 .pytest_cache/
