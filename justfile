@@ -28,6 +28,11 @@ eval *ARGS:
 compare *ARGS:
     uv run python -m experiments.compare {{ARGS}}
 
-# Re-render A-Mem mermaid + pyvis from an existing results/run.json (no LLM).
+# Re-render every system's HTML + result.html from existing run.json files
+# under results/. No LLM calls — use after editing experiments/render.py
+# or the per-system renderers to iterate on visualisations.
+# Examples:
+#   just render                              # re-render everything under results/
+#   just render -- --dataset comparison      # one dataset only
 render *ARGS:
     uv run python -m experiments.render {{ARGS}}

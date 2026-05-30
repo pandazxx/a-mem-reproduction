@@ -151,41 +151,214 @@ def to_mermaid_trace(
     return "\n".join(lines)
 
 
-# ── Pyvis renderers ───────────────────────────────────────────────────────
+# ── Interactive HTML renderers (vis-network + side panel) ─────────────────
+#
+# We render to vis-network directly (no pyvis) because we need a side panel
+# that updates on click. pyvis only exposes vis-network's tiny floating
+# tooltip, which is hard to read with multi-line content.
+#
+# Click a node → the right-hand panel populates with full note details
+# (content, keywords, tags, context, links, evolution history) and the
+# graph dims everything except the clicked node + its neighbours.
 
-def to_pyvis_graph(
+_HTML_TEMPLATE = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>{title}</title>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<style>
+* {{ box-sizing: border-box; }}
+body {{
+  margin: 0; font: 14px system-ui, sans-serif; color: #1f2937;
+  display: flex; flex-direction: column; height: 100vh;
+}}
+header {{
+  padding: 0.55em 1em; border-bottom: 1px solid #e5e7eb; background: #f9fafb;
+}}
+header h1 {{ margin: 0; font-size: 1.05em; }}
+header .meta {{ color: #6b7280; font-size: 0.88em; }}
+main {{ display: flex; flex: 1; min-height: 0; }}
+#graph {{ flex: 1; min-width: 0; border-right: 1px solid #e5e7eb; background: #ffffff; }}
+#panel {{
+  width: 380px; flex-shrink: 0; padding: 1em 1.2em;
+  overflow-y: auto; background: #fafafa;
+}}
+#panel .placeholder {{ color: #9ca3af; font-style: italic; }}
+#panel h3 {{ margin: 0 0 0.2em 0; font-size: 1.05em; font-family: ui-monospace, monospace; }}
+#panel .ts {{ color: #6b7280; font-size: 0.88em; margin-bottom: 0.8em; }}
+#panel .row {{ margin-bottom: 0.7em; }}
+#panel .label {{
+  font-weight: 600; color: #6b7280; font-size: 0.78em;
+  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.2em;
+}}
+#panel .value {{ white-space: pre-wrap; word-break: break-word; line-height: 1.45; }}
+#panel code {{
+  background: #e5e7eb; padding: 1px 5px; border-radius: 3px;
+  font-size: 0.88em; font-family: ui-monospace, monospace;
+  display: inline-block; margin: 1px 2px 1px 0;
+}}
+#panel ul {{ padding-left: 1.4em; margin: 0.2em 0; }}
+#panel .evo {{
+  background: #fef3c7; padding: 0.6em 0.8em; border-radius: 4px;
+  border-left: 3px solid #d97706; margin-top: 0.4em;
+}}
+#panel .evo .label {{ color: #92400e; margin-bottom: 0.3em; }}
+</style></head><body>
+<header>
+  <h1>{title}</h1>
+  <div class="meta">{meta}</div>
+</header>
+<main>
+  <div id="graph"></div>
+  <div id="panel"><p class="placeholder">Click a node to inspect.</p></div>
+</main>
+<script>
+const NODES_RAW = {nodes_json};
+const EDGES_RAW = {edges_json};
+const OPTIONS   = {options_json};
+
+const DEFAULT_COLOR = {{}};
+NODES_RAW.forEach(n => {{ DEFAULT_COLOR[n.id] = n.color; }});
+
+const nodes = new vis.DataSet(NODES_RAW);
+const edges = new vis.DataSet(EDGES_RAW);
+const network = new vis.Network(
+  document.getElementById('graph'),
+  {{ nodes, edges }}, OPTIONS,
+);
+
+const panel = document.getElementById('panel');
+
+function esc(s) {{
+  return String(s == null ? '' : s)
+    .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+}}
+
+function chips(items) {{
+  if (!items || items.length === 0) return '<i class="placeholder">(none)</i>';
+  return items.map(s => `<code>${{esc(s)}}</code>`).join(' ');
+}}
+
+function renderPanel(d) {{
+  if (!d) {{
+    panel.innerHTML = '<p class="placeholder">Click a node to inspect.</p>';
+    return;
+  }}
+  if (d.kind === 'query') {{
+    panel.innerHTML = `
+      <h3>Query</h3>
+      <div class="row"><div class="label">Question</div>
+        <div class="value">${{esc(d.content)}}</div></div>`;
+    return;
+  }}
+  let evo = '';
+  if (d.evolution_history && d.evolution_history.length) {{
+    const events = d.evolution_history.slice(0, 5).map(e => `<li>trigger=<code>${{esc(e.trigger || '?')}}</code>, field=<code>${{esc(e.field || '?')}}</code></li>`).join('');
+    evo = `<div class="evo"><div class="label">Evolved ${{d.evolution_history.length}}×</div><ul>${{events}}</ul></div>`;
+  }}
+  panel.innerHTML = `
+    <h3>${{esc(d.id || '')}}</h3>
+    <div class="ts">${{esc(d.timestamp || '')}}</div>
+    <div class="row"><div class="label">Content</div><div class="value">${{esc(d.content || '')}}</div></div>
+    <div class="row"><div class="label">Keywords</div><div class="value">${{chips(d.keywords)}}</div></div>
+    <div class="row"><div class="label">Tags</div><div class="value">${{chips(d.tags)}}</div></div>
+    <div class="row"><div class="label">Context</div><div class="value">${{esc(d.context || '')}}</div></div>
+    <div class="row"><div class="label">Links</div><div class="value">${{chips(d.links)}}</div></div>
+    ${{evo}}`;
+}}
+
+function highlight(nodeId) {{
+  if (!nodeId) {{
+    const updates = NODES_RAW.map(n => ({{ id: n.id, color: DEFAULT_COLOR[n.id] }}));
+    nodes.update(updates);
+    return;
+  }}
+  const keep = new Set(network.getConnectedNodes(nodeId));
+  keep.add(nodeId);
+  const updates = NODES_RAW.map(n => ({{
+    id: n.id,
+    color: keep.has(n.id) ? DEFAULT_COLOR[n.id] : 'rgba(200,200,200,0.35)',
+  }}));
+  nodes.update(updates);
+}}
+
+network.on('selectNode', (params) => {{
+  const id = params.nodes[0];
+  const node = nodes.get(id);
+  renderPanel(node._detail || null);
+  highlight(id);
+}});
+
+network.on('deselectNode', () => {{ renderPanel(null); highlight(null); }});
+
+network.on('click', (params) => {{
+  if (params.nodes.length === 0 && params.edges.length === 0) {{
+    renderPanel(null); highlight(null);
+  }}
+}});
+</script></body></html>"""
+
+
+_GRAPH_OPTIONS = {
+    "physics": {
+        "barnesHut": {
+            "gravitationalConstant": -3000, "centralGravity": 0.3,
+            "springLength": 120, "springConstant": 0.04,
+        },
+        "minVelocity": 0.5, "stabilization": {"iterations": 200},
+    },
+    "interaction": {"hover": False, "tooltipDelay": 99999},
+    "edges": {"smooth": False, "color": {"inherit": False}},
+}
+
+_TRACE_OPTIONS = {
+    "physics": {
+        "barnesHut": {
+            "gravitationalConstant": -2500, "centralGravity": 0.4,
+            "springLength": 110, "springConstant": 0.06,
+        },
+        "minVelocity": 0.5, "stabilization": {"iterations": 150},
+    },
+    "interaction": {"hover": False, "tooltipDelay": 99999},
+    "edges": {"smooth": False, "arrows": {"to": {"enabled": True, "scaleFactor": 0.6}}},
+}
+
+
+def _note_detail(note: MemoryNote) -> dict[str, Any]:
+    return {
+        "id": note.id,
+        "timestamp": note.timestamp,
+        "content": note.content,
+        "keywords": list(note.keywords),
+        "tags": list(note.tags),
+        "context": note.context,
+        "links": list(note.links),
+        "evolution_history": list(note.evolution_history),
+    }
+
+
+def write_interactive_graph(
+    path: Path,
     memories: dict[str, MemoryNote],
     *,
-    height: str = "750px",
-    width: str = "100%",
-) -> "Network":
+    title: str = "A-Mem memory graph",
+) -> None:
     """
-    Interactive memory graph. Click a node to dim non-neighbours, hover for
-    a tooltip with full content / keywords / tags / context / evolution.
+    Write a self-contained interactive HTML with a graph + side panel.
+    Click a node to dim non-neighbours and populate the panel with full
+    note details.
     """
-    from pyvis.network import Network
-
-    net = Network(
-        height=height, width=width, notebook=False,
-        directed=False, bgcolor="#ffffff", font_color="#1f2937",
-        cdn_resources="remote",
-        neighborhood_highlight=True,
-    )
-    net.barnes_hut(
-        gravity=-3000, central_gravity=0.3,
-        spring_length=120, spring_strength=0.04,
-    )
-
+    nodes: list[dict[str, Any]] = []
     for mid, note in memories.items():
-        net.add_node(
-            mid,
-            label=mid,
-            title=_pyvis_tooltip(note),
-            color="#fbbf24" if note.evolution_history else "#60a5fa",
-            shape="dot",
-            size=15 + min(len(note.links) * 2, 20),
-        )
+        nodes.append({
+            "id": mid,
+            "label": mid,
+            "color": "#fbbf24" if note.evolution_history else "#60a5fa",
+            "shape": "dot",
+            "size": 15 + min(len(note.links) * 2, 20),
+            "_detail": _note_detail(note),
+        })
 
+    edges: list[dict[str, Any]] = []
     seen: set[tuple[str, str]] = set()
     for mid, note in memories.items():
         for lid in note.links:
@@ -195,63 +368,59 @@ def to_pyvis_graph(
             if pair in seen:
                 continue
             seen.add(pair)
-            net.add_edge(mid, lid, color="#9ca3af", width=1)
-    return net
+            edges.append({"from": mid, "to": lid, "color": "#9ca3af", "width": 1})
+
+    evolved = sum(1 for n in memories.values() if n.evolution_history)
+    meta = (f"{len(memories)} memories · {len(edges)} links · "
+            f"{evolved} evolved · click a node for details")
+    html = _HTML_TEMPLATE.format(
+        title=title, meta=meta,
+        nodes_json=json.dumps(nodes),
+        edges_json=json.dumps(edges),
+        options_json=json.dumps(_GRAPH_OPTIONS),
+    )
+    path.write_text(html)
 
 
-def to_pyvis_trace(
+def write_interactive_trace(
+    path: Path,
     memories: dict[str, MemoryNote],
     question: str,
     result: dict[str, Any],
     *,
-    height: str = "600px",
-    width: str = "100%",
-) -> "Network":
+    title: str | None = None,
+) -> None:
     """
-    Interactive query trace.
-
-    Red diamond  = the query.
-    Blue dots    = direct top-k vector hits (solid blue edge from Q).
-    Purple dots  = one-hop link traversals  (dashed purple edge from hit).
+    Write a self-contained interactive HTML for one retrieval trace.
+    Red diamond = query, blue = direct hits, purple (dashed) = link traversals.
     """
-    from pyvis.network import Network
-
-    net = Network(
-        height=height, width=width, notebook=False,
-        directed=True, bgcolor="#ffffff", font_color="#1f2937",
-        cdn_resources="remote",
-        neighborhood_highlight=True,
-    )
-    net.barnes_hut(
-        gravity=-2500, central_gravity=0.4,
-        spring_length=110, spring_strength=0.06,
-    )
-
-    net.add_node(
-        "_query",
-        label="Q",
-        title=f"Question\n{question}",
-        color="#ef4444", shape="diamond", size=22,
-    )
-
     retrieved_ids = result.get("retrieved_ids", [])
     links_followed = result.get("links_followed", [])
     via_targets = {to_id for _, to_id in links_followed}
     direct_ids = [mid for mid in retrieved_ids if mid not in via_targets]
 
+    nodes: list[dict[str, Any]] = [{
+        "id": "_query",
+        "label": "Q",
+        "color": "#ef4444", "shape": "diamond", "size": 22,
+        "_detail": {"id": "_query", "kind": "query", "content": question},
+    }]
+    edges: list[dict[str, Any]] = []
     added: set[str] = set()
+
     for mid in direct_ids:
         note = memories.get(mid)
         if not note:
             continue
-        net.add_node(
-            mid, label=mid, title=_pyvis_tooltip(note),
-            color="#60a5fa", shape="dot", size=16,
-        )
-        net.add_edge(
-            "_query", mid,
-            color="#3b82f6", width=3, title="direct retrieval",
-        )
+        nodes.append({
+            "id": mid, "label": mid,
+            "color": "#60a5fa", "shape": "dot", "size": 16,
+            "_detail": _note_detail(note),
+        })
+        edges.append({
+            "from": "_query", "to": mid,
+            "color": "#3b82f6", "width": 3,
+        })
         added.add(mid)
 
     for from_id, to_id in links_followed:
@@ -259,17 +428,26 @@ def to_pyvis_trace(
         if not target:
             continue
         if to_id not in added:
-            net.add_node(
-                to_id, label=to_id, title=_pyvis_tooltip(target),
-                color="#a78bfa", shape="dot", size=13,
-            )
+            nodes.append({
+                "id": to_id, "label": to_id,
+                "color": "#a78bfa", "shape": "dot", "size": 13,
+                "_detail": _note_detail(target),
+            })
             added.add(to_id)
-        net.add_edge(
-            from_id, to_id,
-            color="#a78bfa", width=2, dashes=True,
-            title="link traversal",
-        )
-    return net
+        edges.append({
+            "from": from_id, "to": to_id,
+            "color": "#a78bfa", "width": 2, "dashes": True,
+        })
+
+    title = title or f"Trace: {textwrap.shorten(question, 70)}"
+    meta = (f"{len(direct_ids)} direct hit(s) · {len(links_followed)} link traversal(s)")
+    html = _HTML_TEMPLATE.format(
+        title=title, meta=meta,
+        nodes_json=json.dumps(nodes),
+        edges_json=json.dumps(edges),
+        options_json=json.dumps(_TRACE_OPTIONS),
+    )
+    path.write_text(html)
 
 
 # ── End-to-end render ─────────────────────────────────────────────────────
@@ -318,23 +496,22 @@ def render_all(run: Run, output_dir: Path) -> None:
         trace_lines.append("```mermaid\n" + trace + "\n```\n")
     (output_dir / "traces.md").write_text("\n".join(trace_lines))
 
-    # Pyvis HTML
+    # Interactive HTML (vis-network + side panel)
     html_dir = output_dir / "html"
     traces_dir = html_dir / "traces"
     traces_dir.mkdir(parents=True, exist_ok=True)
 
-    to_pyvis_graph(run.memories).write_html(
-        str(html_dir / "memory_graph.html"),
-        notebook=False, open_browser=False,
+    write_interactive_graph(
+        html_dir / "memory_graph.html", run.memories,
+        title="A-Mem memory graph",
     )
     for q in run.queries:
-        to_pyvis_trace(
+        write_interactive_trace(
+            traces_dir / f"{q['question_id']}.html",
             run.memories, q["question"],
             {"retrieved_ids": q.get("retrieved_ids", []),
              "links_followed": q.get("links_followed", [])},
-        ).write_html(
-            str(traces_dir / f"{q['question_id']}.html"),
-            notebook=False, open_browser=False,
+            title=f"{q['question_id']}: {q['question']}",
         )
     (html_dir / "index.html").write_text(_html_index(run.queries))
 
@@ -391,52 +568,97 @@ def _mermaid_id(raw: str) -> str:
     return safe or "n"
 
 
-def _pyvis_tooltip(note: MemoryNote) -> str:
-    """Plain-text tooltip — vis.js escapes HTML, so we use newlines + spacing."""
-    def wrap(value: str, width: int = 70) -> str:
-        return "\n  ".join(textwrap.wrap(value, width=width) or [""])
+# ── Re-render orchestrator ────────────────────────────────────────────────
+#
+# Walks results/<dataset>/<system>/run.json for each registered system and
+# re-emits the system's HTML, then re-emits result.html. No LLM calls.
 
-    lines = [
-        f"{note.id}  ({note.timestamp})",
-        "",
-        f"Content:  {wrap(note.content)}",
-        f"Keywords: {', '.join(note.keywords) or '(none)'}",
-        f"Tags:     {', '.join(note.tags) or '(none)'}",
-        f"Context:  {wrap(note.context)}",
-        f"Links:    {', '.join(note.links) or '(none)'}",
-    ]
-    if note.evolution_history:
-        lines.append("")
-        lines.append(f"Evolved {len(note.evolution_history)}×:")
-        for e in note.evolution_history[:5]:
-            lines.append(
-                f"  · trigger={e.get('trigger', '?')} "
-                f"field={e.get('field', '?')}"
-            )
-    return "\n".join(lines)
+def render_dataset(dataset_dir: Path) -> dict[str, list[dict[str, Any]]]:
+    """
+    Re-render every system found under ``dataset_dir``. Returns the
+    per-system query results so the caller can rebuild ``result.html``.
+    """
+    from .systems import SYSTEMS
+
+    runs: dict[str, list[dict[str, Any]]] = {}
+    for sys_dir in sorted(dataset_dir.iterdir()):
+        if not sys_dir.is_dir():
+            continue
+        run_path = sys_dir / "run.json"
+        if not run_path.exists():
+            continue
+        data = json.loads(run_path.read_text())
+        sys_name = data.get("metadata", {}).get("system") or sys_dir.name
+        if sys_name not in SYSTEMS:
+            print(f"  ?? unknown system {sys_name!r} in {sys_dir}, skipping")
+            continue
+        print(f"  re-rendering {sys_name}/")
+        SYSTEMS[sys_name].render_from_run(run_path, sys_dir)
+        runs[sys_name] = data.get("queries", [])
+    return runs
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--run", default="results/run.json", type=Path)
+    ap.add_argument(
+        "--dataset", default=None,
+        help="Re-render this dataset under --output-dir. Default: all datasets found.",
+    )
     ap.add_argument("--output-dir", default="results", type=Path)
+    ap.add_argument(
+        "--run", default=None, type=Path,
+        help="Legacy: re-render a single A-Mem run.json. Use --dataset instead "
+             "for the new multi-system layout.",
+    )
     args = ap.parse_args()
 
-    if not args.run.exists():
-        raise SystemExit(
-            f"Run artifact not found at {args.run}.  "
-            f"Run `just eval` first to produce it."
+    # Legacy single-run mode (back-compat for older results/run.json layouts).
+    if args.run is not None:
+        if not args.run.exists():
+            raise SystemExit(f"Run artifact not found at {args.run}.")
+        run = load_run(args.run)
+        render_all(run, args.output_dir)
+        print(f"Rendered {len(run.memories)} memories + {len(run.queries)} traces "
+              f"to {args.output_dir}/")
+        return
+
+    # Multi-dataset / multi-system mode.
+    from . import datasets as ds_module
+    from .compare import emit_result_html
+
+    if args.dataset:
+        names = [args.dataset]
+    else:
+        if not args.output_dir.exists():
+            raise SystemExit(f"{args.output_dir}/ does not exist.")
+        names = sorted(
+            p.name for p in args.output_dir.iterdir() if p.is_dir()
         )
-    run = load_run(args.run)
-    render_all(run, args.output_dir)
-    print(
-        f"Rendered {len(run.memories)} memories + {len(run.queries)} traces "
-        f"to {args.output_dir}/"
-    )
-    print(f"  Markdown:   {args.output_dir}/memory_graph.md, {args.output_dir}/traces.md")
-    print(f"  Interactive: open {args.output_dir}/html/index.html")
+
+    if not names:
+        raise SystemExit(
+            f"No datasets found under {args.output_dir}/. "
+            f"Run `just compare` first to produce results."
+        )
+
+    for ds_name in names:
+        ds_dir = args.output_dir / ds_name
+        if not ds_dir.exists() or not ds_dir.is_dir():
+            print(f"Skipping {ds_dir} (not a directory)")
+            continue
+        print(f"\n=== {ds_dir}/ ===")
+        runs = render_dataset(ds_dir)
+        if not runs:
+            print(f"  (no recognised system runs found)")
+            continue
+        if ds_name in ds_module.DATASETS:
+            dataset = ds_module.load(ds_name)
+            emit_result_html(dataset, runs, ds_dir)
+            print(f"  re-emitted {ds_dir / 'result.html'}")
+        else:
+            print(f"  (dataset {ds_name!r} not registered — skipping result.html)")
 
 
 if __name__ == "__main__":

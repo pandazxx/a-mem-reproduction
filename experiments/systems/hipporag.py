@@ -235,6 +235,14 @@ class HippoRAGAdapter(SystemAdapter):
 
         _write_retrieval_html(output_dir, queries, items, self.label)
 
+    @classmethod
+    def render_from_run(cls, run_path: Path, output_dir: Path) -> None:
+        data = json.loads(run_path.read_text())
+        _write_retrieval_html(
+            output_dir, data.get("queries", []),
+            data.get("items", []), cls.label,
+        )
+
 
 # ── Shared trace renderer (used by both HippoRAG adapters) ────────────────
 

@@ -48,5 +48,9 @@ class AMemAdapter(SystemAdapter):
         run_path = output_dir / "run.json"
         meta = {**metadata, "system": self.name, "system_label": self.label}
         render.write_run(run_path, self.mem.memories, queries, meta)
+        self.render_from_run(run_path, output_dir)
+
+    @classmethod
+    def render_from_run(cls, run_path: Path, output_dir: Path) -> None:
         run = render.load_run(run_path)
         render.render_all(run, output_dir)

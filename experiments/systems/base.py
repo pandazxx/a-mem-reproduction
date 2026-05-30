@@ -55,3 +55,12 @@ class SystemAdapter(ABC):
         to ``output_dir/run.json``. Also emit any system-specific HTML
         under ``output_dir/html/``.
         """
+
+    @classmethod
+    @abstractmethod
+    def render_from_run(cls, run_path: Path, output_dir: Path) -> None:
+        """
+        Re-emit this system's HTML from an already-frozen ``run.json``.
+        Does NOT call the LLM — used by ``just render`` to iterate on
+        visualisations without re-running the evaluation.
+        """

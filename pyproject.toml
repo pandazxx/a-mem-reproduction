@@ -13,7 +13,6 @@ dependencies = [
     "chromadb>=0.4.22",
     "rank_bm25>=0.2.2",
     "nltk>=3.8.1",
-    "pyvis>=0.3.2",
 ]
 
 [dependency-groups]
