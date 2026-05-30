@@ -141,6 +141,7 @@ dependencies = [
     { name = "numpy" },
     { name = "openai" },
     { name = "rank-bm25" },
+    { name = "scipy" },
     { name = "sentence-transformers" },
 ]
 
@@ -157,6 +158,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=1.24" },
     { name = "openai", specifier = ">=1.0" },
     { name = "rank-bm25", specifier = ">=0.2.2" },
+    { name = "scipy", specifier = ">=1.10" },
     { name = "sentence-transformers", specifier = ">=2.2.2" },
 ]
 

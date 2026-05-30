@@ -43,7 +43,8 @@ ENV/
 Thumbs.db
 
 # Project-specific
-results/raw/
+# Note: results/ is intentionally NOT ignored — comparison runs under
+# results/<dataset>/<system>/ are checked in as study materials.
 *.log
 *.cache
 .pytest_cache/
@@ -53,3 +54,4 @@ results/raw/
 .envrc
 *.key
 secrets.json
+pasted-image-*.png

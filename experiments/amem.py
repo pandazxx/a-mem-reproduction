@@ -118,6 +118,36 @@ class MemoryNote:
         self.retrieval_count = 0
         self.evolution_history: list[dict] = []
 
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "content": self.content,
+            "keywords": list(self.keywords),
+            "tags": list(self.tags),
+            "context": self.context,
+            "links": list(self.links),
+            "timestamp": self.timestamp,
+            "last_accessed": self.last_accessed,
+            "retrieval_count": self.retrieval_count,
+            "evolution_history": list(self.evolution_history),
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "MemoryNote":
+        note = cls(
+            content=d["content"],
+            id=d["id"],
+            keywords=d.get("keywords", []),
+            tags=d.get("tags", []),
+            context=d.get("context", "General"),
+            links=d.get("links", []),
+            timestamp=d.get("timestamp"),
+        )
+        note.last_accessed = d.get("last_accessed", note.last_accessed)
+        note.retrieval_count = d.get("retrieval_count", 0)
+        note.evolution_history = list(d.get("evolution_history", []))
+        return note
+
     def __repr__(self) -> str:
         return (
             f"MemoryNote(id={self.id[:8]}…, "
@@ -250,7 +280,12 @@ class AgenticMemorySystem:
 
     # ── Main entry point ─────────────────────────────────────────────────
 
-    def add_note(self, content: str, timestamp: str | None = None) -> str:
+    def add_note(
+        self,
+        content: str,
+        timestamp: str | None = None,
+        id: str | None = None,
+    ) -> str:
         """
         Full A-Mem pipeline for a new memory:
           1. Construct note (LLM → keywords, context, tags)
@@ -260,6 +295,7 @@ class AgenticMemorySystem:
         analysis = self.analyze_content(content)
 
         note = MemoryNote(
+            id=id,
             content=content,
             keywords=analysis["keywords"],
             context=analysis["context"],
@@ -312,6 +348,49 @@ class AgenticMemorySystem:
             })
         return out
 
+    def read(self, question: str, k: int = 5) -> dict[str, Any]:
+        """
+        Full retrieve-then-answer pipeline.
+
+        Returns:
+            answer: free-text answer from the reader LLM
+            retrieved_ids: IDs surfaced by ``search_agentic``
+            links_followed: pairs (from_id, to_id) where retrieval crossed a link
+        """
+        results = self.search_agentic(question, k=k)
+        if not results:
+            return {"answer": "I don't have any information about that.", "retrieved_ids": [], "links_followed": []}
+
+        context_lines = []
+        retrieved_ids = []
+        links_followed = []
+        for r in results:
+            retrieved_ids.append(r["id"])
+            via = r.get("via_link_from")
+            if via:
+                links_followed.append((via, r["id"]))
+            context_lines.append(f"- [{r['id']}] (ts={r.get('timestamp', '?')}) {r['content']}")
+        context = "\n".join(context_lines)
+
+        prompt = (
+            f"You are answering a question using only the memories below. "
+            f"If multiple memories contradict, prefer the most recent one (later timestamp). "
+            f"If the answer is not contained in the memories, reply exactly: \"unknown / not mentioned\".\n\n"
+            f"Memories:\n{context}\n\n"
+            f"Question: {question}\n\n"
+            f"Answer concisely in one short sentence."
+        )
+
+        answer = _nim.chat_text(
+            prompt,
+            system="You are a precise question-answering assistant. Use only the provided memories.",
+        )
+        return {
+            "answer": answer,
+            "retrieved_ids": retrieved_ids,
+            "links_followed": links_followed,
+        }
+
     def search_agentic(self, query: str, k: int = 5) -> list[dict[str, Any]]:
         """
         Agentic retrieval: vector search + one-hop link traversal.
@@ -338,6 +417,7 @@ class AgenticMemorySystem:
                         "keywords": linked_note.keywords,
                         "tags": linked_note.tags,
                         "context": linked_note.context,
+                        "timestamp": linked_note.timestamp,
                         "via_link_from": r["id"],
                     })
 
