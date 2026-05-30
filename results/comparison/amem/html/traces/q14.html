@@ -1,359 +1,135 @@
-<html>
-    <head>
-        <meta charset="utf-8">
-        
-            <script>function neighbourhoodHighlight(params) {
-  // console.log("in nieghbourhoodhighlight");
-  allNodes = nodes.get({ returnType: "Object" });
-  // originalNodes = JSON.parse(JSON.stringify(allNodes));
-  // if something is selected:
-  if (params.nodes.length > 0) {
-    highlightActive = true;
-    var i, j;
-    var selectedNode = params.nodes[0];
-    var degrees = 2;
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>q14: Where does Sam currently work?</title>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; font: 14px system-ui, sans-serif; color: #1f2937;
+  display: flex; flex-direction: column; height: 100vh;
+}
+header {
+  padding: 0.55em 1em; border-bottom: 1px solid #e5e7eb; background: #f9fafb;
+}
+header h1 { margin: 0; font-size: 1.05em; }
+header .meta { color: #6b7280; font-size: 0.88em; }
+main { display: flex; flex: 1; min-height: 0; }
+#graph { flex: 1; min-width: 0; border-right: 1px solid #e5e7eb; background: #ffffff; }
+#panel {
+  width: 380px; flex-shrink: 0; padding: 1em 1.2em;
+  overflow-y: auto; background: #fafafa;
+}
+#panel .placeholder { color: #9ca3af; font-style: italic; }
+#panel h3 { margin: 0 0 0.2em 0; font-size: 1.05em; font-family: ui-monospace, monospace; }
+#panel .ts { color: #6b7280; font-size: 0.88em; margin-bottom: 0.8em; }
+#panel .row { margin-bottom: 0.7em; }
+#panel .label {
+  font-weight: 600; color: #6b7280; font-size: 0.78em;
+  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.2em;
+}
+#panel .value { white-space: pre-wrap; word-break: break-word; line-height: 1.45; }
+#panel code {
+  background: #e5e7eb; padding: 1px 5px; border-radius: 3px;
+  font-size: 0.88em; font-family: ui-monospace, monospace;
+  display: inline-block; margin: 1px 2px 1px 0;
+}
+#panel ul { padding-left: 1.4em; margin: 0.2em 0; }
+#panel .evo {
+  background: #fef3c7; padding: 0.6em 0.8em; border-radius: 4px;
+  border-left: 3px solid #d97706; margin-top: 0.4em;
+}
+#panel .evo .label { color: #92400e; margin-bottom: 0.3em; }
+</style></head><body>
+<header>
+  <h1>q14: Where does Sam currently work?</h1>
+  <div class="meta">5 direct hit(s) · 1 link traversal(s)</div>
+</header>
+<main>
+  <div id="graph"></div>
+  <div id="panel"><p class="placeholder">Click a node to inspect.</p></div>
+</main>
+<script>
+const NODES_RAW = [{"id": "_query", "label": "Q", "color": "#ef4444", "shape": "diamond", "size": 22, "_detail": {"id": "_query", "kind": "query", "content": "Where does Sam currently work?"}}, {"id": "m04", "label": "m04", "color": "#60a5fa", "shape": "dot", "size": 16, "_detail": {"id": "m04", "timestamp": "2024-01-10T08:30:00", "content": "Sam lives in Oakland, California.", "keywords": ["Oakland", "California", "location"], "tags": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being"], "context": "General biographical information about Sam's location, but not directly related to the Boston trip.", "links": [], "evolution_history": [{"trigger": "m05", "field": "context", "old": "The main topic is a personal profile, specifically the residence of an individual, with no key arguments or points, intended for general information or introduction purposes.", "new": "The main topic is a personal profile, specifically the residence of an individual, with no key arguments or points, intended for general information or introduction purposes."}, {"trigger": "m05", "field": "tags", "old": ["biographical information", "geographical location", "personal profile"], "new": ["Biographical Information", "Geographical Location", "Personal Profile"]}, {"trigger": "m06", "field": "context", "old": "The main topic is a personal profile, specifically the residence of an individual, with no key arguments or points, intended for general information or introduction purposes.", "new": "The main topic is a personal profile, specifically the residence of an individual, with no key arguments or points, intended for general information or introduction purposes."}, {"trigger": "m06", "field": "tags", "old": ["Biographical Information", "Geographical Location", "Personal Profile"], "new": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel"]}, {"trigger": "m07", "field": "context", "old": "The main topic is a personal profile, specifically the residence of an individual, with no key arguments or points, intended for general information or introduction purposes.", "new": "The main topic is a personal profile, specifically the residence of an individual, with no key arguments or points, intended for general information or introduction purposes."}, {"trigger": "m07", "field": "tags", "old": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel"], "new": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel"]}, {"trigger": "m08", "field": "context", "old": "The main topic is a personal profile, specifically the residence of an individual, with no key arguments or points, intended for general information or introduction purposes.", "new": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes."}, {"trigger": "m08", "field": "tags", "old": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel"], "new": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies"]}, {"trigger": "m09", "field": "context", "old": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes.", "new": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes."}, {"trigger": "m09", "field": "tags", "old": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies"], "new": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies"]}, {"trigger": "m10", "field": "context", "old": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes.", "new": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes."}, {"trigger": "m10", "field": "tags", "old": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies"], "new": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies"]}, {"trigger": "m11", "field": "context", "old": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes.", "new": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes, and also related to family members' locations."}, {"trigger": "m11", "field": "tags", "old": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies"], "new": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies", "Family"]}, {"trigger": "m13", "field": "context", "old": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes, and also related to family members' locations.", "new": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes, and also related to family members' locations and their connections."}, {"trigger": "m13", "field": "tags", "old": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies", "Family"], "new": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies", "Family", "Family Members' Locations"]}, {"trigger": "m15", "field": "context", "old": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes, and also related to family members' locations and their connections.", "new": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes, and also related to family members' locations and their connections, including travel plans."}, {"trigger": "m15", "field": "tags", "old": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies", "Family", "Family Members' Locations"], "new": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies", "Family", "Family Members' Locations"]}, {"trigger": "m16", "field": "context", "old": "The main topic is a personal profile, specifically the residence of an individual, with a mention of a hobby, intended for general information or introduction purposes, and also related to family members' locations and their connections, including travel plans.", "new": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology, and also related to family members' locations and their connections, including travel plans, and also related to web development and data extraction for outdoor recreation."}, {"trigger": "m16", "field": "tags", "old": ["Biographical Information", "Geographical Location", "Personal Profile", "Travel", "Hobbies", "Family", "Family Members' Locations"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family Members' Locations", "Web Development", "Data Extraction", "Outdoor Recreation"]}, {"trigger": "m18", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology, and also related to family members' locations and their connections, including travel plans, and also related to web development and data extraction for outdoor recreation.", "new": "Sam's professional background as a software engineer and its connection to web development and data extraction."}, {"trigger": "m18", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family Members' Locations", "Web Development", "Data Extraction", "Outdoor Recreation"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career"]}, {"trigger": "m23", "field": "context", "old": "Sam's professional background as a software engineer and its connection to web development and data extraction.", "new": "Sam's professional background as a software engineer and its connection to web development and data extraction, with a focus on the need for better work-life balance in the tech industry."}, {"trigger": "m23", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being"]}, {"trigger": "m24", "field": "context", "old": "Sam's professional background as a software engineer and its connection to web development and data extraction, with a focus on the need for better work-life balance in the tech industry.", "new": "Sam's professional background as a software engineer and its connection to web development and data extraction, with a focus on the need for better work-life balance in the tech industry."}, {"trigger": "m24", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being"]}, {"trigger": "m34", "field": "context", "old": "Sam's professional background as a software engineer and its connection to web development and data extraction, with a focus on the need for better work-life balance in the tech industry.", "new": "General biographical information about a friend's birthday."}, {"trigger": "m34", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being"]}, {"trigger": "m35", "field": "context", "old": "General biographical information about a friend's birthday.", "new": "General biographical information about Sam's location, but not directly related to the Boston trip."}, {"trigger": "m35", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being"]}]}}, {"id": "m01", "label": "m01", "color": "#60a5fa", "shape": "dot", "size": 16, "_detail": {"id": "m01", "timestamp": "2024-01-08T09:00:00", "content": "Sam works as a software engineer at TechCorp.", "keywords": ["Software Engineer", "TechCorp", "Career"], "tags": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Job Search", "Career Transition"], "context": "Sam's professional background and current job search as a software engineer, with a new development of transitioning to a senior backend engineer role at a startup.", "links": [], "evolution_history": [{"trigger": "m02", "field": "context", "old": "The main topic is a brief description of an individual's profession, specifically working as a software engineer at a technology company, likely intended to provide a general overview of their occupation.", "new": "The main topic is a brief description of a fintech company, specifically its headquarters, likely intended to provide a general overview of the company."}, {"trigger": "m02", "field": "tags", "old": ["Technology", "Career Development", "Biographical Information"], "new": ["Technology", "Company Information", "Biographical Information"]}, {"trigger": "m03", "field": "context", "old": "The main topic is a brief description of a fintech company, specifically its headquarters, likely intended to provide a general overview of the company.", "new": "The main topic is a brief description of a person's career and professional relationships."}, {"trigger": "m03", "field": "tags", "old": ["Technology", "Company Information", "Biographical Information"], "new": ["Technology", "Company Information", "Biographical Information", "Professional Relationships"]}, {"trigger": "m04", "field": "context", "old": "The main topic is a brief description of a person's career and professional relationships.", "new": "The main topic is a brief description of a person's career, professional relationships, and location."}, {"trigger": "m04", "field": "tags", "old": ["Technology", "Company Information", "Biographical Information", "Professional Relationships"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Company Information"]}, {"trigger": "m05", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location.", "new": "The main topic is a brief description of a person's career, professional relationships, and location."}, {"trigger": "m05", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Company Information"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Company Information"]}, {"trigger": "m06", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location.", "new": "The main topic is a brief description of a person's career, professional relationships, and location."}, {"trigger": "m06", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Company Information"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Company Information"]}, {"trigger": "m07", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location.", "new": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology."}, {"trigger": "m07", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Company Information"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Company Information", "Language Learning"]}, {"trigger": "m08", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology.", "new": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology."}, {"trigger": "m08", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Company Information", "Language Learning"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Company Information", "Language Learning"]}, {"trigger": "m09", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology.", "new": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology."}, {"trigger": "m09", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Company Information", "Language Learning"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning"]}, {"trigger": "m10", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology.", "new": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology."}, {"trigger": "m10", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning"]}, {"trigger": "m11", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology.", "new": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology, and also related to family members' locations."}, {"trigger": "m11", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family"]}, {"trigger": "m12", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology, and also related to family members' locations.", "new": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology, and also related to family members' locations."}, {"trigger": "m12", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family"]}, {"trigger": "m13", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology, and also related to family members' locations.", "new": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology, and also related to family members' locations and their connections."}, {"trigger": "m13", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family", "Family Members' Locations"]}, {"trigger": "m14", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology, and also related to family members' locations and their connections.", "new": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology, and also related to family members' locations and their connections."}, {"trigger": "m14", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family", "Family Members' Locations"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family Members' Locations"]}, {"trigger": "m16", "field": "context", "old": "The main topic is a brief description of a person's career, professional relationships, and location, with an interest in language learning and educational technology, and also related to family members' locations and their connections.", "new": "The main topic is a personal project involving web development and data extraction for outdoor recreation, specifically finding new climbing locations."}, {"trigger": "m16", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family Members' Locations"], "new": ["Personal Projects", "Web Development", "Data Extraction", "Outdoor Recreation", "Rock Climbing"]}, {"trigger": "m17", "field": "context", "old": "The main topic is a personal project involving web development and data extraction for outdoor recreation, specifically finding new climbing locations.", "new": "Sam's professional background as a software engineer."}, {"trigger": "m17", "field": "tags", "old": ["Personal Projects", "Web Development", "Data Extraction", "Outdoor Recreation", "Rock Climbing"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career"]}, {"trigger": "m18", "field": "context", "old": "Sam's professional background as a software engineer.", "new": "Sam's location in Oakland, California, and its connection to web development and data extraction for outdoor recreation."}, {"trigger": "m18", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career"], "new": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family Members' Locations", "Web Development", "Data Extraction", "Outdoor Recreation"]}, {"trigger": "m23", "field": "context", "old": "Sam's location in Oakland, California, and its connection to web development and data extraction for outdoor recreation.", "new": "Sam's professional background as a software engineer at TechCorp and its connection to web development, data extraction, and the impact of work-life balance on his well-being."}, {"trigger": "m23", "field": "tags", "old": ["Biographical Information", "Professional Relationships", "Location", "Technology", "Language Learning", "Family Members' Locations", "Web Development", "Data Extraction", "Outdoor Recreation"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being"]}, {"trigger": "m24", "field": "context", "old": "Sam's professional background as a software engineer at TechCorp and its connection to web development, data extraction, and the impact of work-life balance on his well-being.", "new": "Sam's professional background as a software engineer at TechCorp and its connection to web development, data extraction, and the impact of work-life balance on his well-being, including his current job search."}, {"trigger": "m24", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being", "Career Development", "Job Search"]}, {"trigger": "m25", "field": "context", "old": "Sam's professional background as a software engineer at TechCorp and its connection to web development, data extraction, and the impact of work-life balance on his well-being, including his current job search.", "new": "Sam's professional background and current job search as a software engineer."}, {"trigger": "m25", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Work-Life Balance", "Employee Well-being", "Career Development", "Job Search"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Job Search"]}, {"trigger": "m26", "field": "context", "old": "Sam's professional background and current job search as a software engineer.", "new": "Sam's professional background and current job search as a software engineer."}, {"trigger": "m26", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Job Search"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Job Search"]}, {"trigger": "m27", "field": "context", "old": "Sam's professional background and current job search as a software engineer.", "new": "Sam's professional background and current job search as a software engineer."}, {"trigger": "m27", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Job Search"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Job Search"]}, {"trigger": "m28", "field": "context", "old": "Sam's professional background and current job search as a software engineer.", "new": "Sam's professional background and current job search as a software engineer."}, {"trigger": "m28", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Job Search"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Job Search"]}, {"trigger": "m29", "field": "context", "old": "Sam's professional background and current job search as a software engineer.", "new": "Sam's professional background and current job search as a software engineer, with a new development of transitioning to a senior backend engineer role at a startup."}, {"trigger": "m29", "field": "tags", "old": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Job Search"], "new": ["Software Engineer", "Web Development", "Data Extraction", "Career", "Job Search", "Career Transition"]}]}}, {"id": "m24", "label": "m24", "color": "#60a5fa", "shape": "dot", "size": 16, "_detail": {"id": "m24", "timestamp": "2024-02-10T18:00:00", "content": "Sam started interviewing at other companies, mostly developer-tools startups.", "keywords": ["interviewing", "companies", "startups", "developer-tools"], "tags": ["Career Development", "Job Search", "Professional Relationships", "Manager Introduction", "Career Growth", "Professional Development", "Skill Building"], "context": "Sam's job search and interviewing process at developer-tools startups, and the introduction of a new manager at StartupCo, with a successful outcome of getting hired and the need for continuous learning.", "links": ["m01"], "evolution_history": [{"trigger": "m25", "field": "context", "old": "The main topic is a person's job search, specifically interviewing at developer-tools startups, likely for a career development or transition purpose.", "new": "Sam's job search and interviewing process at developer-tools startups."}, {"trigger": "m25", "field": "tags", "old": ["Career Development", "Job Search"], "new": ["Career Development", "Job Search", "Interviewing", "Developer-Tools"]}, {"trigger": "m27", "field": "context", "old": "Sam's job search and interviewing process at developer-tools startups.", "new": "Sam's job search and interviewing process at developer-tools startups."}, {"trigger": "m27", "field": "tags", "old": ["Career Development", "Job Search", "Interviewing", "Developer-Tools"], "new": ["Career Development", "Job Search", "Interviewing", "Developer-Tools"]}, {"trigger": "m28", "field": "context", "old": "Sam's job search and interviewing process at developer-tools startups.", "new": "Sam's job search and interviewing process at developer-tools startups, and the introduction of a new manager at StartupCo."}, {"trigger": "m28", "field": "tags", "old": ["Career Development", "Job Search", "Interviewing", "Developer-Tools"], "new": ["Career Development", "Job Search", "Professional Relationships", "Manager Introduction"]}, {"trigger": "m29", "field": "context", "old": "Sam's job search and interviewing process at developer-tools startups, and the introduction of a new manager at StartupCo.", "new": "Sam's job search and interviewing process at developer-tools startups, and the introduction of a new manager at StartupCo, with a successful outcome of getting hired."}, {"trigger": "m29", "field": "tags", "old": ["Career Development", "Job Search", "Professional Relationships", "Manager Introduction"], "new": ["Career Development", "Job Search", "Professional Relationships", "Manager Introduction", "Career Growth"]}, {"trigger": "m30", "field": "context", "old": "Sam's job search and interviewing process at developer-tools startups, and the introduction of a new manager at StartupCo, with a successful outcome of getting hired.", "new": "Sam's job search and interviewing process at developer-tools startups, and the introduction of a new manager at StartupCo, with a successful outcome of getting hired and the need for continuous learning."}, {"trigger": "m30", "field": "tags", "old": ["Career Development", "Job Search", "Professional Relationships", "Manager Introduction", "Career Growth"], "new": ["Career Development", "Job Search", "Professional Relationships", "Manager Introduction", "Career Growth", "Professional Development", "Skill Building"]}]}}, {"id": "m29", "label": "m29", "color": "#60a5fa", "shape": "dot", "size": 16, "_detail": {"id": "m29", "timestamp": "2024-02-19T09:00:00", "content": "Sam started at StartupCo today. The role is senior backend engineer.", "keywords": ["StartupCo", "senior backend engineer", "role"], "tags": ["Career Development", "Job Search", "Career Opportunities", "Remote Work", "Professional Relationships", "Manager Introduction", "Professional Development", "Skill Building", "Productivity"], "context": "Sam's career update, specifically a new job at a startup company, with the key point being the role of a senior backend engineer, and the need to learn Rust for the main service, and the challenge of balancing work and personal development.", "links": ["m25", "m24"], "evolution_history": [{"trigger": "m30", "field": "context", "old": "The main topic is a career update, specifically a new job at a startup company, with the key point being the role of a senior backend engineer, likely intended for personal or professional networking purposes.", "new": "Sam's career update, specifically a new job at a startup company, with the key point being the role of a senior backend engineer, and the need to learn Rust for the main service."}, {"trigger": "m30", "field": "tags", "old": ["Career Development", "Job Search", "Career Opportunities", "Remote Work", "Professional Relationships", "Manager Introduction"], "new": ["Career Development", "Job Search", "Career Opportunities", "Remote Work", "Professional Relationships", "Manager Introduction", "Professional Development", "Skill Building"]}, {"trigger": "m37", "field": "context", "old": "Sam's career update, specifically a new job at a startup company, with the key point being the role of a senior backend engineer, and the need to learn Rust for the main service.", "new": "Sam's career update, specifically a new job at a startup company, with the key point being the role of a senior backend engineer, and the need to learn Rust for the main service, and the challenge of balancing work and personal development."}, {"trigger": "m37", "field": "tags", "old": ["Career Development", "Job Search", "Career Opportunities", "Remote Work", "Professional Relationships", "Manager Introduction", "Professional Development", "Skill Building"], "new": ["Career Development", "Job Search", "Career Opportunities", "Remote Work", "Professional Relationships", "Manager Introduction", "Professional Development", "Skill Building", "Productivity"]}]}}, {"id": "m05", "label": "m05", "color": "#60a5fa", "shape": "dot", "size": 16, "_detail": {"id": "m05", "timestamp": "2024-01-12T19:00:00", "content": "Sam's partner is Alex. Alex works as a graphic designer.", "keywords": [], "tags": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Graphic Design", "Travel Plans"], "context": "Sam's partner's profession and its potential connection to design for outdoor recreation, and their relationship with Sam.", "links": ["m01"], "evolution_history": [{"trigger": "m06", "field": "context", "old": "General", "new": "The main topic is a brief description of a person's personal relationships and professional relationships."}, {"trigger": "m06", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships"]}, {"trigger": "m07", "field": "context", "old": "The main topic is a brief description of a person's personal relationships and professional relationships.", "new": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer."}, {"trigger": "m07", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships"]}, {"trigger": "m08", "field": "context", "old": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer.", "new": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer."}, {"trigger": "m08", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships"]}, {"trigger": "m09", "field": "context", "old": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer.", "new": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer."}, {"trigger": "m09", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships"]}, {"trigger": "m11", "field": "context", "old": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer.", "new": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer, and also related to family members' locations."}, {"trigger": "m11", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Family"]}, {"trigger": "m12", "field": "context", "old": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer, and also related to family members' locations.", "new": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer, and also related to family members' locations."}, {"trigger": "m12", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Family"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Family"]}, {"trigger": "m13", "field": "context", "old": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer, and also related to family members' locations.", "new": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer, and also related to family members' locations and their connections."}, {"trigger": "m13", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Family"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Family", "Family Members' Locations"]}, {"trigger": "m14", "field": "context", "old": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer, and also related to family members' locations and their connections.", "new": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer, and also related to family members' locations and their connections."}, {"trigger": "m14", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Family", "Family Members' Locations"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Family Members' Locations"]}, {"trigger": "m17", "field": "context", "old": "The main topic is a brief description of a person's personal relationships and professional relationships, with a partner who works as a graphic designer, and also related to family members' locations and their connections.", "new": "Sam's partner's profession and its potential connection to design for outdoor recreation."}, {"trigger": "m17", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Family Members' Locations"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Graphic Design"]}, {"trigger": "m23", "field": "context", "old": "Sam's partner's profession and its potential connection to design for outdoor recreation.", "new": "Sam's partner's profession and its potential connection to design for outdoor recreation, with a focus on the impact of work-life balance on personal relationships."}, {"trigger": "m23", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Graphic Design"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Graphic Design", "Work-Life Balance", "Support System"]}, {"trigger": "m24", "field": "context", "old": "Sam's partner's profession and its potential connection to design for outdoor recreation, with a focus on the impact of work-life balance on personal relationships.", "new": "Sam's partner's profession and its potential connection to design for outdoor recreation, with a focus on the impact of work-life balance on personal relationships."}, {"trigger": "m24", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Graphic Design", "Work-Life Balance", "Support System"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Graphic Design", "Work-Life Balance", "Support System"]}, {"trigger": "m25", "field": "context", "old": "Sam's partner's profession and its potential connection to design for outdoor recreation, with a focus on the impact of work-life balance on personal relationships.", "new": "Sam's partner's profession and its potential connection to design for outdoor recreation."}, {"trigger": "m25", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Graphic Design", "Work-Life Balance", "Support System"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Graphic Design"]}, {"trigger": "m35", "field": "context", "old": "Sam's partner's profession and its potential connection to design for outdoor recreation.", "new": "Sam's partner's profession and its potential connection to design for outdoor recreation, and their relationship with Sam."}, {"trigger": "m35", "field": "tags", "old": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Graphic Design"], "new": ["Biographical Information", "Personal Relationships", "Professional Relationships", "Graphic Design", "Travel Plans"]}]}}, {"id": "m25", "label": "m25", "color": "#a78bfa", "shape": "dot", "size": 13, "_detail": {"id": "m25", "timestamp": "2024-02-14T17:00:00", "content": "Sam got a job offer from StartupCo, a developer-tools startup.", "keywords": ["job offer", "StartupCo", "developer-tools", "startup"], "tags": ["Career Development", "Job Search", "Career Opportunities", "Remote Work", "Professional Relationships", "Professional Development", "Skill Building"], "context": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry, and the subsequent acceptance of the offer.", "links": ["m24", "m01"], "evolution_history": [{"trigger": "m26", "field": "context", "old": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry.", "new": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry."}, {"trigger": "m26", "field": "tags", "old": ["Career Development", "Job Search", "Career Opportunities"], "new": ["Career Development", "Job Search", "Career Opportunities", "Remote Work"]}, {"trigger": "m27", "field": "context", "old": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry.", "new": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry."}, {"trigger": "m27", "field": "tags", "old": ["Career Development", "Job Search", "Career Opportunities", "Remote Work"], "new": ["Career Development", "Job Search", "Career Opportunities", "Remote Work"]}, {"trigger": "m28", "field": "context", "old": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry.", "new": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry."}, {"trigger": "m28", "field": "tags", "old": ["Career Development", "Job Search", "Career Opportunities", "Remote Work"], "new": ["Career Development", "Job Search", "Career Opportunities", "Remote Work"]}, {"trigger": "m29", "field": "context", "old": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry.", "new": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry, and the subsequent acceptance of the offer."}, {"trigger": "m29", "field": "tags", "old": ["Career Development", "Job Search", "Career Opportunities", "Remote Work"], "new": ["Career Development", "Job Search", "Career Opportunities", "Remote Work", "Professional Relationships"]}, {"trigger": "m30", "field": "context", "old": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry, and the subsequent acceptance of the offer.", "new": "A job offer from a developer-tools startup, highlighting the main topic of career opportunities and employment in the tech industry, and the subsequent acceptance of the offer."}, {"trigger": "m30", "field": "tags", "old": ["Career Development", "Job Search", "Career Opportunities", "Remote Work", "Professional Relationships"], "new": ["Career Development", "Job Search", "Career Opportunities", "Remote Work", "Professional Relationships", "Professional Development", "Skill Building"]}]}}];
+const EDGES_RAW = [{"from": "_query", "to": "m04", "color": "#3b82f6", "width": 3}, {"from": "_query", "to": "m01", "color": "#3b82f6", "width": 3}, {"from": "_query", "to": "m24", "color": "#3b82f6", "width": 3}, {"from": "_query", "to": "m29", "color": "#3b82f6", "width": 3}, {"from": "_query", "to": "m05", "color": "#3b82f6", "width": 3}, {"from": "m29", "to": "m25", "color": "#a78bfa", "width": 2, "dashes": true}];
+const OPTIONS   = {"physics": {"barnesHut": {"gravitationalConstant": -2500, "centralGravity": 0.4, "springLength": 110, "springConstant": 0.06}, "minVelocity": 0.5, "stabilization": {"iterations": 150}}, "interaction": {"hover": false, "tooltipDelay": 99999}, "edges": {"smooth": false, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}}};
 
-    // mark all nodes as hard to read.
-    for (let nodeId in allNodes) {
-      // nodeColors[nodeId] = allNodes[nodeId].color;
-      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
-      if (allNodes[nodeId].hiddenLabel === undefined) {
-        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
-        allNodes[nodeId].label = undefined;
-      }
-    }
-    var connectedNodes = network.getConnectedNodes(selectedNode);
-    var allConnectedNodes = [];
+const DEFAULT_COLOR = {};
+NODES_RAW.forEach(n => { DEFAULT_COLOR[n.id] = n.color; });
 
-    // get the second degree nodes
-    for (i = 1; i < degrees; i++) {
-      for (j = 0; j < connectedNodes.length; j++) {
-        allConnectedNodes = allConnectedNodes.concat(
-          network.getConnectedNodes(connectedNodes[j])
-        );
-      }
-    }
+const nodes = new vis.DataSet(NODES_RAW);
+const edges = new vis.DataSet(EDGES_RAW);
+const network = new vis.Network(
+  document.getElementById('graph'),
+  { nodes, edges }, OPTIONS,
+);
 
-    // all second degree nodes get a different color and their label back
-    for (i = 0; i < allConnectedNodes.length; i++) {
-      // allNodes[allConnectedNodes[i]].color = "pink";
-      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
-      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
-        allNodes[allConnectedNodes[i]].label =
-          allNodes[allConnectedNodes[i]].hiddenLabel;
-        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
-      }
-    }
+const panel = document.getElementById('panel');
 
-    // all first degree nodes get their own color and their label back
-    for (i = 0; i < connectedNodes.length; i++) {
-      // allNodes[connectedNodes[i]].color = undefined;
-      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
-      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
-        allNodes[connectedNodes[i]].label =
-          allNodes[connectedNodes[i]].hiddenLabel;
-        allNodes[connectedNodes[i]].hiddenLabel = undefined;
-      }
-    }
-
-    // the main node gets its own color and its label back.
-    // allNodes[selectedNode].color = undefined;
-    allNodes[selectedNode].color = nodeColors[selectedNode];
-    if (allNodes[selectedNode].hiddenLabel !== undefined) {
-      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
-      allNodes[selectedNode].hiddenLabel = undefined;
-    }
-  } else if (highlightActive === true) {
-    // console.log("highlightActive was true");
-    // reset all nodes
-    for (let nodeId in allNodes) {
-      // allNodes[nodeId].color = "purple";
-      allNodes[nodeId].color = nodeColors[nodeId];
-      // delete allNodes[nodeId].color;
-      if (allNodes[nodeId].hiddenLabel !== undefined) {
-        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
-        allNodes[nodeId].hiddenLabel = undefined;
-      }
-    }
-    highlightActive = false;
-  }
-
-  // transform the object into an array
-  var updateArray = [];
-  if (params.nodes.length > 0) {
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        // console.log(allNodes[nodeId]);
-        updateArray.push(allNodes[nodeId]);
-      }
-    }
-    nodes.update(updateArray);
-  } else {
-    // console.log("Nothing was selected");
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        // console.log(allNodes[nodeId]);
-        // allNodes[nodeId].color = {};
-        updateArray.push(allNodes[nodeId]);
-      }
-    }
-    nodes.update(updateArray);
-  }
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }
 
-function filterHighlight(params) {
-  allNodes = nodes.get({ returnType: "Object" });
-  // if something is selected:
-  if (params.nodes.length > 0) {
-    filterActive = true;
-    let selectedNodes = params.nodes;
-
-    // hiding all nodes and saving the label
-    for (let nodeId in allNodes) {
-      allNodes[nodeId].hidden = true;
-      if (allNodes[nodeId].savedLabel === undefined) {
-        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
-        allNodes[nodeId].label = undefined;
-      }
-    }
-
-    for (let i=0; i < selectedNodes.length; i++) {
-      allNodes[selectedNodes[i]].hidden = false;
-      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
-        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
-        allNodes[selectedNodes[i]].savedLabel = undefined;
-      }
-    }
-
-  } else if (filterActive === true) {
-    // reset all nodes
-    for (let nodeId in allNodes) {
-      allNodes[nodeId].hidden = false;
-      if (allNodes[nodeId].savedLabel !== undefined) {
-        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
-        allNodes[nodeId].savedLabel = undefined;
-      }
-    }
-    filterActive = false;
-  }
-
-  // transform the object into an array
-  var updateArray = [];
-  if (params.nodes.length > 0) {
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        updateArray.push(allNodes[nodeId]);
-      }
-    }
-    nodes.update(updateArray);
-  } else {
-    for (let nodeId in allNodes) {
-      if (allNodes.hasOwnProperty(nodeId)) {
-        updateArray.push(allNodes[nodeId]);
-      }
-    }
-    nodes.update(updateArray);
-  }
+function chips(items) {
+  if (!items || items.length === 0) return '<i class="placeholder">(none)</i>';
+  return items.map(s => `<code>${esc(s)}</code>`).join(' ');
 }
 
-function selectNode(nodes) {
-  network.selectNodes(nodes);
-  neighbourhoodHighlight({ nodes: nodes });
-  return nodes;
+function renderPanel(d) {
+  if (!d) {
+    panel.innerHTML = '<p class="placeholder">Click a node to inspect.</p>';
+    return;
+  }
+  if (d.kind === 'query') {
+    panel.innerHTML = `
+      <h3>Query</h3>
+      <div class="row"><div class="label">Question</div>
+        <div class="value">${esc(d.content)}</div></div>`;
+    return;
+  }
+  let evo = '';
+  if (d.evolution_history && d.evolution_history.length) {
+    const events = d.evolution_history.slice(0, 5).map(e => `<li>trigger=<code>${esc(e.trigger || '?')}</code>, field=<code>${esc(e.field || '?')}</code></li>`).join('');
+    evo = `<div class="evo"><div class="label">Evolved ${d.evolution_history.length}×</div><ul>${events}</ul></div>`;
+  }
+  panel.innerHTML = `
+    <h3>${esc(d.id || '')}</h3>
+    <div class="ts">${esc(d.timestamp || '')}</div>
+    <div class="row"><div class="label">Content</div><div class="value">${esc(d.content || '')}</div></div>
+    <div class="row"><div class="label">Keywords</div><div class="value">${chips(d.keywords)}</div></div>
+    <div class="row"><div class="label">Tags</div><div class="value">${chips(d.tags)}</div></div>
+    <div class="row"><div class="label">Context</div><div class="value">${esc(d.context || '')}</div></div>
+    <div class="row"><div class="label">Links</div><div class="value">${chips(d.links)}</div></div>
+    ${evo}`;
 }
 
-function selectNodes(nodes) {
-  network.selectNodes(nodes);
-  filterHighlight({nodes: nodes});
-  return nodes;
+function highlight(nodeId) {
+  if (!nodeId) {
+    const updates = NODES_RAW.map(n => ({ id: n.id, color: DEFAULT_COLOR[n.id] }));
+    nodes.update(updates);
+    return;
+  }
+  const keep = new Set(network.getConnectedNodes(nodeId));
+  keep.add(nodeId);
+  const updates = NODES_RAW.map(n => ({
+    id: n.id,
+    color: keep.has(n.id) ? DEFAULT_COLOR[n.id] : 'rgba(200,200,200,0.35)',
+  }));
+  nodes.update(updates);
 }
 
-function highlightFilter(filter) {
-  let selectedNodes = []
-  let selectedProp = filter['property']
-  if (filter['item'] === 'node') {
-    let allNodes = nodes.get({ returnType: "Object" });
-    for (let nodeId in allNodes) {
-      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
-        selectedNodes.push(nodeId)
-      }
-    }
+network.on('selectNode', (params) => {
+  const id = params.nodes[0];
+  const node = nodes.get(id);
+  renderPanel(node._detail || null);
+  highlight(id);
+});
+
+network.on('deselectNode', () => { renderPanel(null); highlight(null); });
+
+network.on('click', (params) => {
+  if (params.nodes.length === 0 && params.edges.length === 0) {
+    renderPanel(null); highlight(null);
   }
-  else if (filter['item'] === 'edge'){
-    let allEdges = edges.get({returnType: 'object'});
-    // check if the selected property exists for selected edge and select the nodes connected to the edge
-    for (let edge in allEdges) {
-      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
-        selectedNodes.push(allEdges[edge]['from'])
-        selectedNodes.push(allEdges[edge]['to'])
-      }
-    }
-  }
-  selectNodes(selectedNodes)
-}</script>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-            
-            
-            
-            
-            
-            
-
-        
-<center>
-<h1></h1>
-</center>
-
-<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
-<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
-        <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
-          crossorigin="anonymous"
-        />
-        <script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
-          crossorigin="anonymous"
-        ></script>
-
-
-        <center>
-          <h1></h1>
-        </center>
-        <style type="text/css">
-
-             #mynetwork {
-                 width: 100%;
-                 height: 600px;
-                 background-color: #ffffff;
-                 border: 1px solid lightgray;
-                 position: relative;
-                 float: left;
-             }
-
-             
-
-             
-
-             
-        </style>
-    </head>
-
-
-    <body>
-        <div class="card" style="width: 100%">
-            
-            
-            <div id="mynetwork" class="card-body"></div>
-        </div>
-
-        
-        
-
-        <script type="text/javascript">
-
-              // initialize global variables.
-              var edges;
-              var nodes;
-              var allNodes;
-              var allEdges;
-              var nodeColors;
-              var originalNodes;
-              var network;
-              var container;
-              var options, data;
-              var filter = {
-                  item : '',
-                  property : '',
-                  value : []
-              };
-
-              
-
-              
-
-              // This method is responsible for drawing the graph, returns the drawn network
-              function drawGraph() {
-                  var container = document.getElementById('mynetwork');
-
-                  
-
-                  // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "#ef4444", "font": {"color": "#1f2937"}, "id": "_query", "label": "Q", "shape": "diamond", "size": 22, "title": "Question\nWhere does Sam currently work?"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m04", "label": "m04", "shape": "dot", "size": 16, "title": "m04  (2024-01-10T08:30:00)\n\nContent:  Sam lives in Oakland, California.\nKeywords: Oakland, California, location\nTags:     Software Engineer, Web Development, Data Extraction, Career, Work-Life Balance, Employee Well-being\nContext:  General biographical information about Sam\u0027s location, but not\n  directly related to the Boston trip.\nLinks:    (none)\n\nEvolved 30\u00d7:\n  \u00b7 trigger=m05 field=context\n  \u00b7 trigger=m05 field=tags\n  \u00b7 trigger=m06 field=context\n  \u00b7 trigger=m06 field=tags\n  \u00b7 trigger=m07 field=context"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m01", "label": "m01", "shape": "dot", "size": 16, "title": "m01  (2024-01-08T09:00:00)\n\nContent:  Sam works as a software engineer at TechCorp.\nKeywords: Software Engineer, TechCorp, Career\nTags:     Software Engineer, Web Development, Data Extraction, Career, Job Search, Career Transition\nContext:  Sam\u0027s professional background and current job search as a software\n  engineer, with a new development of transitioning to a senior backend\n  engineer role at a startup.\nLinks:    (none)\n\nEvolved 46\u00d7:\n  \u00b7 trigger=m02 field=context\n  \u00b7 trigger=m02 field=tags\n  \u00b7 trigger=m03 field=context\n  \u00b7 trigger=m03 field=tags\n  \u00b7 trigger=m04 field=context"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m24", "label": "m24", "shape": "dot", "size": 16, "title": "m24  (2024-02-10T18:00:00)\n\nContent:  Sam started interviewing at other companies, mostly developer-tools\n  startups.\nKeywords: interviewing, companies, startups, developer-tools\nTags:     Career Development, Job Search, Professional Relationships, Manager Introduction, Career Growth, Professional Development, Skill Building\nContext:  Sam\u0027s job search and interviewing process at developer-tools startups,\n  and the introduction of a new manager at StartupCo, with a successful\n  outcome of getting hired and the need for continuous learning.\nLinks:    m01\n\nEvolved 10\u00d7:\n  \u00b7 trigger=m25 field=context\n  \u00b7 trigger=m25 field=tags\n  \u00b7 trigger=m27 field=context\n  \u00b7 trigger=m27 field=tags\n  \u00b7 trigger=m28 field=context"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m29", "label": "m29", "shape": "dot", "size": 16, "title": "m29  (2024-02-19T09:00:00)\n\nContent:  Sam started at StartupCo today. The role is senior backend engineer.\nKeywords: StartupCo, senior backend engineer, role\nTags:     Career Development, Job Search, Career Opportunities, Remote Work, Professional Relationships, Manager Introduction, Professional Development, Skill Building, Productivity\nContext:  Sam\u0027s career update, specifically a new job at a startup company, with\n  the key point being the role of a senior backend engineer, and the\n  need to learn Rust for the main service, and the challenge of\n  balancing work and personal development.\nLinks:    m25, m24\n\nEvolved 4\u00d7:\n  \u00b7 trigger=m30 field=context\n  \u00b7 trigger=m30 field=tags\n  \u00b7 trigger=m37 field=context\n  \u00b7 trigger=m37 field=tags"}, {"color": "#60a5fa", "font": {"color": "#1f2937"}, "id": "m05", "label": "m05", "shape": "dot", "size": 16, "title": "m05  (2024-01-12T19:00:00)\n\nContent:  Sam\u0027s partner is Alex. Alex works as a graphic designer.\nKeywords: (none)\nTags:     Biographical Information, Personal Relationships, Professional Relationships, Graphic Design, Travel Plans\nContext:  Sam\u0027s partner\u0027s profession and its potential connection to design for\n  outdoor recreation, and their relationship with Sam.\nLinks:    m01\n\nEvolved 26\u00d7:\n  \u00b7 trigger=m06 field=context\n  \u00b7 trigger=m06 field=tags\n  \u00b7 trigger=m07 field=context\n  \u00b7 trigger=m07 field=tags\n  \u00b7 trigger=m08 field=context"}, {"color": "#a78bfa", "font": {"color": "#1f2937"}, "id": "m25", "label": "m25", "shape": "dot", "size": 13, "title": "m25  (2024-02-14T17:00:00)\n\nContent:  Sam got a job offer from StartupCo, a developer-tools startup.\nKeywords: job offer, StartupCo, developer-tools, startup\nTags:     Career Development, Job Search, Career Opportunities, Remote Work, Professional Relationships, Professional Development, Skill Building\nContext:  A job offer from a developer-tools startup, highlighting the main\n  topic of career opportunities and employment in the tech industry, and\n  the subsequent acceptance of the offer.\nLinks:    m24, m01\n\nEvolved 10\u00d7:\n  \u00b7 trigger=m26 field=context\n  \u00b7 trigger=m26 field=tags\n  \u00b7 trigger=m27 field=context\n  \u00b7 trigger=m27 field=tags\n  \u00b7 trigger=m28 field=context"}]);
-                  edges = new vis.DataSet([{"arrows": "to", "color": "#3b82f6", "from": "_query", "title": "direct retrieval", "to": "m04", "width": 3}, {"arrows": "to", "color": "#3b82f6", "from": "_query", "title": "direct retrieval", "to": "m01", "width": 3}, {"arrows": "to", "color": "#3b82f6", "from": "_query", "title": "direct retrieval", "to": "m24", "width": 3}, {"arrows": "to", "color": "#3b82f6", "from": "_query", "title": "direct retrieval", "to": "m29", "width": 3}, {"arrows": "to", "color": "#3b82f6", "from": "_query", "title": "direct retrieval", "to": "m05", "width": 3}, {"arrows": "to", "color": "#a78bfa", "dashes": true, "from": "m29", "title": "link traversal", "to": "m25", "width": 2}]);
-
-                  nodeColors = {};
-                  allNodes = nodes.get({ returnType: "Object" });
-                  for (nodeId in allNodes) {
-                    nodeColors[nodeId] = allNodes[nodeId].color;
-                  }
-                  allEdges = edges.get({ returnType: "Object" });
-                  // adding nodes and edges to the graph
-                  data = {nodes: nodes, edges: edges};
-
-                  var options = {
-    "configure": {
-        "enabled": false
-    },
-    "edges": {
-        "color": {
-            "inherit": true
-        },
-        "smooth": {
-            "enabled": true,
-            "type": "dynamic"
-        }
-    },
-    "interaction": {
-        "dragNodes": true,
-        "hideEdgesOnDrag": false,
-        "hideNodesOnDrag": false
-    },
-    "physics": {
-        "barnesHut": {
-            "avoidOverlap": 0,
-            "centralGravity": 0.4,
-            "damping": 0.09,
-            "gravitationalConstant": -2500,
-            "springConstant": 0.06,
-            "springLength": 110
-        },
-        "enabled": true,
-        "stabilization": {
-            "enabled": true,
-            "fit": true,
-            "iterations": 1000,
-            "onlyDynamicEdges": false,
-            "updateInterval": 50
-        }
-    }
-};
-
-                  
-
-
-                  
-
-                  network = new vis.Network(container, data, options);
-
-                  
-                    network.on("click", neighbourhoodHighlight);
-                  
-
-                  
-
-                  
-
-
-                  
-
-                  return network;
-
-              }
-              drawGraph();
-        </script>
-    </body>
-</html>
+});
+</script></body></html>
