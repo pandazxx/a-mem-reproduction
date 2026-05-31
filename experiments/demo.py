@@ -26,7 +26,7 @@ import textwrap
 from pathlib import Path
 
 from . import _nim, render
-from .amem import AgenticMemorySystem
+from .systems.amem import AgenticMemorySystem
 
 
 def _require_api_key() -> None:

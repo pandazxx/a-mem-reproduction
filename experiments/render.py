@@ -22,33 +22,36 @@ import json
 import textwrap
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
-
-from .amem import MemoryNote
-
-if TYPE_CHECKING:
-    from pyvis.network import Network
+from typing import Any
 
 
 # ── Run artifact ──────────────────────────────────────────────────────────
+#
+# Notes are passed in as plain dicts (the on-disk JSON shape). This
+# keeps render.py decoupled from any system's class layout — A-Mem's
+# AMemAdapter calls `to_dict()` on its MemoryNote objects before
+# handing them off, so there's no circular dependency on systems.amem.
+
+Note = dict[str, Any]
+
 
 @dataclass
 class Run:
-    memories: dict[str, MemoryNote]
+    memories: dict[str, Note]
     queries: list[dict[str, Any]]
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
 def write_run(
     path: Path,
-    memories: dict[str, MemoryNote],
+    memories: dict[str, Note],
     queries: list[dict[str, Any]],
     metadata: dict[str, Any] | None = None,
 ) -> None:
     """Freeze all state needed by the renderer into a single JSON file."""
     payload = {
         "metadata": metadata or {},
-        "memories": [n.to_dict() for n in memories.values()],
+        "memories": list(memories.values()),
         "queries": queries,
     }
     path.write_text(json.dumps(payload, indent=2))
@@ -56,7 +59,7 @@ def write_run(
 
 def load_run(path: Path) -> Run:
     data = json.loads(path.read_text())
-    memories = {m["id"]: MemoryNote.from_dict(m) for m in data["memories"]}
+    memories = {m["id"]: m for m in data["memories"]}
     return Run(
         memories=memories,
         queries=data.get("queries", []),
@@ -67,7 +70,7 @@ def load_run(path: Path) -> Run:
 # ── Mermaid renderers ─────────────────────────────────────────────────────
 
 def to_mermaid_graph(
-    memories: dict[str, MemoryNote],
+    memories: dict[str, Note],
     *,
     order: list[str] | None = None,
     max_label: int = 40,
@@ -83,13 +86,13 @@ def to_mermaid_graph(
     lines = ["graph LR"]
     for mid in ordered_ids:
         note = memories[mid]
-        label = _mermaid_label(note.content, max_label)
+        label = _mermaid_label(note["content"], max_label)
         lines.append(f'    {_mermaid_id(mid)}["{mid}: {label}"]')
 
     seen: set[tuple[str, str]] = set()
     for mid in ordered_ids:
         note = memories[mid]
-        for lid in note.links:
+        for lid in note.get("links", []):
             if lid not in memories:
                 continue
             pair = tuple(sorted([mid, lid]))
@@ -98,7 +101,9 @@ def to_mermaid_graph(
             seen.add(pair)
             lines.append(f"    {_mermaid_id(mid)} --- {_mermaid_id(lid)}")
 
-    evolved = [mid for mid in ordered_ids if memories[mid].evolution_history]
+    evolved = [
+        mid for mid in ordered_ids if memories[mid].get("evolution_history")
+    ]
     if evolved:
         lines.append("    classDef evolved fill:#fef3c7,stroke:#d97706,stroke-width:2px")
         lines.append(
@@ -108,7 +113,7 @@ def to_mermaid_graph(
 
 
 def to_mermaid_trace(
-    memories: dict[str, MemoryNote],
+    memories: dict[str, Note],
     question: str,
     result: dict[str, Any],
     *,
@@ -134,7 +139,7 @@ def to_mermaid_trace(
         note = memories.get(mid)
         if not note:
             continue
-        label = _mermaid_label(note.content, max_label)
+        label = _mermaid_label(note["content"], max_label)
         lines.append(f'    {_mermaid_id(mid)}["{mid}: {label}"]')
         lines.append(f"    Q ==> {_mermaid_id(mid)}")
         nodes_rendered.add(mid)
@@ -144,7 +149,7 @@ def to_mermaid_trace(
         if not target:
             continue
         if to_id not in nodes_rendered:
-            label = _mermaid_label(target.content, max_label)
+            label = _mermaid_label(target["content"], max_label)
             lines.append(f'    {_mermaid_id(to_id)}["{to_id}: {label}"]')
             nodes_rendered.add(to_id)
         lines.append(f"    {_mermaid_id(from_id)} -.->|link| {_mermaid_id(to_id)}")
@@ -323,22 +328,24 @@ _TRACE_OPTIONS = {
 }
 
 
-def _note_detail(note: MemoryNote) -> dict[str, Any]:
+def _note_detail(note: Note) -> dict[str, Any]:
+    """Shape the JSON sent into the side-panel JS — strip ChromaDB-only
+    fields like ``distance`` if present, keep what the UI renders."""
     return {
-        "id": note.id,
-        "timestamp": note.timestamp,
-        "content": note.content,
-        "keywords": list(note.keywords),
-        "tags": list(note.tags),
-        "context": note.context,
-        "links": list(note.links),
-        "evolution_history": list(note.evolution_history),
+        "id": note.get("id", ""),
+        "timestamp": note.get("timestamp", ""),
+        "content": note.get("content", ""),
+        "keywords": list(note.get("keywords") or []),
+        "tags": list(note.get("tags") or []),
+        "context": note.get("context", ""),
+        "links": list(note.get("links") or []),
+        "evolution_history": list(note.get("evolution_history") or []),
     }
 
 
 def write_interactive_graph(
     path: Path,
-    memories: dict[str, MemoryNote],
+    memories: dict[str, Note],
     *,
     title: str = "A-Mem memory graph",
 ) -> None:
@@ -352,16 +359,16 @@ def write_interactive_graph(
         nodes.append({
             "id": mid,
             "label": mid,
-            "color": "#fbbf24" if note.evolution_history else "#60a5fa",
+            "color": "#fbbf24" if note.get("evolution_history") else "#60a5fa",
             "shape": "dot",
-            "size": 15 + min(len(note.links) * 2, 20),
+            "size": 15 + min(len(note.get("links") or []) * 2, 20),
             "_detail": _note_detail(note),
         })
 
     edges: list[dict[str, Any]] = []
     seen: set[tuple[str, str]] = set()
     for mid, note in memories.items():
-        for lid in note.links:
+        for lid in note.get("links") or []:
             if lid not in memories:
                 continue
             pair = tuple(sorted([mid, lid]))
@@ -370,7 +377,7 @@ def write_interactive_graph(
             seen.add(pair)
             edges.append({"from": mid, "to": lid, "color": "#9ca3af", "width": 1})
 
-    evolved = sum(1 for n in memories.values() if n.evolution_history)
+    evolved = sum(1 for n in memories.values() if n.get("evolution_history"))
     meta = (f"{len(memories)} memories · {len(edges)} links · "
             f"{evolved} evolved · click a node for details")
     html = _HTML_TEMPLATE.format(
@@ -384,7 +391,7 @@ def write_interactive_graph(
 
 def write_interactive_trace(
     path: Path,
-    memories: dict[str, MemoryNote],
+    memories: dict[str, Note],
     question: str,
     result: dict[str, Any],
     *,
@@ -458,7 +465,7 @@ def render_all(run: Run, output_dir: Path) -> None:
 
     order = (
         run.metadata.get("memory_order")
-        or [n.id for n in run.memories.values()]
+        or [n["id"] for n in run.memories.values()]
     )
 
     # Mermaid graph
