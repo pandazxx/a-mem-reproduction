@@ -23,10 +23,10 @@ graph TD
     Q ==> m35
     m08["m08: Sam goes rock climbing at Berkeley…"]
     Q ==> m08
-    m03["m03: Sam's manager at TechCorp is Jennifer."]
-    m11 -.->|link| m03
+    m01["m01: Sam works as a software engineer at…"]
+    m11 -.->|link| m01
     m05["m05: Sam's partner is Alex. Alex works as a…"]
-    m11 -.->|link| m05
+    m35 -.->|link| m05
     m34["m34: Sam booked flights to Boston for May 13…"]
     m35 -.->|link| m34
 ```
@@ -53,10 +53,8 @@ graph TD
     Q ==> m36
     m04["m04: Sam lives in Oakland, California."]
     m11 -.->|link| m04
-    m03["m03: Sam's manager at TechCorp is Jennifer."]
-    m11 -.->|link| m03
-    m05["m05: Sam's partner is Alex. Alex works as a…"]
-    m11 -.->|link| m05
+    m01["m01: Sam works as a software engineer at…"]
+    m11 -.->|link| m01
     m34["m34: Sam booked flights to Boston for May 13…"]
     m36 -.->|link| m34
 ```
@@ -83,8 +81,6 @@ graph TD
     Q ==> m12
     m11["m11: Sam's mother Maria lives in Boston."]
     m15 -.->|link| m11
-    m04["m04: Sam lives in Oakland, California."]
-    m15 -.->|link| m04
 ```
 
 ## q04 — single_hop
@@ -111,6 +107,8 @@ graph TD
     m39 -.->|link| m38
     m04["m04: Sam lives in Oakland, California."]
     m08 -.->|link| m04
+    m01["m01: Sam works as a software engineer at…"]
+    m08 -.->|link| m01
     m20["m20: Sam's goal with the scraper is to…"]
     m21 -.->|link| m20
 ```
@@ -135,8 +133,6 @@ graph TD
     Q ==> m26
     m02["m02: TechCorp is a fintech company…"]
     Q ==> m02
-    m04["m04: Sam lives in Oakland, California."]
-    m13 -.->|link| m04
     m11["m11: Sam's mother Maria lives in Boston."]
     m13 -.->|link| m11
     m34["m34: Sam booked flights to Boston for May 13…"]
@@ -167,6 +163,8 @@ graph TD
     Q ==> m32
     m31["m31: Sam decided to rewrite the climbing…"]
     Q ==> m31
+    m01["m01: Sam works as a software engineer at…"]
+    m18 -.->|link| m01
     m09["m09: Sam has been rock climbing for three…"]
     m16 -.->|link| m09
     m08["m08: Sam goes rock climbing at Berkeley…"]
@@ -195,8 +193,6 @@ graph TD
     Q ==> m01
     m05["m05: Sam's partner is Alex. Alex works as a…"]
     Q ==> m05
-    m03["m03: Sam's manager at TechCorp is Jennifer."]
-    m11 -.->|link| m03
 ```
 
 ## q08 — deep_multi_hop
@@ -219,8 +215,6 @@ graph TD
     Q ==> m01
     m03["m03: Sam's manager at TechCorp is Jennifer."]
     Q ==> m03
-    m04["m04: Sam lives in Oakland, California."]
-    m13 -.->|link| m04
     m11["m11: Sam's mother Maria lives in Boston."]
     m13 -.->|link| m11
 ```
@@ -245,14 +239,14 @@ graph TD
     Q ==> m05
     m29["m29: Sam started at StartupCo today. The…"]
     Q ==> m29
-    m04["m04: Sam lives in Oakland, California."]
-    m13 -.->|link| m04
     m11["m11: Sam's mother Maria lives in Boston."]
     m13 -.->|link| m11
     m25["m25: Sam got a job offer from StartupCo, a…"]
     m29 -.->|link| m25
     m24["m24: Sam started interviewing at other…"]
     m29 -.->|link| m24
+    m27["m27: Sam accepted the StartupCo offer and…"]
+    m29 -.->|link| m27
 ```
 
 ## q10 — deep_multi_hop
@@ -276,7 +270,7 @@ graph TD
     m11["m11: Sam's mother Maria lives in Boston."]
     Q ==> m11
     m04["m04: Sam lives in Oakland, California."]
-    m13 -.->|link| m04
+    m11 -.->|link| m04
 ```
 
 ## q11 — implicit_conceptual
@@ -299,6 +293,8 @@ graph TD
     Q ==> m04
     m20["m20: Sam's goal with the scraper is to…"]
     Q ==> m20
+    m01["m01: Sam works as a software engineer at…"]
+    m08 -.->|link| m01
     m16["m16: Sam started a side project: building a…"]
     m20 -.->|link| m16
 ```
@@ -352,7 +348,7 @@ graph TD
     m20["m20: Sam's goal with the scraper is to…"]
     m21 -.->|link| m20
     m01["m01: Sam works as a software engineer at…"]
-    m24 -.->|link| m01
+    m08 -.->|link| m01
 ```
 
 ## q14 — information_update
@@ -377,6 +373,8 @@ graph TD
     Q ==> m05
     m25["m25: Sam got a job offer from StartupCo, a…"]
     m29 -.->|link| m25
+    m27["m27: Sam accepted the StartupCo offer and…"]
+    m29 -.->|link| m27
 ```
 
 ## q15 — information_update
@@ -399,6 +397,8 @@ graph TD
     Q ==> m05
     m24["m24: Sam started interviewing at other…"]
     Q ==> m24
+    m27["m27: Sam accepted the StartupCo offer and…"]
+    m28 -.->|link| m27
     m25["m25: Sam got a job offer from StartupCo, a…"]
     m28 -.->|link| m25
 ```
@@ -425,13 +425,15 @@ graph TD
     Q ==> m08
     m04["m04: Sam lives in Oakland, California."]
     m08 -.->|link| m04
+    m01["m01: Sam works as a software engineer at…"]
+    m08 -.->|link| m01
 ```
 
 ## q17 — compositional_aggregation
 
 **Q:** Who are all the people Sam has mentioned in conversations?  
 **Expected:** Alex (partner), Jennifer (old manager), Maria (mother), David (brother), Marcus (new manager)  
-**Got:** Sam has mentioned Alex, Maria, Jennifer, and Marcus in conversations.  
+**Got:** Sam has mentioned Alex, Maria, and Marcus in conversations.  
 **Correct:** ✗
 
 ```mermaid
@@ -449,8 +451,8 @@ graph TD
     Q ==> m28
     m01["m01: Sam works as a software engineer at…"]
     m24 -.->|link| m01
-    m03["m03: Sam's manager at TechCorp is Jennifer."]
-    m11 -.->|link| m03
+    m27["m27: Sam accepted the StartupCo offer and…"]
+    m28 -.->|link| m27
     m25["m25: Sam got a job offer from StartupCo, a…"]
     m28 -.->|link| m25
 ```
@@ -459,7 +461,7 @@ graph TD
 
 **Q:** What different programming languages and libraries has Sam used or learned?  
 **Expected:** Python, BeautifulSoup, Rust, reqwest, scraper  
-**Got:** Sam has used or learned Python, Rust, and possibly others for work, but the specific libraries are unknown / not mentioned.  
+**Got:** Sam has used or learned Python, Rust, and possibly others for work, but no other specific languages or libraries are mentioned besides these two.  
 **Correct:** ✗
 
 ```mermaid
@@ -475,8 +477,6 @@ graph TD
     Q ==> m17
     m01["m01: Sam works as a software engineer at…"]
     Q ==> m01
-    m04["m04: Sam lives in Oakland, California."]
-    m06 -.->|link| m04
     m29["m29: Sam started at StartupCo today. The…"]
     m30 -.->|link| m29
     m16["m16: Sam started a side project: building a…"]
@@ -503,10 +503,8 @@ graph TD
     Q ==> m35
     m01["m01: Sam works as a software engineer at…"]
     Q ==> m01
-    m03["m03: Sam's manager at TechCorp is Jennifer."]
-    m11 -.->|link| m03
     m05["m05: Sam's partner is Alex. Alex works as a…"]
-    m11 -.->|link| m05
+    m35 -.->|link| m05
     m34["m34: Sam booked flights to Boston for May 13…"]
     m35 -.->|link| m34
 ```
@@ -539,8 +537,8 @@ graph TD
     m35 -.->|link| m05
     m34["m34: Sam booked flights to Boston for May 13…"]
     m35 -.->|link| m34
-    m03["m03: Sam's manager at TechCorp is Jennifer."]
-    m11 -.->|link| m03
+    m01["m01: Sam works as a software engineer at…"]
+    m11 -.->|link| m01
 ```
 
 ## q21 — absence_abstention
@@ -565,10 +563,8 @@ graph TD
     Q ==> m05
     m34["m34: Sam booked flights to Boston for May 13…"]
     m35 -.->|link| m34
-    m03["m03: Sam's manager at TechCorp is Jennifer."]
-    m11 -.->|link| m03
     m01["m01: Sam works as a software engineer at…"]
-    m05 -.->|link| m01
+    m11 -.->|link| m01
 ```
 
 ## q22 — absence_abstention

@@ -2,15 +2,15 @@
   "metadata": {
     "dataset": "comparison",
     "llm_model": "meta/llama-3.1-70b-instruct",
-    "timestamp": "2026-05-30T07:35:20",
+    "timestamp": "2026-05-31T16:46:21",
     "limit": null,
     "system": "hipporag2",
     "system_label": "HippoRAG v2",
     "sim_threshold": 0.75,
     "top_k_triples": 10,
     "passage_seed_weight": 0.05,
-    "n_phrases": 68,
-    "n_triples": 108
+    "n_phrases": 67,
+    "n_triples": 112
   },
   "items": [
     {
@@ -188,13 +188,13 @@
         ],
         [
           "V4-V5 boulder routes",
-          "include",
-          "V4 boulder routes"
+          "are graded",
+          "V4"
         ],
         [
           "V4-V5 boulder routes",
-          "include",
-          "V5 boulder routes"
+          "are graded",
+          "V5"
         ]
       ]
     },
@@ -230,9 +230,9 @@
       "content": "Sam's brother David lives in Seattle.",
       "triples": [
         [
-          "David",
-          "is brother of",
-          "Sam"
+          "Sam",
+          "has brother",
+          "David"
         ],
         [
           "David",
@@ -315,12 +315,12 @@
         ],
         [
           "Sam",
-          "is working on",
+          "worked on",
           "web scraper project"
         ],
         [
           "Python",
-          "is used for",
+          "used for",
           "web scraper project"
         ]
       ]
@@ -346,7 +346,7 @@
       "content": "The scraper collects climbing route data from MountainProject.com.",
       "triples": [
         [
-          "scraper",
+          "The scraper",
           "collects data from",
           "MountainProject.com"
         ],
@@ -377,7 +377,7 @@
           "discover new outdoor climbing destinations"
         ],
         [
-          "new outdoor climbing destinations",
+          "discover new outdoor climbing destinations",
           "not in",
           "popular guidebooks"
         ]
@@ -389,13 +389,18 @@
       "triples": [
         [
           "Sam",
-          "went on a trip to",
+          "went to",
           "Yosemite"
         ],
         [
           "Sam",
-          "had a climbing trip",
+          "had a trip to",
           "Yosemite"
+        ],
+        [
+          "Yosemite",
+          "was visited by",
+          "Sam"
         ]
       ]
     },
@@ -461,8 +466,8 @@
           "other companies"
         ],
         [
-          "other companies",
-          "are",
+          "Sam",
+          "interviewed at",
           "developer-tools startups"
         ]
       ]
@@ -547,7 +552,7 @@
       "triples": [
         [
           "Sam",
-          "works at",
+          "started at",
           "StartupCo"
         ],
         [
@@ -589,18 +594,18 @@
       "triples": [
         [
           "Sam",
-          "decided to rewrite",
-          "climbing scraper"
-        ],
-        [
-          "Sam",
-          "rewrote in",
+          "decided to rewrite in",
           "Rust"
         ],
         [
-          "Rust",
-          "is",
-          "programming language"
+          "Sam",
+          "rewrote",
+          "climbing scraper"
+        ],
+        [
+          "climbing scraper",
+          "rewritten in",
+          "Rust"
         ]
       ]
     },
@@ -658,17 +663,17 @@
         [
           "Maria's birthday",
           "is on",
+          "May 13 through May 17"
+        ],
+        [
+          "Sam",
+          "will be in Boston from",
           "May 13"
         ],
         [
-          "Sam's trip to Boston",
-          "ends on",
+          "Sam",
+          "will be in Boston until",
           "May 17"
-        ],
-        [
-          "Sam's trip to Boston",
-          "starts on",
-          "May 13"
         ]
       ]
     },
@@ -714,7 +719,7 @@
         ],
         [
           "Maria's birthday",
-          "located in",
+          "is in",
           "Boston"
         ]
       ]
@@ -748,6 +753,11 @@
           "Sam",
           "went climbing at",
           "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "had first session in two weeks at",
+          "Berkeley Ironworks"
         ]
       ]
     },
@@ -767,7 +777,7 @@
         ],
         [
           "La Sportiva Solution",
-          "should arrive by",
+          "will arrive by",
           "March"
         ]
       ]
@@ -788,6 +798,16 @@
         ],
         [
           "Sam",
+          "is planning trip in",
+          "March"
+        ],
+        [
+          "Alex",
+          "is planning trip to",
+          "Joshua Tree"
+        ],
+        [
+          "Alex",
           "is planning trip in",
           "March"
         ]
@@ -813,14 +833,14 @@
         "m34",
         "m23",
         "m37",
-        "m16"
+        "m08"
       ],
       "retrieval_scores": [
-        0.0039,
-        0.00291,
-        0.00277,
-        0.00263,
-        0.00257
+        0.0038,
+        0.00279,
+        0.00271,
+        0.00258,
+        0.00254
       ],
       "top_triples": [
         [
@@ -860,11 +880,6 @@
         ],
         [
           "Sam",
-          "works at",
-          "StartupCo"
-        ],
-        [
-          "Sam",
           "has partner",
           "Alex"
         ],
@@ -872,6 +887,11 @@
           "Sam",
           "went climbing at",
           "Berkeley Ironworks"
+        ],
+        [
+          "Sam",
+          "uses",
+          "Duolingo"
         ]
       ],
       "top_triple_sims": [
@@ -882,9 +902,9 @@
         0.46,
         0.457,
         0.457,
-        0.457,
         0.455,
-        0.447
+        0.447,
+        0.446
       ],
       "filtered_triples": [
         [
@@ -921,10 +941,10 @@
       ],
       "retrieval_scores": [
         0.00568,
-        0.0035,
-        0.00335,
-        0.00316,
-        0.00264
+        0.00341,
+        0.00328,
+        0.00309,
+        0.00259
       ],
       "top_triples": [
         [
@@ -943,24 +963,24 @@
           "May 15"
         ],
         [
-          "Maria's birthday",
-          "is on",
-          "May 13"
-        ],
-        [
           "Maria",
           "lives in",
+          "Boston"
+        ],
+        [
+          "Maria's birthday",
+          "is on",
+          "May 13 through May 17"
+        ],
+        [
+          "Maria's birthday",
+          "is in",
           "Boston"
         ],
         [
           "Maria",
           "is mother of",
           "Sam"
-        ],
-        [
-          "Maria's birthday",
-          "located in",
-          "Boston"
         ],
         [
           "David",
@@ -982,10 +1002,10 @@
         0.523,
         0.461,
         0.458,
-        0.45,
         0.436,
+        0.433,
+        0.427,
         0.391,
-        0.381,
         0.351,
         0.327,
         0.326
@@ -1012,18 +1032,18 @@
         "correct": true
       },
       "retrieved_ids": [
-        "m15",
         "m34",
+        "m15",
         "m33",
-        "m11",
-        "m36"
+        "m36",
+        "m11"
       ],
       "retrieval_scores": [
-        0.00382,
-        0.00373,
-        0.003,
-        0.00217,
-        0.00211
+        0.00684,
+        0.00378,
+        0.00294,
+        0.0021,
+        0.00209
       ],
       "top_triples": [
         [
@@ -1039,11 +1059,11 @@
         [
           "Maria's birthday",
           "is on",
-          "May 13"
+          "May 13 through May 17"
         ],
         [
           "Maria's birthday",
-          "located in",
+          "is in",
           "Boston"
         ],
         [
@@ -1080,8 +1100,8 @@
       "top_triple_sims": [
         0.59,
         0.588,
-        0.577,
-        0.519,
+        0.588,
+        0.583,
         0.443,
         0.414,
         0.412,
@@ -1103,7 +1123,7 @@
         [
           "Maria's birthday",
           "is on",
-          "May 13"
+          "May 13 through May 17"
         ]
       ]
     },
@@ -1122,17 +1142,17 @@
       },
       "retrieved_ids": [
         "m39",
-        "m34",
         "m08",
         "m38",
+        "m34",
         "m16"
       ],
       "retrieval_scores": [
-        0.00563,
-        0.00343,
-        0.00342,
-        0.00335,
-        0.00321
+        0.00551,
+        0.00339,
+        0.00332,
+        0.0033,
+        0.00317
       ],
       "top_triples": [
         [
@@ -1162,11 +1182,6 @@
         ],
         [
           "Sam",
-          "had a climbing trip",
-          "Yosemite"
-        ],
-        [
-          "Sam",
           "goes rock climbing at",
           "Berkeley Ironworks"
         ],
@@ -1182,8 +1197,13 @@
         ],
         [
           "Sam",
-          "decided to rewrite",
+          "rewrote",
           "climbing scraper"
+        ],
+        [
+          "Sam",
+          "booked flights to",
+          "Boston"
         ]
       ],
       "top_triple_sims": [
@@ -1192,11 +1212,11 @@
         0.509,
         0.504,
         0.5,
-        0.499,
         0.494,
         0.47,
         0.466,
-        0.413
+        0.419,
+        0.394
       ],
       "filtered_triples": [
         [
@@ -1221,17 +1241,17 @@
       },
       "retrieved_ids": [
         "m14",
-        "m13",
         "m36",
+        "m13",
         "m34",
-        "m37"
+        "m23"
       ],
       "retrieval_scores": [
-        0.00437,
-        0.00345,
-        0.00276,
-        0.00219,
-        0.00183
+        0.00465,
+        0.00305,
+        0.00303,
+        0.00233,
+        0.00219
       ],
       "top_triples": [
         [
@@ -1302,11 +1322,6 @@
           "David",
           "works at",
           "Amazon"
-        ],
-        [
-          "David",
-          "has office at",
-          "Seattle"
         ]
       ]
     },
@@ -1316,31 +1331,31 @@
       "question": "What programming language does Sam's web scraper use?",
       "expected_answer": "Python (initially), then rewritten in Rust",
       "expected_winner": "tie",
-      "predicted_answer": "Sam's web scraper initially uses Python, but is later rewritten in Rust.",
+      "predicted_answer": "Sam's web scraper uses Python.",
       "score": {
         "exact_match": false,
         "substring_match": false,
-        "token_overlap_f1": 0.526,
-        "correct": true
+        "token_overlap_f1": 0.167,
+        "correct": false
       },
       "retrieved_ids": [
         "m17",
         "m32",
         "m16",
-        "m31",
-        "m20"
+        "m18",
+        "m23"
       ],
       "retrieval_scores": [
-        0.00448,
-        0.00333,
-        0.00324,
-        0.00324,
-        0.00315
+        0.0044,
+        0.00329,
+        0.0032,
+        0.00309,
+        0.00297
       ],
       "top_triples": [
         [
           "Sam",
-          "is working on",
+          "worked on",
           "web scraper project"
         ],
         [
@@ -1365,7 +1380,7 @@
         ],
         [
           "Sam",
-          "decided to rewrite",
+          "rewrote",
           "climbing scraper"
         ],
         [
@@ -1390,12 +1405,12 @@
         ]
       ],
       "top_triple_sims": [
-        0.545,
+        0.555,
         0.54,
         0.515,
         0.494,
         0.493,
-        0.472,
+        0.469,
         0.468,
         0.453,
         0.453,
@@ -1424,17 +1439,17 @@
       },
       "retrieved_ids": [
         "m11",
-        "m15",
-        "m34",
-        "m23",
-        "m08"
+        "m08",
+        "m04",
+        "m03",
+        "m13"
       ],
       "retrieval_scores": [
-        0.00428,
-        0.004,
-        0.00316,
-        0.00309,
-        0.00295
+        0.00871,
+        0.00732,
+        0.00675,
+        0.00654,
+        0.00633
       ],
       "top_triples": [
         [
@@ -1473,11 +1488,6 @@
           "StartupCo"
         ],
         [
-          "Sam",
-          "works at",
-          "StartupCo"
-        ],
-        [
           "Maria",
           "is mother of",
           "Sam"
@@ -1486,6 +1496,11 @@
           "Sam",
           "has manager",
           "Jennifer"
+        ],
+        [
+          "Sam",
+          "practices",
+          "Spanish"
         ]
       ],
       "top_triple_sims": [
@@ -1496,17 +1511,11 @@
         0.407,
         0.399,
         0.399,
-        0.399,
         0.396,
-        0.372
+        0.372,
+        0.365
       ],
-      "filtered_triples": [
-        [
-          "Maria",
-          "is mother of",
-          "Sam"
-        ]
-      ]
+      "filtered_triples": []
     },
     {
       "question_id": "q08",
@@ -1529,11 +1538,11 @@
         "m37"
       ],
       "retrieval_scores": [
-        0.00317,
-        0.00276,
-        0.00275,
-        0.00245,
-        0.00233
+        0.00305,
+        0.00268,
+        0.00261,
+        0.00238,
+        0.00227
       ],
       "top_triples": [
         [
@@ -1577,14 +1586,14 @@
           "StartupCo"
         ],
         [
-          "Sam",
+          "Marcus",
           "works at",
           "StartupCo"
         ],
         [
-          "Marcus",
+          "Sam",
           "works at",
-          "StartupCo"
+          "TechCorp"
         ]
       ],
       "top_triple_sims": [
@@ -1596,8 +1605,8 @@
         0.349,
         0.326,
         0.326,
-        0.326,
-        0.315
+        0.315,
+        0.312
       ],
       "filtered_triples": [
         [
@@ -1637,17 +1646,17 @@
       },
       "retrieved_ids": [
         "m13",
+        "m14",
         "m34",
         "m22",
-        "m40",
-        "m23"
+        "m40"
       ],
       "retrieval_scores": [
-        0.00282,
-        0.00249,
-        0.00223,
-        0.00223,
-        0.00221
+        0.00313,
+        0.00255,
+        0.00232,
+        0.00229,
+        0.00228
       ],
       "top_triples": [
         [
@@ -1664,6 +1673,11 @@
           "Sam",
           "has partner",
           "Alex"
+        ],
+        [
+          "Sam",
+          "has brother",
+          "David"
         ],
         [
           "Sam",
@@ -1694,45 +1708,35 @@
           "David",
           "works at",
           "Amazon"
-        ],
-        [
-          "David",
-          "is brother of",
-          "Sam"
         ]
       ],
       "top_triple_sims": [
         0.386,
         0.378,
         0.352,
+        0.339,
         0.33,
         0.33,
         0.33,
         0.33,
         0.327,
-        0.326,
-        0.323
+        0.326
       ],
       "filtered_triples": [
         [
           "Sam",
-          "is a",
-          "software engineer"
+          "has partner",
+          "Alex"
         ],
         [
-          "David",
-          "is brother of",
-          "Sam"
+          "Sam",
+          "has brother",
+          "David"
         ],
         [
           "David",
           "lives in",
           "Seattle"
-        ],
-        [
-          "Sam",
-          "has partner",
-          "Alex"
         ]
       ]
     },
@@ -1757,11 +1761,11 @@
         "m35"
       ],
       "retrieval_scores": [
-        0.00322,
-        0.00267,
-        0.00265,
-        0.0025,
-        0.00238
+        0.00315,
+        0.00262,
+        0.00259,
+        0.00232,
+        0.00232
       ],
       "top_triples": [
         [
@@ -1775,9 +1779,9 @@
           "graphic designer"
         ],
         [
-          "David",
-          "is brother of",
-          "Sam"
+          "Sam",
+          "has brother",
+          "David"
         ],
         [
           "David",
@@ -1818,7 +1822,7 @@
       "top_triple_sims": [
         0.338,
         0.315,
-        0.259,
+        0.301,
         0.256,
         0.251,
         0.249,
@@ -1829,11 +1833,6 @@
       ],
       "filtered_triples": [
         [
-          "David",
-          "is brother of",
-          "Sam"
-        ],
-        [
           "Sam",
           "has partner",
           "Alex"
@@ -1842,6 +1841,11 @@
           "Alex",
           "works as",
           "graphic designer"
+        ],
+        [
+          "Sam",
+          "has brother",
+          "David"
         ]
       ]
     },
@@ -1866,11 +1870,11 @@
         "m34"
       ],
       "retrieval_scores": [
-        0.00893,
-        0.00886,
-        0.00384,
-        0.00289,
-        0.00271
+        0.00891,
+        0.00883,
+        0.00372,
+        0.00284,
+        0.0026
       ],
       "top_triples": [
         [
@@ -1891,11 +1895,6 @@
         [
           "Sam",
           "climbed at",
-          "Yosemite"
-        ],
-        [
-          "Sam",
-          "had a climbing trip",
           "Yosemite"
         ],
         [
@@ -1922,6 +1921,11 @@
           "Sam",
           "practices",
           "Spanish"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "California"
         ]
       ],
       "top_triple_sims": [
@@ -1929,12 +1933,12 @@
         0.508,
         0.494,
         0.478,
-        0.467,
         0.462,
         0.454,
         0.433,
         0.413,
-        0.413
+        0.413,
+        0.412
       ],
       "filtered_triples": [
         [
@@ -1974,17 +1978,17 @@
       },
       "retrieved_ids": [
         "m18",
-        "m20",
         "m32",
         "m17",
+        "m20",
         "m34"
       ],
       "retrieval_scores": [
-        0.00285,
-        0.00276,
-        0.00273,
-        0.00266,
-        0.00264
+        0.00282,
+        0.00269,
+        0.00261,
+        0.00253,
+        0.00252
       ],
       "top_triples": [
         [
@@ -1994,7 +1998,7 @@
         ],
         [
           "Sam",
-          "is working on",
+          "worked on",
           "web scraper project"
         ],
         [
@@ -2029,26 +2033,26 @@
         ],
         [
           "Sam",
-          "has partner",
-          "Alex"
+          "interviewed at",
+          "developer-tools startups"
         ],
         [
           "Sam",
-          "works at",
+          "started at",
           "StartupCo"
         ]
       ],
       "top_triple_sims": [
         0.556,
-        0.53,
+        0.547,
         0.528,
         0.513,
         0.497,
         0.454,
         0.448,
         0.448,
-        0.424,
-        0.42
+        0.44,
+        0.439
       ],
       "filtered_triples": [
         [
@@ -2074,26 +2078,26 @@
       "question": "What hobbies has Sam been less active in lately?",
       "expected_answer": "Spanish learning (slipped to once a week) and climbing (first session in two weeks before m38)",
       "expected_winner": "A-Mem",
-      "predicted_answer": "Sam has been less active in rock climbing, with his first session in two weeks at Berkeley Ironworks.",
+      "predicted_answer": "Sam has been less active in Spanish practice lately.",
       "score": {
         "exact_match": false,
         "substring_match": false,
-        "token_overlap_f1": 0.364,
+        "token_overlap_f1": 0.16,
         "correct": false
       },
       "retrieved_ids": [
-        "m38",
-        "m08",
+        "m06",
         "m23",
         "m34",
-        "m37"
+        "m37",
+        "m16"
       ],
       "retrieval_scores": [
-        0.01501,
-        0.01496,
-        0.00303,
-        0.00301,
-        0.00291
+        0.00302,
+        0.00281,
+        0.00279,
+        0.00275,
+        0.00272
       ],
       "top_triples": [
         [
@@ -2108,11 +2112,6 @@
         ],
         [
           "Sam",
-          "is working on",
-          "web scraper project"
-        ],
-        [
-          "Sam",
           "started learning Spanish",
           "two months ago"
         ],
@@ -2120,11 +2119,6 @@
           "Sam",
           "has goal",
           "discover new outdoor climbing destinations"
-        ],
-        [
-          "Sam",
-          "had a climbing trip",
-          "Yosemite"
         ],
         [
           "Sam",
@@ -2145,30 +2139,40 @@
           "Sam",
           "started",
           "side project"
+        ],
+        [
+          "Sam",
+          "feeling",
+          "burned out"
+        ],
+        [
+          "Sam",
+          "gave notice at",
+          "TechCorp"
         ]
       ],
       "top_triple_sims": [
         0.522,
         0.448,
-        0.445,
         0.431,
         0.424,
-        0.416,
         0.414,
         0.413,
         0.408,
-        0.401
+        0.401,
+        0.4,
+        0.398
       ],
       "filtered_triples": [
         [
           "Sam",
-          "has been doing",
-          "rock climbing"
+          "started learning Spanish",
+          "two months ago"
         ],
         [
           "Sam",
-          "goes rock climbing at",
-          "Berkeley Ironworks"
+          "uses",
+          "Duolingo"
         ]
       ]
     },
@@ -2193,18 +2197,13 @@
         "m03"
       ],
       "retrieval_scores": [
-        0.00355,
-        0.00349,
-        0.00322,
-        0.00311,
-        0.0029
+        0.00346,
+        0.0034,
+        0.00315,
+        0.00304,
+        0.00283
       ],
       "top_triples": [
-        [
-          "Sam",
-          "works at",
-          "StartupCo"
-        ],
         [
           "Sam",
           "works at",
@@ -2237,7 +2236,7 @@
         ],
         [
           "Sam",
-          "is working on",
+          "worked on",
           "web scraper project"
         ],
         [
@@ -2249,19 +2248,24 @@
           "Sam",
           "has role",
           "senior backend engineer"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "Oakland"
         ]
       ],
       "top_triple_sims": [
-        0.497,
         0.497,
         0.497,
         0.49,
         0.49,
         0.49,
         0.484,
-        0.481,
+        0.474,
         0.465,
-        0.465
+        0.465,
+        0.45
       ],
       "filtered_triples": [
         [
@@ -2282,11 +2286,11 @@
       "question": "Who is Sam's current manager?",
       "expected_answer": "Marcus",
       "expected_winner": "A-Mem",
-      "predicted_answer": "Sam's current manager is Marcus at StartupCo.",
+      "predicted_answer": "Sam's current manager is Marcus.",
       "score": {
         "exact_match": false,
         "substring_match": true,
-        "token_overlap_f1": 0.222,
+        "token_overlap_f1": 0.286,
         "correct": true
       },
       "retrieved_ids": [
@@ -2297,11 +2301,11 @@
         "m37"
       ],
       "retrieval_scores": [
-        0.00323,
-        0.00278,
-        0.00276,
-        0.00252,
-        0.00243
+        0.00311,
+        0.0027,
+        0.00263,
+        0.00245,
+        0.00237
       ],
       "top_triples": [
         [
@@ -2341,11 +2345,6 @@
         ],
         [
           "Sam",
-          "works at",
-          "StartupCo"
-        ],
-        [
-          "Sam",
           "uses",
           "Duolingo"
         ],
@@ -2353,6 +2352,11 @@
           "Sam",
           "is a",
           "software engineer"
+        ],
+        [
+          "Sam",
+          "has been doing",
+          "rock climbing"
         ]
       ],
       "top_triple_sims": [
@@ -2363,9 +2367,9 @@
         0.419,
         0.415,
         0.415,
-        0.415,
         0.414,
-        0.404
+        0.404,
+        0.396
       ],
       "filtered_triples": [
         [
@@ -2396,31 +2400,31 @@
       "question": "What language is Sam's climbing scraper currently written in?",
       "expected_answer": "Rust",
       "expected_winner": "A-Mem",
-      "predicted_answer": "Sam's climbing scraper is currently written in Rust.",
+      "predicted_answer": "The passage does not explicitly state the current language of the scraper, but it mentions a \"Rust version\" implying the original was in a different language, however the original language is unknown / not mentioned.",
       "score": {
         "exact_match": false,
         "substring_match": true,
-        "token_overlap_f1": 0.2,
+        "token_overlap_f1": 0.077,
         "correct": true
       },
       "retrieved_ids": [
-        "m18",
-        "m16",
         "m31",
-        "m20",
-        "m32"
+        "m32",
+        "m30",
+        "m16",
+        "m20"
       ],
       "retrieval_scores": [
-        0.00458,
-        0.00362,
-        0.00359,
-        0.00359,
-        0.00324
+        0.00544,
+        0.00397,
+        0.00343,
+        0.0031,
+        0.00287
       ],
       "top_triples": [
         [
           "Sam",
-          "decided to rewrite",
+          "rewrote",
           "climbing scraper"
         ],
         [
@@ -2429,14 +2433,14 @@
           "discover new outdoor climbing destinations"
         ],
         [
-          "Sam",
-          "is working on",
-          "web scraper project"
-        ],
-        [
           "web scraper",
           "used for",
           "finding new climbing destinations"
+        ],
+        [
+          "Sam",
+          "worked on",
+          "web scraper project"
         ],
         [
           "Sam",
@@ -2454,38 +2458,38 @@
           "BeautifulSoup"
         ],
         [
+          "climbing scraper",
+          "rewritten in",
+          "Rust"
+        ],
+        [
           "Sam",
           "uses",
           "Duolingo"
         ],
         [
-          "Sam",
-          "is using",
-          "scraper"
-        ],
-        [
-          "Sam",
-          "has goal",
-          "discover new outdoor climbing destinations"
+          "The scraper",
+          "collects data from",
+          "MountainProject.com"
         ]
       ],
       "top_triple_sims": [
-        0.596,
+        0.586,
         0.552,
-        0.511,
         0.489,
+        0.479,
         0.479,
         0.47,
         0.469,
         0.461,
-        0.451,
-        0.445
+        0.461,
+        0.46
       ],
       "filtered_triples": [
         [
-          "Sam",
-          "uses",
-          "BeautifulSoup"
+          "climbing scraper",
+          "rewritten in",
+          "Rust"
         ]
       ]
     },
@@ -2510,17 +2514,22 @@
         "m23"
       ],
       "retrieval_scores": [
-        0.00325,
-        0.00302,
-        0.00253,
-        0.0025,
-        0.00247
+        0.00313,
+        0.00291,
+        0.00278,
+        0.00275,
+        0.00241
       ],
       "top_triples": [
         [
           "Sam",
           "uses",
           "Duolingo"
+        ],
+        [
+          "Sam",
+          "interviewed at",
+          "developer-tools startups"
         ],
         [
           "Sam",
@@ -2536,6 +2545,11 @@
           "Sam",
           "is going to be there for",
           "Maria's birthday"
+        ],
+        [
+          "Yosemite",
+          "was visited by",
+          "Sam"
         ],
         [
           "Sam",
@@ -2556,29 +2570,19 @@
           "Sam",
           "has manager",
           "Jennifer"
-        ],
-        [
-          "Sam",
-          "had a climbing trip",
-          "Yosemite"
-        ],
-        [
-          "Alex",
-          "will accompany",
-          "Sam"
         ]
       ],
       "top_triple_sims": [
         0.412,
+        0.407,
         0.402,
         0.393,
         0.391,
+        0.381,
         0.378,
         0.377,
         0.377,
-        0.374,
-        0.37,
-        0.37
+        0.374
       ],
       "filtered_triples": [
         [
@@ -2598,8 +2602,8 @@
         ],
         [
           "Sam",
-          "has manager",
-          "Jennifer"
+          "climbed with",
+          "Alex"
         ]
       ]
     },
@@ -2624,11 +2628,11 @@
         "m16"
       ],
       "retrieval_scores": [
-        0.00279,
-        0.0027,
-        0.00262,
-        0.00259,
-        0.00255
+        0.00275,
+        0.00258,
+        0.00257,
+        0.00253,
+        0.00251
       ],
       "top_triples": [
         [
@@ -2638,7 +2642,7 @@
         ],
         [
           "Sam",
-          "is working on",
+          "worked on",
           "web scraper project"
         ],
         [
@@ -2684,7 +2688,7 @@
       ],
       "top_triple_sims": [
         0.56,
-        0.536,
+        0.544,
         0.507,
         0.483,
         0.479,
@@ -2718,28 +2722,33 @@
       "question": "What places does Sam have travel or residence connections to?",
       "expected_answer": "Oakland (lives), San Francisco (work), Boston (mother + planned trip), Seattle (brother), Yosemite (climbed), Joshua Tree (planned trip), Mexico (Spanish learning motivation)",
       "expected_winner": "HippoRAG",
-      "predicted_answer": "Sam has connections to Oakland, California, and Boston.",
+      "predicted_answer": "Sam has connections to Oakland, California, Boston, and Yosemite.",
       "score": {
         "exact_match": false,
         "substring_match": false,
-        "token_overlap_f1": 0.148,
+        "token_overlap_f1": 0.214,
         "correct": false
       },
       "retrieved_ids": [
         "m34",
         "m04",
-        "m11",
+        "m22",
         "m23",
-        "m35"
+        "m16"
       ],
       "retrieval_scores": [
-        0.00343,
-        0.00276,
-        0.00249,
-        0.00244,
-        0.00244
+        0.00291,
+        0.0027,
+        0.00269,
+        0.00239,
+        0.00234
       ],
       "top_triples": [
+        [
+          "Yosemite",
+          "was visited by",
+          "Sam"
+        ],
         [
           "Sam",
           "lives in",
@@ -2754,11 +2763,6 @@
           "Sam",
           "booked flights to",
           "Boston"
-        ],
-        [
-          "Sam",
-          "had a climbing trip",
-          "Yosemite"
         ],
         [
           "Sam",
@@ -2794,8 +2798,8 @@
       "top_triple_sims": [
         0.439,
         0.439,
+        0.439,
         0.438,
-        0.428,
         0.426,
         0.422,
         0.422,
@@ -2804,6 +2808,11 @@
         0.403
       ],
       "filtered_triples": [
+        [
+          "Yosemite",
+          "was visited by",
+          "Sam"
+        ],
         [
           "Sam",
           "lives in",
@@ -2817,11 +2826,6 @@
         [
           "Sam",
           "booked flights to",
-          "Boston"
-        ],
-        [
-          "Sam",
-          "will travel to",
           "Boston"
         ]
       ]
@@ -2845,11 +2849,11 @@
         "m34"
       ],
       "retrieval_scores": [
-        0.00761,
-        0.00705,
-        0.00669,
-        0.00632,
-        0.00632
+        0.0076,
+        0.00695,
+        0.00667,
+        0.00628,
+        0.00626
       ],
       "top_triples": [
         [
@@ -2889,13 +2893,13 @@
         ],
         [
           "Sam",
-          "had a climbing trip",
-          "Yosemite"
-        ],
-        [
-          "Sam",
           "went climbing at",
           "Berkeley Ironworks"
+        ],
+        [
+          "Yosemite",
+          "was visited by",
+          "Sam"
         ],
         [
           "Sam",
@@ -2911,8 +2915,8 @@
         0.403,
         0.4,
         0.398,
-        0.397,
         0.396,
+        0.387,
         0.385
       ],
       "filtered_triples": []
@@ -2936,11 +2940,11 @@
         "m15"
       ],
       "retrieval_scores": [
-        0.00766,
-        0.00699,
-        0.00628,
-        0.00627,
-        0.00624
+        0.00765,
+        0.00698,
+        0.00625,
+        0.00623,
+        0.0062
       ],
       "top_triples": [
         [
@@ -2970,11 +2974,6 @@
         ],
         [
           "Sam",
-          "had a climbing trip",
-          "Yosemite"
-        ],
-        [
-          "Sam",
           "lives in",
           "Oakland"
         ],
@@ -2992,6 +2991,11 @@
           "Sam",
           "climbed at",
           "Yosemite"
+        ],
+        [
+          "Sam",
+          "lives in",
+          "California"
         ]
       ],
       "top_triple_sims": [
@@ -3000,10 +3004,10 @@
         0.439,
         0.439,
         0.427,
-        0.427,
         0.424,
         0.421,
         0.411,
+        0.407,
         0.407
       ],
       "filtered_triples": []
@@ -3027,11 +3031,11 @@
         "m30"
       ],
       "retrieval_scores": [
-        0.00771,
-        0.0075,
-        0.00746,
-        0.00739,
-        0.00711
+        0.00768,
+        0.00747,
+        0.00742,
+        0.00735,
+        0.00708
       ],
       "top_triples": [
         [
@@ -3046,12 +3050,12 @@
         ],
         [
           "Sam",
-          "works at",
+          "accepted offer from",
           "StartupCo"
         ],
         [
           "Sam",
-          "accepted offer from",
+          "started at",
           "StartupCo"
         ],
         [
@@ -3088,8 +3092,8 @@
       "top_triple_sims": [
         0.619,
         0.619,
-        0.619,
         0.589,
+        0.582,
         0.573,
         0.493,
         0.493,

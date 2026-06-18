@@ -10,5 +10,5 @@
 | implicit_conceptual | A-Mem | 1/3 (33%) |
 | information_update | A-Mem | 3/3 (100%) |
 | single_hop | tie | 4/4 (100%) |
-| two_hop | tie | 2/3 (67%) |
-| **Total** | — | **13/22** |
+| two_hop | tie | 1/3 (33%) |
+| **Total** | — | **12/22** |
