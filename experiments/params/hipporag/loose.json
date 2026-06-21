@@ -1,0 +1,5 @@
+{
+  "sim_threshold": 0.8,
+  "alpha": 0.25,
+  "top_k_passages": 5
+}

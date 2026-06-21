@@ -460,15 +460,25 @@ def write_interactive_trace(
 # ── End-to-end render ─────────────────────────────────────────────────────
 
 def render_all(run: Run, output_dir: Path) -> None:
-    """Emit all markdown + HTML artifacts for a run."""
-    output_dir.mkdir(parents=True, exist_ok=True)
+    """
+    Emit all markdown + HTML artifacts for an A-Mem run, split into the
+    framework's two-subdirectory layout:
+
+        output_dir/memory/   memory-structure visualisation (the graph)
+        output_dir/result/   query-result visualisation (per-query traces)
+    """
+    memory_dir = output_dir / "memory"
+    result_dir = output_dir / "result"
+    traces_dir = result_dir / "traces"
+    memory_dir.mkdir(parents=True, exist_ok=True)
+    traces_dir.mkdir(parents=True, exist_ok=True)
 
     order = (
         run.metadata.get("memory_order")
         or [n["id"] for n in run.memories.values()]
     )
 
-    # Mermaid graph
+    # ── memory/ : memory-structure visualisation ─────────────────────────
     graph_md = (
         "# A-Mem Memory Graph\n\n"
         "Nodes are memories (in ingestion order). Edges are A-Mem links.\n"
@@ -477,9 +487,13 @@ def render_all(run: Run, output_dir: Path) -> None:
         + to_mermaid_graph(run.memories, order=order)
         + "\n```\n"
     )
-    (output_dir / "memory_graph.md").write_text(graph_md)
+    (memory_dir / "memory_graph.md").write_text(graph_md)
+    write_interactive_graph(
+        memory_dir / "index.html", run.memories,
+        title="A-Mem memory graph",
+    )
 
-    # Mermaid traces
+    # ── result/ : query-result visualisation ─────────────────────────────
     trace_lines = [
         "# A-Mem Retrieval Traces\n",
         "Solid arrows = direct vector-search hits.  ",
@@ -501,17 +515,8 @@ def render_all(run: Run, output_dir: Path) -> None:
             ok = "✓" if q["score"].get("correct") else "✗"
             trace_lines.append(f"**Correct:** {ok}\n")
         trace_lines.append("```mermaid\n" + trace + "\n```\n")
-    (output_dir / "traces.md").write_text("\n".join(trace_lines))
+    (result_dir / "traces.md").write_text("\n".join(trace_lines))
 
-    # Interactive HTML (vis-network + side panel)
-    html_dir = output_dir / "html"
-    traces_dir = html_dir / "traces"
-    traces_dir.mkdir(parents=True, exist_ok=True)
-
-    write_interactive_graph(
-        html_dir / "memory_graph.html", run.memories,
-        title="A-Mem memory graph",
-    )
     for q in run.queries:
         write_interactive_trace(
             traces_dir / f"{q['question_id']}.html",
@@ -520,7 +525,7 @@ def render_all(run: Run, output_dir: Path) -> None:
              "links_followed": q.get("links_followed", [])},
             title=f"{q['question_id']}: {q['question']}",
         )
-    (html_dir / "index.html").write_text(_html_index(run.queries))
+    (result_dir / "index.html").write_text(_html_index(run.queries))
 
 
 def _html_index(queries: list[dict[str, Any]]) -> str:
@@ -532,7 +537,8 @@ def _html_index(queries: list[dict[str, Any]]) -> str:
             f'<td>{q.get("category", "")}</td>'
             f'<td>{q.get("expected_winner", "")}</td>'
             f'<td>{q.get("question", "")}</td>'
-            f'<td style="text-align:center">{ok}</td></tr>'
+            f'<td style="text-align:center">{ok}</td>'
+            f'<td style="text-align:center">{_retrieval_cell(q)}</td></tr>'
         )
     return f"""<!doctype html><html><head><meta charset="utf-8">
 <title>A-Mem eval — interactive traces</title>
@@ -548,13 +554,25 @@ a:hover {{ text-decoration: underline; }}
         border-radius: 4px; margin-bottom: 1em; }}
 </style></head><body>
 <h1>A-Mem evaluation — interactive traces</h1>
-<a class="full" href="memory_graph.html">→ Full memory graph</a>
+<a class="full" href="../memory/index.html">→ Full memory graph</a>
 <table>
-<thead><tr><th>Q</th><th>Category</th><th>Expected winner</th><th>Question</th><th>Correct?</th></tr></thead>
+<thead><tr><th>Q</th><th>Category</th><th>Expected winner</th><th>Question</th>
+<th>Answer</th><th>Retrieval</th></tr></thead>
 <tbody>
 {"".join(rows)}
 </tbody></table>
 </body></html>"""
+
+
+def _retrieval_cell(q: dict[str, Any]) -> str:
+    """Render the retrieval-quality cell (recall of required statements)."""
+    rs = q.get("retrieval_score")
+    if not rs:
+        return "—"
+    recall = rs.get("recall")
+    if recall is None:
+        return "n/a"
+    return f"{int(rs.get('hit', False)) and '✓' or '·'} {recall:.0%}"
 
 
 # ── Internal helpers ──────────────────────────────────────────────────────
@@ -577,31 +595,40 @@ def _mermaid_id(raw: str) -> str:
 
 # ── Re-render orchestrator ────────────────────────────────────────────────
 #
-# Walks results/<dataset>/<system>/run.json for each registered system and
-# re-emits the system's HTML, then re-emits result.html. No LLM calls.
+# Walks results/<dataset>_<testset>/<system>_<paramset>/result/result.json for
+# each experiment and re-emits its memory/ + result/ HTML, then re-emits the
+# comparison index.html. No LLM calls.
 
-def render_dataset(dataset_dir: Path) -> dict[str, list[dict[str, Any]]]:
+def render_comparison(comparison_dir: Path) -> list[dict[str, Any]]:
     """
-    Re-render every system found under ``dataset_dir``. Returns the
-    per-system query results so the caller can rebuild ``result.html``.
+    Re-render every experiment found under ``comparison_dir``. Returns a list
+    of ``{slug, system, paramset, label, queries}`` so the caller can rebuild
+    ``index.html``.
     """
     from .systems import SYSTEMS
 
-    runs: dict[str, list[dict[str, Any]]] = {}
-    for sys_dir in sorted(dataset_dir.iterdir()):
-        if not sys_dir.is_dir():
+    runs: list[dict[str, Any]] = []
+    for expt_dir in sorted(comparison_dir.iterdir()):
+        if not expt_dir.is_dir():
             continue
-        run_path = sys_dir / "run.json"
+        run_path = expt_dir / "result" / "result.json"
         if not run_path.exists():
             continue
         data = json.loads(run_path.read_text())
-        sys_name = data.get("metadata", {}).get("system") or sys_dir.name
+        meta = data.get("metadata", {})
+        sys_name = meta.get("system")
         if sys_name not in SYSTEMS:
-            print(f"  ?? unknown system {sys_name!r} in {sys_dir}, skipping")
+            print(f"  ?? unknown system {sys_name!r} in {expt_dir}, skipping")
             continue
-        print(f"  re-rendering {sys_name}/")
-        SYSTEMS[sys_name].render_from_run(run_path, sys_dir)
-        runs[sys_name] = data.get("queries", [])
+        print(f"  re-rendering {expt_dir.name}/")
+        SYSTEMS[sys_name].render_from_run(run_path, expt_dir)
+        runs.append({
+            "slug": expt_dir.name,
+            "system": sys_name,
+            "paramset": meta.get("paramset", "default"),
+            "label": SYSTEMS[sys_name].label,
+            "queries": data.get("queries", []),
+        })
     return runs
 
 
@@ -610,62 +637,56 @@ def render_dataset(dataset_dir: Path) -> dict[str, list[dict[str, Any]]]:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
-        "--dataset", default=None,
-        help="Re-render this dataset under --output-dir. Default: all datasets found.",
+        "--comparison", default=None,
+        help="Re-render this <dataset>_<testset> dir under --output-dir. "
+             "Default: all comparison dirs found.",
     )
     ap.add_argument("--output-dir", default="results", type=Path)
     ap.add_argument(
         "--run", default=None, type=Path,
-        help="Legacy: re-render a single A-Mem run.json. Use --dataset instead "
-             "for the new multi-system layout.",
+        help="Re-render a single A-Mem result.json into its parent experiment "
+             "dir's memory/ + result/.",
     )
     args = ap.parse_args()
 
-    # Legacy single-run mode (back-compat for older results/run.json layouts).
+    # Single-run mode (one A-Mem experiment dir).
     if args.run is not None:
         if not args.run.exists():
             raise SystemExit(f"Run artifact not found at {args.run}.")
         run = load_run(args.run)
-        render_all(run, args.output_dir)
+        expt_dir = args.run.parent.parent  # .../<expt>/result/result.json
+        render_all(run, expt_dir)
         print(f"Rendered {len(run.memories)} memories + {len(run.queries)} traces "
-              f"to {args.output_dir}/")
+              f"to {expt_dir}/")
         return
 
-    # Multi-dataset / multi-system mode.
-    from . import datasets as ds_module
-    from .compare import emit_result_html
+    from .compare import emit_comparison_html
 
-    if args.dataset:
-        names = [args.dataset]
+    if args.comparison:
+        names = [args.comparison]
     else:
         if not args.output_dir.exists():
             raise SystemExit(f"{args.output_dir}/ does not exist.")
-        names = sorted(
-            p.name for p in args.output_dir.iterdir() if p.is_dir()
-        )
+        names = sorted(p.name for p in args.output_dir.iterdir() if p.is_dir())
 
     if not names:
         raise SystemExit(
-            f"No datasets found under {args.output_dir}/. "
+            f"No comparison dirs found under {args.output_dir}/. "
             f"Run `just compare` first to produce results."
         )
 
-    for ds_name in names:
-        ds_dir = args.output_dir / ds_name
-        if not ds_dir.exists() or not ds_dir.is_dir():
-            print(f"Skipping {ds_dir} (not a directory)")
+    for name in names:
+        cmp_dir = args.output_dir / name
+        if not cmp_dir.exists() or not cmp_dir.is_dir():
+            print(f"Skipping {cmp_dir} (not a directory)")
             continue
-        print(f"\n=== {ds_dir}/ ===")
-        runs = render_dataset(ds_dir)
+        print(f"\n=== {cmp_dir}/ ===")
+        runs = render_comparison(cmp_dir)
         if not runs:
-            print(f"  (no recognised system runs found)")
+            print("  (no recognised experiment runs found)")
             continue
-        if ds_name in ds_module.DATASETS:
-            dataset = ds_module.load(ds_name)
-            emit_result_html(dataset, runs, ds_dir)
-            print(f"  re-emitted {ds_dir / 'result.html'}")
-        else:
-            print(f"  (dataset {ds_name!r} not registered — skipping result.html)")
+        emit_comparison_html(name, runs, cmp_dir)
+        print(f"  re-emitted {cmp_dir / 'index.html'}")
 
 
 if __name__ == "__main__":

@@ -168,8 +168,12 @@ class HippoRAGAdapter(SystemAdapter):
     name = "hipporag"
     label = "HippoRAG v1"
 
-    def __init__(self, sim_threshold: float = 0.8) -> None:
-        self.sim_threshold = sim_threshold
+    def __init__(self, params: dict[str, Any] | None = None) -> None:
+        super().__init__(params)
+        # Defaults reproduce the prior hardcoded behaviour.
+        self.sim_threshold = float(self.params.get("sim_threshold", 0.8))
+        self.alpha = float(self.params.get("alpha", 0.15))
+        self.top_k_passages = int(self.params.get("top_k_passages", 5))
         self.item_ids: list[str] = []
         self.passages: list[str] = []
         self.index: dict[str, Any] = {}
@@ -401,12 +405,12 @@ class HippoRAGAdapter(SystemAdapter):
         if adj is None or adj.shape[0] == 0 or not seed_indices:
             top: list[tuple[int, float]] = []
         else:
-            ppr = _personalized_pagerank(adj, seed_indices)         # (N,)
+            ppr = _personalized_pagerank(adj, seed_indices, alpha=self.alpha)  # (N,)
             weighted = ppr * self.index["specificity"]              # (N,)
             scores = np.array(
                 self.index["P_matrix"].T.dot(weighted), dtype=np.float64,
             ).flatten()                                             # (P,)
-            order = np.argsort(-scores)[:5]
+            order = np.argsort(-scores)[: self.top_k_passages]
             top = [(int(i), float(scores[i])) for i in order if scores[i] > 0]
 
         # ─── Step 6: top-K passages → reader LLM ────────────────────
@@ -434,6 +438,7 @@ class HippoRAGAdapter(SystemAdapter):
             **metadata,
             "system": self.name,
             "system_label": self.label,
+            "params": self.params,
             "sim_threshold": self.sim_threshold,
             "n_entities": len(self.index.get("entities", [])),
         }
@@ -442,9 +447,12 @@ class HippoRAGAdapter(SystemAdapter):
             for i, (pid, txt) in enumerate(zip(self.item_ids, self.passages))
         ]
         payload = {"metadata": meta, "items": items, "queries": queries}
-        (output_dir / "run.json").write_text(json.dumps(payload, indent=2))
+        run_path = output_dir / "result" / "result.json"
+        run_path.parent.mkdir(parents=True, exist_ok=True)
+        run_path.write_text(json.dumps(payload, indent=2))
 
         _write_retrieval_html(output_dir, queries, items, self.label)
+        _write_memory_html(output_dir, items, self.label, meta)
 
     @classmethod
     def render_from_run(cls, run_path: Path, output_dir: Path) -> None:
@@ -452,6 +460,10 @@ class HippoRAGAdapter(SystemAdapter):
         _write_retrieval_html(
             output_dir, data.get("queries", []),
             data.get("items", []), cls.label,
+        )
+        _write_memory_html(
+            output_dir, data.get("items", []), cls.label,
+            data.get("metadata", {}),
         )
 
 
@@ -463,20 +475,31 @@ def _write_retrieval_html(
     items: list[dict[str, Any]],
     label: str,
 ) -> None:
-    html_dir = output_dir / "html"
-    traces_dir = html_dir / "traces"
+    result_dir = output_dir / "result"
+    traces_dir = result_dir / "traces"
     traces_dir.mkdir(parents=True, exist_ok=True)
 
     items_by_id = {it["id"]: it for it in items}
 
     for q in queries:
+        required = set(q.get("retrieval_score", {}).get("required", []))
         retrieved = [items_by_id.get(rid, {"id": rid, "content": "?"})
                      for rid in q.get("retrieved_ids", [])]
         rows = "".join(
-            f'<tr><td>{i+1}</td><td><code>{r["id"]}</code></td><td>{_escape(r["content"])}</td></tr>'
+            f'<tr><td>{i+1}</td><td><code>{r["id"]}</code>'
+            f'{" ★" if r["id"] in required else ""}</td>'
+            f'<td>{_escape(r["content"])}</td></tr>'
             for i, r in enumerate(retrieved)
         )
         extras = []
+        rs = q.get("retrieval_score")
+        if rs and rs.get("recall") is not None:
+            extras.append(
+                f"<p><b>Retrieval:</b> recall {rs['recall']:.0%}, "
+                f"precision {rs['precision']:.0%} "
+                f"(required {', '.join(f'<code>{_escape(x)}</code>' for x in rs['required']) or '—'}; "
+                f"★ = required)</p>"
+            )
         if q.get("query_entities"):
             extras.append(f"<p><b>Query entities:</b> <code>{_escape(', '.join(q['query_entities']))}</code></p>")
         if q.get("seed_trace"):
@@ -518,7 +541,17 @@ code {{ background: #f3f4f6; padding: 1px 4px; border-radius: 3px; }}
 </body></html>"""
         (traces_dir / f"{q['question_id']}.html").write_text(page)
 
-    (html_dir / "index.html").write_text(_index_html(label, queries))
+    (result_dir / "index.html").write_text(_index_html(label, queries))
+
+
+def _retrieval_cell(q: dict[str, Any]) -> str:
+    rs = q.get("retrieval_score")
+    if not rs:
+        return "—"
+    recall = rs.get("recall")
+    if recall is None:
+        return "n/a"
+    return f"{'✓' if rs.get('hit') else '·'} {recall:.0%}"
 
 
 def _index_html(label: str, queries: list[dict[str, Any]]) -> str:
@@ -529,7 +562,8 @@ def _index_html(label: str, queries: list[dict[str, Any]]) -> str:
             f'<tr><td><a href="traces/{q["question_id"]}.html">{q["question_id"]}</a></td>'
             f'<td>{q.get("category", "")}</td>'
             f'<td>{_escape(q.get("question", ""))}</td>'
-            f'<td style="text-align:center">{ok}</td></tr>'
+            f'<td style="text-align:center">{ok}</td>'
+            f'<td style="text-align:center">{_retrieval_cell(q)}</td></tr>'
         )
     return f"""<!doctype html><html><head><meta charset="utf-8">
 <title>{label} — traces</title>
@@ -541,14 +575,70 @@ th, td {{ padding: 6px 10px; border-bottom: 1px solid #e5e7eb; text-align: left;
 th {{ background: #f9fafb; }}
 a {{ color: #2563eb; text-decoration: none; }}
 a:hover {{ text-decoration: underline; }}
+.full {{ display: inline-block; padding: 6px 12px; background: #2563eb; color: white;
+        border-radius: 4px; margin-bottom: 1em; }}
 </style></head><body>
 <h1>{label} — per-question traces</h1>
+<a class="full" href="../memory/index.html">→ Memory structure (knowledge graph)</a>
 <table>
-<thead><tr><th>Q</th><th>Category</th><th>Question</th><th>Correct?</th></tr></thead>
+<thead><tr><th>Q</th><th>Category</th><th>Question</th><th>Answer</th><th>Retrieval</th></tr></thead>
 <tbody>
 {"".join(rows)}
 </tbody></table>
 </body></html>"""
+
+
+def _write_memory_html(
+    output_dir: Path,
+    items: list[dict[str, Any]],
+    label: str,
+    meta: dict[str, Any],
+) -> None:
+    """
+    Memory-structure page for a KG system: one row per ingested statement
+    with the OpenIE triples extracted from it (the nodes/edges that make up
+    the knowledge graph). The analogue of A-Mem's memory graph.
+    """
+    memory_dir = output_dir / "memory"
+    memory_dir.mkdir(parents=True, exist_ok=True)
+
+    rows = []
+    total_triples = 0
+    for it in items:
+        triples = it.get("triples", [])
+        total_triples += len(triples)
+        triples_html = "<br>".join(
+            f"<code>({_escape(str(t[0]))}, {_escape(str(t[1]))}, {_escape(str(t[2]))})</code>"
+            for t in triples
+        ) or "<i>(none)</i>"
+        rows.append(
+            f'<tr><td><code>{it["id"]}</code></td>'
+            f'<td>{_escape(it.get("content", ""))}</td>'
+            f'<td>{triples_html}</td></tr>'
+        )
+    n_phrases = meta.get("n_phrases", meta.get("n_entities", "?"))
+    page = f"""<!doctype html><html><head><meta charset="utf-8">
+<title>{label} — memory structure</title>
+<style>
+body {{ font: 14px system-ui, sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; }}
+h1 {{ font-size: 1.5em; }}
+.meta {{ color: #6b7280; font-size: 0.92em; }}
+table {{ border-collapse: collapse; width: 100%; margin-top: 1em; }}
+th, td {{ padding: 6px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: top; }}
+th {{ background: #f9fafb; }}
+code {{ background: #f3f4f6; padding: 1px 4px; border-radius: 3px; }}
+a {{ color: #2563eb; text-decoration: none; }}
+</style></head><body>
+<h1>{label} — memory structure</h1>
+<p class="meta">{len(items)} statements · {total_triples} triples · {n_phrases} graph nodes.
+Each row is one ingested statement and the (subject, relation, object) triples
+extracted from it to build the knowledge graph.</p>
+<p><a href="../result/index.html">→ Query results</a></p>
+<table><thead><tr><th>id</th><th>statement</th><th>extracted triples</th></tr></thead><tbody>
+{"".join(rows)}
+</tbody></table>
+</body></html>"""
+    (memory_dir / "index.html").write_text(page)
 
 
 def _escape(s: str) -> str:
