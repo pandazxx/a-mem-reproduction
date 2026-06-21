@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>HippoRAG v1 — Q00006</title>
+<style>
+body { font: 14px system-ui, sans-serif; max-width: 900px; margin: 2em auto; padding: 0 1em; }
+h1 { font-size: 1.3em; }
+table { border-collapse: collapse; width: 100%; margin-top: 1em; }
+th, td { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+th { background: #f9fafb; }
+code { background: #f3f4f6; padding: 1px 4px; border-radius: 3px; }
+.ok { color: #16a34a; } .bad { color: #dc2626; }
+</style></head><body>
+<h1>HippoRAG v1 — Q00006 (two_hop) ✗</h1>
+<p><b>Q:</b> What programming language does Sam's web scraper use?</p>
+<p><b>Expected:</b> Python (initially), then rewritten in Rust</p>
+<p><b>Got:</b> Sam's web scraper is being rewritten in Rust.</p>
+<p><b>Retrieval:</b> recall 50%, precision 20% (required <code>S00017</code>, <code>S00031</code>; ★ = required)</p><p><b>Query entities:</b> <code>Sam, programming language, web scraper</code></p><p><b>Seed entities:</b></p><ul><li><code>Sam</code> → <code>Sam</code> (sim=0.521)</li><li><code>programming language</code> → <code>programming language</code> (sim=0.472)</li><li><code>web scraper</code> → <code>scraper</code> (sim=0.549)</li></ul>
+<h2>Top retrieved items</h2>
+<table><thead><tr><th>#</th><th>id</th><th>content</th></tr></thead><tbody>
+<tr><td>1</td><td><code>S00031</code> ★</td><td>Sam decided to rewrite the climbing scraper in Rust as a learning exercise.</td></tr><tr><td>2</td><td><code>S00016</code></td><td>Sam started a side project: building a web scraper to find new climbing destinations.</td></tr><tr><td>3</td><td><code>S00032</code></td><td>Sam is using the reqwest and scraper crates for the Rust version of the scraper.</td></tr><tr><td>4</td><td><code>S00020</code></td><td>Sam's goal with the scraper is to discover new outdoor climbing destinations not on popular guidebooks.</td></tr><tr><td>5</td><td><code>S00007</code></td><td>Sam uses Duolingo daily for Spanish practice.</td></tr>
+</tbody></table>
+<p><a href="../index.html">← back to index</a></p>
+</body></html>

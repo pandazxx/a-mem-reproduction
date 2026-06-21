@@ -1,0 +1,281 @@
+{
+  "metadata": {
+    "name": "comparison",
+    "version": "2.0",
+    "dataset": "comparison",
+    "query_count": 22,
+    "categories": [
+      "single_hop",
+      "two_hop",
+      "deep_multi_hop",
+      "implicit_conceptual",
+      "information_update",
+      "compositional_aggregation",
+      "absence_abstention"
+    ]
+  },
+  "queries": [
+    {
+      "id": "Q00001",
+      "category": "single_hop",
+      "query": "Where does Sam live?",
+      "required_retrieval": [
+        "S00004"
+      ],
+      "expected_answer": "Oakland, California",
+      "expected_winner": "tie",
+      "comment": "Direct fact retrieval. Both systems should handle this trivially. (legacy q01)"
+    },
+    {
+      "id": "Q00002",
+      "category": "single_hop",
+      "query": "What is Maria's profession?",
+      "required_retrieval": [
+        "S00012"
+      ],
+      "expected_answer": "high school chemistry teacher",
+      "expected_winner": "tie",
+      "comment": "Direct fact retrieval. Control case. (legacy q02)"
+    },
+    {
+      "id": "Q00003",
+      "category": "single_hop",
+      "query": "When is Maria's birthday?",
+      "required_retrieval": [
+        "S00033"
+      ],
+      "expected_answer": "May 15",
+      "expected_winner": "tie",
+      "comment": "Direct fact retrieval. Tests if both can extract dates. (legacy q03)"
+    },
+    {
+      "id": "Q00004",
+      "category": "single_hop",
+      "query": "What climbing shoes did Sam order?",
+      "required_retrieval": [
+        "S00039"
+      ],
+      "expected_answer": "La Sportiva Solution",
+      "expected_winner": "tie",
+      "comment": "Direct fact retrieval. Recent memory. (legacy q04)"
+    },
+    {
+      "id": "Q00005",
+      "category": "two_hop",
+      "query": "In which city is the company that David works for headquartered?",
+      "required_retrieval": [
+        "S00014"
+      ],
+      "expected_answer": "Seattle",
+      "expected_winner": "tie",
+      "comment": "Information packaged in a single memory (m14 mentions both David's employer and HQ city). Single-hop in practice. (legacy q05)"
+    },
+    {
+      "id": "Q00006",
+      "category": "two_hop",
+      "query": "What programming language does Sam's web scraper use?",
+      "required_retrieval": [
+        "S00017",
+        "S00031"
+      ],
+      "expected_answer": "Python (initially), then rewritten in Rust",
+      "expected_winner": "tie",
+      "comment": "Two memories needed: original Python decision and Rust rewrite. Tests temporal awareness. (legacy q06)"
+    },
+    {
+      "id": "Q00007",
+      "category": "two_hop",
+      "query": "What does Sam's mother do for a living, and where does she live?",
+      "required_retrieval": [
+        "S00011",
+        "S00012"
+      ],
+      "expected_answer": "high school chemistry teacher in Boston",
+      "expected_winner": "tie",
+      "comment": "Two-hop chain: Sam \u2192 mother Maria \u2192 profession + city. Both systems should handle. (legacy q07)"
+    },
+    {
+      "id": "Q00008",
+      "category": "deep_multi_hop",
+      "query": "Who is the manager of the person whose brother works at Amazon?",
+      "required_retrieval": [
+        "S00013",
+        "S00014",
+        "S00028",
+        "S00029"
+      ],
+      "expected_answer": "Marcus",
+      "expected_winner": "HippoRAG",
+      "comment": "3-hop chain: Amazon \u2192 David \u2192 Sam (brother) \u2192 manager Marcus. HippoRAG's PPR propagates through arbitrary chains; A-Mem's 1-hop link traversal may miss this unless link generation correctly connected the relevant notes. (legacy q08)"
+    },
+    {
+      "id": "Q00009",
+      "category": "deep_multi_hop",
+      "query": "What is the profession of the partner of the engineer who has a brother in Seattle?",
+      "required_retrieval": [
+        "S00005",
+        "S00013"
+      ],
+      "expected_answer": "graphic designer",
+      "expected_winner": "HippoRAG",
+      "comment": "3-hop chain: Seattle \u2192 David \u2192 brother Sam \u2192 partner Alex \u2192 graphic designer. Requires propagating through Sam's identity. (legacy q09)"
+    },
+    {
+      "id": "Q00010",
+      "category": "deep_multi_hop",
+      "query": "In which city was the person born who is married to the graphic designer's partner's brother?",
+      "required_retrieval": [],
+      "expected_answer": "unknown / cannot determine (Maria's birth location is not in the facts)",
+      "expected_winner": "tie",
+      "comment": "Trick: deep multi-hop chain (graphic designer \u2192 Alex \u2192 partner Sam \u2192 brother David \u2192 ??) but the answer requires David's birth location which isn't in the memory store. Both systems should ideally abstain. Tests whether deep multi-hop also induces hallucination. (legacy q10)"
+    },
+    {
+      "id": "Q00011",
+      "category": "implicit_conceptual",
+      "query": "What outdoor activities does Sam enjoy?",
+      "required_retrieval": [
+        "S00008",
+        "S00021",
+        "S00040",
+        "S00038"
+      ],
+      "expected_answer": "rock climbing (Yosemite, Joshua Tree, Berkeley Ironworks \u2014 though gym is indoor)",
+      "expected_winner": "A-Mem",
+      "comment": "Requires conceptual categorization: 'outdoor activities' isn't a direct field in any memory. A-Mem's LLM-generated tags might tag climbing memories as 'outdoor recreation'; HippoRAG's KG nodes are entity-centric and wouldn't naturally surface 'outdoor' as a concept. (legacy q11)"
+    },
+    {
+      "id": "Q00012",
+      "category": "implicit_conceptual",
+      "query": "What Python libraries has Sam used?",
+      "required_retrieval": [
+        "S00017",
+        "S00018"
+      ],
+      "expected_answer": "BeautifulSoup",
+      "expected_winner": "A-Mem",
+      "comment": "Requires inferring that BeautifulSoup is a Python library \u2014 the memories don't say this explicitly. A-Mem's LLM-generated context (X) likely encodes this; HippoRAG's OpenIE wouldn't extract a (BeautifulSoup, is_a, Python library) triple. (legacy q12)"
+    },
+    {
+      "id": "Q00013",
+      "category": "implicit_conceptual",
+      "query": "What hobbies has Sam been less active in lately?",
+      "required_retrieval": [
+        "S00037",
+        "S00038"
+      ],
+      "expected_answer": "Spanish learning (slipped to once a week) and climbing (first session in two weeks before m38)",
+      "expected_winner": "A-Mem",
+      "comment": "Requires recognising 'less active' as a concept connecting two unrelated facts about reduced frequency. A-Mem's LLM-determined links might cluster these as 'declining engagement'; HippoRAG won't naturally. (legacy q13)"
+    },
+    {
+      "id": "Q00014",
+      "category": "information_update",
+      "query": "Where does Sam currently work?",
+      "required_retrieval": [
+        "S00027",
+        "S00029"
+      ],
+      "expected_answer": "StartupCo",
+      "expected_winner": "A-Mem",
+      "comment": "Sam transitioned TechCorp \u2192 StartupCo in Week 6-7. HippoRAG retains both as equal facts in the KG. A-Mem's memory evolution should update the earlier 'works at TechCorp' notes when the StartupCo memories arrived \u2014 though this depends on the LLM prompt quality during evolution. (legacy q14)"
+    },
+    {
+      "id": "Q00015",
+      "category": "information_update",
+      "query": "Who is Sam's current manager?",
+      "required_retrieval": [
+        "S00028",
+        "S00029"
+      ],
+      "expected_answer": "Marcus",
+      "expected_winner": "A-Mem",
+      "comment": "Same issue as q14. HippoRAG holds both Jennifer (TechCorp) and Marcus (StartupCo) as Sam's managers. Tests whether either system prefers the more recent assertion. (legacy q15)"
+    },
+    {
+      "id": "Q00016",
+      "category": "information_update",
+      "query": "What language is Sam's climbing scraper currently written in?",
+      "required_retrieval": [
+        "S00017",
+        "S00031"
+      ],
+      "expected_answer": "Rust",
+      "expected_winner": "A-Mem",
+      "comment": "Sam migrated the scraper Python \u2192 Rust in Week 7. Tests temporal precedence of contradicting facts about the same project. (legacy q16)"
+    },
+    {
+      "id": "Q00017",
+      "category": "compositional_aggregation",
+      "query": "Who are all the people Sam has mentioned in conversations?",
+      "required_retrieval": [
+        "S00003",
+        "S00005",
+        "S00011",
+        "S00013",
+        "S00028"
+      ],
+      "expected_answer": "Alex (partner), Jennifer (old manager), Maria (mother), David (brother), Marcus (new manager)",
+      "expected_winner": "HippoRAG",
+      "comment": "Aggregating across many memories. HippoRAG's PPR over the KG naturally surfaces all entities linked to Sam. A-Mem's top-k retrieval may miss entities that share little semantic similarity to the query. (legacy q17)"
+    },
+    {
+      "id": "Q00018",
+      "category": "compositional_aggregation",
+      "query": "What different programming languages and libraries has Sam used or learned?",
+      "required_retrieval": [
+        "S00017",
+        "S00018",
+        "S00030",
+        "S00032"
+      ],
+      "expected_answer": "Python, BeautifulSoup, Rust, reqwest, scraper",
+      "expected_winner": "HippoRAG",
+      "comment": "Cross-passage aggregation. Multiple memories mention different technologies; need to surface them all. (legacy q18)"
+    },
+    {
+      "id": "Q00019",
+      "category": "compositional_aggregation",
+      "query": "What places does Sam have travel or residence connections to?",
+      "required_retrieval": [
+        "S00002",
+        "S00004",
+        "S00006",
+        "S00011",
+        "S00013",
+        "S00021",
+        "S00034",
+        "S00040"
+      ],
+      "expected_answer": "Oakland (lives), San Francisco (work), Boston (mother + planned trip), Seattle (brother), Yosemite (climbed), Joshua Tree (planned trip), Mexico (Spanish learning motivation)",
+      "expected_winner": "HippoRAG",
+      "comment": "Geographic aggregation across many disparate memories. HippoRAG's KG should have a 'location' cluster; A-Mem may miss some via top-k retrieval. (legacy q19)"
+    },
+    {
+      "id": "Q00020",
+      "category": "absence_abstention",
+      "query": "What is Sam's favorite food?",
+      "required_retrieval": [],
+      "expected_answer": "unknown / not mentioned",
+      "expected_winner": "tie",
+      "comment": "Never mentioned in any memory. Both systems should abstain rather than hallucinate. (legacy q20)"
+    },
+    {
+      "id": "Q00021",
+      "category": "absence_abstention",
+      "query": "Does Sam have any pets?",
+      "required_retrieval": [],
+      "expected_answer": "unknown / not mentioned",
+      "expected_winner": "tie",
+      "comment": "Never mentioned. Tests whether systems hallucinate pet ownership from related context (e.g., living with a partner). (legacy q21)"
+    },
+    {
+      "id": "Q00022",
+      "category": "absence_abstention",
+      "query": "What is Sam's salary at StartupCo?",
+      "required_retrieval": [],
+      "expected_answer": "unknown / not mentioned",
+      "expected_winner": "tie",
+      "comment": "Salary detail never specified. Tests against the failure mode of confabulating plausible numbers. (legacy q22)"
+    }
+  ]
+}

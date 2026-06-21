@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>HippoRAG v1 — Q00008</title>
+<style>
+body { font: 14px system-ui, sans-serif; max-width: 900px; margin: 2em auto; padding: 0 1em; }
+h1 { font-size: 1.3em; }
+table { border-collapse: collapse; width: 100%; margin-top: 1em; }
+th, td { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+th { background: #f9fafb; }
+code { background: #f3f4f6; padding: 1px 4px; border-radius: 3px; }
+.ok { color: #16a34a; } .bad { color: #dc2626; }
+</style></head><body>
+<h1>HippoRAG v1 — Q00008 (deep_multi_hop) ✗</h1>
+<p><b>Q:</b> Who is the manager of the person whose brother works at Amazon?</p>
+<p><b>Expected:</b> Marcus</p>
+<p><b>Got:</b> unknown / not mentioned</p>
+<p><b>Retrieval:</b> recall 25%, precision 20% (required <code>S00013</code>, <code>S00014</code>, <code>S00028</code>, <code>S00029</code>; ★ = required)</p><p><b>Query entities:</b> <code>Amazon</code></p><p><b>Seed entities:</b></p><ul><li><code>Amazon</code> → <code>Amazon</code> (sim=0.446)</li></ul>
+<h2>Top retrieved items</h2>
+<table><thead><tr><th>#</th><th>id</th><th>content</th></tr></thead><tbody>
+<tr><td>1</td><td><code>S00014</code> ★</td><td>David works at Amazon as a product manager. His office is at Amazon's Seattle headquarters.</td></tr><tr><td>2</td><td><code>S00016</code></td><td>Sam started a side project: building a web scraper to find new climbing destinations.</td></tr><tr><td>3</td><td><code>S00007</code></td><td>Sam uses Duolingo daily for Spanish practice.</td></tr><tr><td>4</td><td><code>S00006</code></td><td>Sam started learning Spanish two months ago, mainly for an upcoming trip to Mexico.</td></tr><tr><td>5</td><td><code>S00031</code></td><td>Sam decided to rewrite the climbing scraper in Rust as a learning exercise.</td></tr>
+</tbody></table>
+<p><a href="../index.html">← back to index</a></p>
+</body></html>

@@ -77,7 +77,7 @@ import scipy.sparse as sp
 
 from .. import _nim
 from .base import SystemAdapter
-from .hipporag import _read, _write_retrieval_html
+from .hipporag import _read, _write_memory_html, _write_retrieval_html
 
 
 # ── PPR with arbitrary seed weights ────────────────────────────────────────
@@ -132,15 +132,14 @@ class HippoRAG2Adapter(SystemAdapter):
     name = "hipporag2"
     label = "HippoRAG v2"
 
-    def __init__(
-        self,
-        sim_threshold: float = 0.75,
-        top_k_triples: int = 10,
-        passage_seed_weight: float = 0.05,
-    ) -> None:
-        self.sim_threshold = sim_threshold
-        self.top_k_triples = top_k_triples
-        self.passage_seed_weight = passage_seed_weight
+    def __init__(self, params: dict[str, Any] | None = None) -> None:
+        super().__init__(params)
+        # Defaults reproduce the prior hardcoded behaviour.
+        self.sim_threshold = float(self.params.get("sim_threshold", 0.75))
+        self.top_k_triples = int(self.params.get("top_k_triples", 10))
+        self.passage_seed_weight = float(self.params.get("passage_seed_weight", 0.05))
+        self.top_k_passages = int(self.params.get("top_k_passages", 5))
+        self.alpha = float(self.params.get("alpha", 0.15))
         self.item_ids: list[str] = []
         self.passages: list[str] = []
         self.index: dict[str, Any] = {}
@@ -414,9 +413,9 @@ class HippoRAG2Adapter(SystemAdapter):
 
         # ─── Steps 5-6: PPR → read passage portion ──────────────────
         if idx.get("adj") is not None and idx["adj"].shape[0] > 0:
-            ppr = _personalized_pagerank(idx["adj"], seeds)     # (N,)
+            ppr = _personalized_pagerank(idx["adj"], seeds, alpha=self.alpha)  # (N,)
             passage_scores = ppr[idx["N_phrase"]:]              # (P,)
-            order = np.argsort(-passage_scores)[:5]
+            order = np.argsort(-passage_scores)[: self.top_k_passages]
             top = [(int(i), float(passage_scores[i])) for i in order if passage_scores[i] > 0]
         else:
             top = []
@@ -446,6 +445,7 @@ class HippoRAG2Adapter(SystemAdapter):
             **metadata,
             "system": self.name,
             "system_label": self.label,
+            "params": self.params,
             "sim_threshold": self.sim_threshold,
             "top_k_triples": self.top_k_triples,
             "passage_seed_weight": self.passage_seed_weight,
@@ -461,9 +461,12 @@ class HippoRAG2Adapter(SystemAdapter):
             for i, (pid, txt) in enumerate(zip(self.item_ids, self.passages))
         ]
         payload = {"metadata": meta, "items": items, "queries": queries}
-        (output_dir / "run.json").write_text(json.dumps(payload, indent=2))
+        run_path = output_dir / "result" / "result.json"
+        run_path.parent.mkdir(parents=True, exist_ok=True)
+        run_path.write_text(json.dumps(payload, indent=2))
 
         _write_retrieval_html(output_dir, queries, items, self.label)
+        _write_memory_html(output_dir, items, self.label, meta)
 
     @classmethod
     def render_from_run(cls, run_path: Path, output_dir: Path) -> None:
@@ -471,4 +474,8 @@ class HippoRAG2Adapter(SystemAdapter):
         _write_retrieval_html(
             output_dir, data.get("queries", []),
             data.get("items", []), cls.label,
+        )
+        _write_memory_html(
+            output_dir, data.get("items", []), cls.label,
+            data.get("metadata", {}),
         )

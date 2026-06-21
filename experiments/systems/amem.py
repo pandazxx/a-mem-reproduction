@@ -96,10 +96,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import chromadb
-from chromadb.config import Settings
-from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
-
 from .. import _nim, render
 from .base import SystemAdapter
 
@@ -305,7 +301,14 @@ class AgenticMemorySystem:
         self.evo_threshold = evo_threshold
 
         # Ephemeral ChromaDB — we reset on construction so successive
-        # runs in the same Python process start clean.
+        # runs in the same Python process start clean. Imported here (not at
+        # module top) so the render-only path needn't install chromadb.
+        import chromadb
+        from chromadb.config import Settings
+        from chromadb.utils.embedding_functions import (
+            SentenceTransformerEmbeddingFunction,
+        )
+
         self.client = chromadb.Client(Settings(allow_reset=True))
         self.embedding_fn = SentenceTransformerEmbeddingFunction(
             model_name=model_name,
@@ -799,9 +802,16 @@ class AMemAdapter(SystemAdapter):
     name = "amem"
     label = "A-Mem"
 
-    def __init__(self) -> None:
+    def __init__(self, params: dict[str, Any] | None = None) -> None:
+        super().__init__(params)
+        # ``top_k`` controls retrieval breadth (default 5 reproduces the
+        # paper's setting); ``evo_threshold`` controls how often the
+        # ChromaDB index is re-consolidated after evolution events.
+        self.top_k = int(self.params.get("top_k", 5))
         # The engine owns ChromaDB + the in-memory MemoryNote map.
-        self.engine = AgenticMemorySystem()
+        self.engine = AgenticMemorySystem(
+            evo_threshold=int(self.params.get("evo_threshold", 100)),
+        )
 
     def ingest(self, items: list[dict[str, Any]]) -> None:
         """
@@ -833,8 +843,8 @@ class AMemAdapter(SystemAdapter):
 
     def query(self, question: str) -> dict[str, Any]:
         """
-        Delegate to ``engine.read(question, k=5)``. The engine runs the
-        full retrieve-then-answer pipeline — see ``AgenticMemorySystem.read``
+        Delegate to ``engine.read(question, k=self.top_k)``. The engine runs
+        the full retrieve-then-answer pipeline — see ``AgenticMemorySystem.read``
         for the step-by-step.
 
         Returns the SystemAdapter contract:
@@ -842,7 +852,7 @@ class AMemAdapter(SystemAdapter):
               "retrieved_ids": list[str],
               "links_followed": list[(str, str)] }
         """
-        return self.engine.read(question, k=5)
+        return self.engine.read(question, k=self.top_k)
 
     def dump_state(
         self,
@@ -858,12 +868,18 @@ class AMemAdapter(SystemAdapter):
         1. Serialise MemoryNote → dict via ``to_dict``. The on-disk
            format is dict-shaped; render.py operates on those dicts
            directly so it doesn't need to import MemoryNote.
-        2. ``render.write_run(run.json)`` — frozen run artifact.
+        2. ``render.write_run(result/result.json)`` — frozen run artifact.
         3. ``self.render_from_run`` — replays render.py's mermaid +
-           interactive-HTML pipeline against the JSON we just wrote.
+           interactive-HTML pipeline, writing memory/ + result/ HTML.
         """
-        run_path = output_dir / "run.json"
-        meta = {**metadata, "system": self.name, "system_label": self.label}
+        run_path = output_dir / "result" / "result.json"
+        run_path.parent.mkdir(parents=True, exist_ok=True)
+        meta = {
+            **metadata,
+            "system": self.name,
+            "system_label": self.label,
+            "params": self.params,
+        }
         memories_dict = {
             mid: note.to_dict() for mid, note in self.engine.memories.items()
         }
@@ -873,9 +889,9 @@ class AMemAdapter(SystemAdapter):
     @classmethod
     def render_from_run(cls, run_path: Path, output_dir: Path) -> None:
         """
-        Re-emit mermaid + interactive HTML from a frozen ``run.json``.
-        No LLM, no ChromaDB; ``render.load_run`` returns dict-shaped
-        memories that ``render.render_all`` consumes directly.
+        Re-emit mermaid + interactive HTML from a frozen
+        ``result/result.json``. No LLM, no ChromaDB; ``render.load_run``
+        returns dict-shaped memories that ``render.render_all`` consumes.
         """
         run = render.load_run(run_path)
         render.render_all(run, output_dir)

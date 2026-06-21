@@ -1,15 +1,30 @@
 """
-Base interface for retrieval systems benchmarked in the comparison harness.
+Base interface for memory systems plugged into the experiment framework.
 
 Concrete adapters (A-Mem, HippoRAG, HippoRAG 2) live alongside this file.
-Each implements:
+Each system implements the two core operations from issue #4 — *memory
+construction* (``ingest``) and *memory retrieval* (``query``) — plus the
+artifact/visualisation hooks the runner needs.
 
-  - ``ingest(items)``  — index a list of ``{"id", "content", "timestamp"}``
-  - ``query(question)`` — return ``{"answer", "retrieved_ids", **traces}``
-  - ``dump_state(...)`` — write the run artifact + system-specific HTML
+Each adapter:
 
-The harness (``experiments/compare.py``) is system-agnostic; it just iterates
-``SYSTEMS`` from ``experiments/systems/__init__.py``.
+  - ``__init__(params)`` — accept a parameter set (tuning knobs). Unknown /
+    omitted keys fall back to the system's own defaults, which are pinned to
+    reproduce prior behaviour.
+  - ``ingest(items)``  — build memory from a list of ``{"id", "content",
+    "timestamp"}`` (the framework adapts ``Dataset.statements`` into this shape).
+  - ``query(question)`` — return ``{"answer", "retrieved_ids", **trace}``.
+  - ``dump_state(...)`` — freeze the run + render visualisations, split into
+    two sub-directories of ``output_dir``:
+        ``memory/index.html``          memory-structure visualisation
+        ``result/result.json``         frozen run artifact
+        ``result/index.html`` + ``traces/``   query-result visualisation
+  - ``render_from_run(...)`` — re-emit the HTML from a frozen
+    ``result/result.json`` without calling the LLM (used by ``just render``).
+
+The runner (``experiments/compare.py``) is system-agnostic; it iterates the
+``SYSTEMS`` registry from ``experiments/systems/__init__.py`` and scores each
+system's answers + retrieved IDs uniformly.
 """
 
 from __future__ import annotations
@@ -20,26 +35,33 @@ from typing import Any
 
 
 class SystemAdapter(ABC):
-    """One concrete subclass per retrieval system."""
+    """One concrete subclass per memory system."""
 
     #: Short identifier used in CLI flags and as a results subdirectory name.
     name: str = "system"
 
-    #: Human-readable label shown in result.html.
+    #: Human-readable label shown in comparison pages.
     label: str = "System"
+
+    def __init__(self, params: dict[str, Any] | None = None) -> None:
+        #: Tuning knobs for this run. Subclasses read keys with their own
+        #: defaults so an empty dict reproduces baseline behaviour.
+        self.params: dict[str, Any] = dict(params or {})
 
     @abstractmethod
     def ingest(self, items: list[dict[str, Any]]) -> None:
-        """Index the dataset memories. ``items`` is the dataset's ``memories`` list."""
+        """Build memory from ``items`` — each ``{"id", "content", "timestamp"}``."""
 
     @abstractmethod
     def query(self, question: str) -> dict[str, Any]:
         """
-        Answer one question. Return at minimum:
+        Answer one query. Return at minimum:
             ``answer``        : free-text answer from the system
-            ``retrieved_ids`` : IDs of items the system surfaced
+            ``retrieved_ids`` : IDs of statements the system surfaced
+                                (scored against the test-set's
+                                ``required_retrieval``)
 
-        Systems may include extra fields (links_followed, seed_entities,
+        Systems may include extra trace fields (links_followed, seed_entities,
         filtered_triples, …) which are persisted and used by the renderer.
         """
 
@@ -51,16 +73,17 @@ class SystemAdapter(ABC):
         metadata: dict[str, Any],
     ) -> None:
         """
-        Persist all state needed to reconstruct + render this system's run
-        to ``output_dir/run.json``. Also emit any system-specific HTML
-        under ``output_dir/html/``.
+        Persist + render this experiment under ``output_dir``:
+            ``result/result.json``  — frozen run (memory + per-query results)
+            ``result/index.html``   — query-result visualisation
+            ``memory/index.html``   — memory-structure visualisation
         """
 
     @classmethod
     @abstractmethod
     def render_from_run(cls, run_path: Path, output_dir: Path) -> None:
         """
-        Re-emit this system's HTML from an already-frozen ``run.json``.
-        Does NOT call the LLM — used by ``just render`` to iterate on
-        visualisations without re-running the evaluation.
+        Re-emit ``memory/`` + ``result/`` HTML from an already-frozen
+        ``result/result.json``. Does NOT call the LLM — used by
+        ``just render`` to iterate on visualisations.
         """

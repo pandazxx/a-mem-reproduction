@@ -49,12 +49,21 @@ Total: **22 questions** across **7 categories**.
 ## File structure
 
 ```
-comparison-dataset/
-├── README.md          ← you are here
-├── dataset.json       ← memories + questions in machine-readable form
-├── analysis.md        ← hypotheses, success criteria, how to interpret results
-└── eval_template.py   ← skeleton evaluation script for both systems
+experiments/
+├── datasets/comparison/
+│   ├── README.md          ← you are here
+│   ├── dataset.json       ← the 40 statements (memory to ingest)
+│   └── analysis.md        ← hypotheses, success criteria, how to interpret results
+└── testsets/comparison/
+    └── testset.json       ← the 22 queries (required_retrieval + expected answers)
 ```
+
+The evaluation harness itself lives in `experiments/compare.py` (run via
+`just compare`); it ingests the dataset, runs the test-set, scores answers
+and retrieval, and emits the comparison page.
+
+Statements use IDs `S00001…`; queries use IDs `Q00001…`. Each query's
+`required_retrieval` lists the statement IDs that should be surfaced.
 
 ---
 
@@ -62,28 +71,29 @@ comparison-dataset/
 
 ### With your HippoRAG reproduction
 
-1. Load `dataset.json` and extract the `memories` list.
-2. Feed each memory's `content` (with timestamp) to the HippoRAG indexing pipeline as if it were a passage.
-3. For each question in `dataset.json`, run the query and capture the retrieved passages + final answer.
-4. Compare against `expected_answer` and `requires_facts`.
+1. Load `dataset.json` and extract the `statements` list.
+2. Feed each statement (with timestamp) to the HippoRAG indexing pipeline as if it were a passage.
+3. For each query in `testsets/comparison/testset.json`, run the query and capture the retrieved passages + final answer.
+4. Compare against `expected_answer` and `required_retrieval`.
 
 ### With your A-Mem reproduction
 
 1. Same: load `dataset.json`.
-2. Feed each memory to A-Mem's note construction pipeline (the memories are already in chronological order, so memory evolution will trigger naturally).
-3. For each question, call A-Mem's retrieval and answer-generation pipeline.
+2. Feed each statement to A-Mem's note construction pipeline (the statements are already in chronological order, so memory evolution will trigger naturally).
+3. For each query in the test-set, call A-Mem's retrieval and answer-generation pipeline.
 4. Compare against `expected_answer`.
 
 ### Evaluation harness
 
-`eval_template.py` provides a skeleton with:
-- Loaders for both systems
-- A unified question-running interface
-- Score computation (exact match, F1, LLM-judge optional)
+`experiments/compare.py` is the system-agnostic harness (`just compare`):
+- Loads the dataset + test-set via `experiments/schema.py`
+- Builds memory through each system's `SystemAdapter`
+- Score computation (answer correctness + retrieval recall/precision vs `required_retrieval`)
 - Per-category breakdown
-- Tabular comparison output
+- Side-by-side comparison `index.html`
 
-You'll need to fill in the system-specific glue code (the imports and constructor calls for each system). The harness itself is system-agnostic.
+To add a new system, implement a `SystemAdapter` under `experiments/systems/`
+and register it in `experiments/systems/__init__.py`.
 
 ---
 

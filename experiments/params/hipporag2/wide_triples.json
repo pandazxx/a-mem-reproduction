@@ -1,0 +1,7 @@
+{
+  "sim_threshold": 0.75,
+  "top_k_triples": 20,
+  "passage_seed_weight": 0.05,
+  "top_k_passages": 5,
+  "alpha": 0.15
+}

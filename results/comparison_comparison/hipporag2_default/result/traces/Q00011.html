@@ -1,0 +1,22 @@
+<!doctype html><html><head><meta charset="utf-8">
+<title>HippoRAG v2 — Q00011</title>
+<style>
+body { font: 14px system-ui, sans-serif; max-width: 900px; margin: 2em auto; padding: 0 1em; }
+h1 { font-size: 1.3em; }
+table { border-collapse: collapse; width: 100%; margin-top: 1em; }
+th, td { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+th { background: #f9fafb; }
+code { background: #f3f4f6; padding: 1px 4px; border-radius: 3px; }
+.ok { color: #16a34a; } .bad { color: #dc2626; }
+</style></head><body>
+<h1>HippoRAG v2 — Q00011 (implicit_conceptual) ✗</h1>
+<p><b>Q:</b> What outdoor activities does Sam enjoy?</p>
+<p><b>Expected:</b> rock climbing (Yosemite, Joshua Tree, Berkeley Ironworks — though gym is indoor)</p>
+<p><b>Got:</b> Sam enjoys rock climbing.</p>
+<p><b>Retrieval:</b> recall 50%, precision 40% (required <code>S00008</code>, <code>S00021</code>, <code>S00038</code>, <code>S00040</code>; ★ = required)</p><p><b>Recognition memory kept:</b></p><ul><li><code>(Sam, has goal, discover new outdoor climbing destinations)</code></li><li><code>(Sam, has been doing, rock climbing)</code></li><li><code>(Sam, went climbing at, Berkeley Ironworks)</code></li><li><code>(Sam, climbed at, Yosemite)</code></li></ul>
+<h2>Top retrieved items</h2>
+<table><thead><tr><th>#</th><th>id</th><th>content</th></tr></thead><tbody>
+<tr><td>1</td><td><code>S00008</code> ★</td><td>Sam goes rock climbing at Berkeley Ironworks gym.</td></tr><tr><td>2</td><td><code>S00038</code> ★</td><td>Sam went climbing at Berkeley Ironworks this morning, first session in two weeks.</td></tr><tr><td>3</td><td><code>S00020</code></td><td>Sam's goal with the scraper is to discover new outdoor climbing destinations not on popular guidebooks.</td></tr><tr><td>4</td><td><code>S00022</code></td><td>Sam climbed with Alex at Yosemite. Alex is also a climber but at an easier grade.</td></tr><tr><td>5</td><td><code>S00034</code></td><td>Sam booked flights to Boston for May 13 through 17 to be there for Maria's birthday.</td></tr>
+</tbody></table>
+<p><a href="../index.html">← back to index</a></p>
+</body></html>
